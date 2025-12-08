@@ -1,0 +1,381 @@
+# Work in progress: Income Item schema using discriminator-based inheritance
+# IncomeItem is the polymorphic type for REST endpoints; concrete types inherit via allOf
+# Enums are not intended as final values, but examples at this point.
+
+IncomeItem:
+  type: object
+  description: A single income item. Use the 'type' field to determine the specific income type and available properties.
+  required:
+    - personId
+    - type
+    - amount
+    - frequency
+    - reportedOn
+    - source
+  discriminator:
+    propertyName: type
+    mapping:
+      employed: '#/IncomeItemEmployed'
+      self_employed: '#/IncomeItemSelfemployed'
+      loss_of_employment: '#/IncomeItemLossOfEmployment'
+      unearned: '#/IncomeItemUnearned'
+      lump_sum: '#/IncomeItemLumpSum'
+      american_indian_alaskan_native: '#/IncomeItemAmericanIndianAlaskan'
+      student: '#/IncomeItemStudent'
+  properties:
+    id:
+      type: string
+      format: uuid
+      description: Unique identifier for the income item.
+      readOnly: true
+    personId:
+      type: string
+      format: uuid
+      description: Foreign key reference to the person who has this income.
+    type:
+      type: string
+      description: The type of income this item represents. Used as discriminator.
+      enum:
+        - employed
+        - self_employed
+        - loss_of_employment
+        - unearned
+        - lump_sum
+        - american_indian_alaskan_native
+        - student
+    incomeBasis:
+      type: string
+      description: Whether the income is net or gross.
+      enum:
+        - net
+        - gross
+    amount:
+      type: number
+      format: float
+      description: The amount of income this item represents.
+    frequency:
+      type: string
+      description: The frequency with which the income is received.
+      enum:
+        - hourly
+        - daily
+        - weekly
+        - every_2_weeks
+        - twice_a_month
+        - monthly
+        - yearly
+    reportedOn:
+      type: string
+      format: date
+      description: The date the income was reported on.
+    source:
+      type: string
+      description: The source of the income item.
+      enum:
+        - client
+        - authorized_assister
+        - county_worker
+    isVerified:
+      type: boolean
+      description: Whether the income has been verified.
+    verifiedDate:
+      type: string
+      format: date
+      description: The date the income was verified.
+    verifiedBy:
+      type: string
+      format: uuid
+      description: The county worker who verified the income.
+    proofsOfIncome:
+      type: array
+      description: Supporting documentation or evidence for this income.
+      items:
+        type: object
+        required:
+          - type
+          - source
+          - value
+          - dateCreated
+        properties:
+          source:
+            type: string
+            description: The type of proof.
+            enum:
+              - document_upload
+              - equifax
+              - state_tax_system
+          type:
+            type: string
+            description: The source or type of proof (e.g., pay_stub, tax_return, equifax).
+          value:
+            type: string
+            description: The value, reference, or content of the proof (e.g., URL or extenral UUID).
+          dateCreated:
+            type: string
+            format: date
+            description: The date the proof of income was created.
+
+IncomeItemEmployed:
+  description: Income from employment.
+  allOf:
+    - $ref: '#/IncomeItem'
+    - type: object
+      properties:
+        employerName:
+          type: string
+          description: Employer name
+          maxLength: 200
+        employerPhoneNumber:
+          $ref: 'common.yaml#/PhoneNumber'
+        monthlyWages:
+          type: number
+          format: float
+          description: Monthly wages (after taxes)
+          minimum: 0
+        hourlyWage:
+          type: number
+          format: float
+          description: Hourly wage
+          minimum: 0
+        averageHoursPerWeek:
+          type: number
+          format: float
+          description: Average hours worked each week
+          minimum: 0
+          maximum: 168
+        payFrequency:
+          type: string
+          description: How often is this person paid?
+          enum:
+            - hourly
+            - daily
+            - weekly
+            - every_2_weeks
+            - twice_a_month
+            - monthly
+            - yearly
+        jobEndsWithinThreeMonths:
+          type: boolean
+          description: Is this job ongoing or will it end within 3 months?
+        incomeTypes:
+          type: array
+          description: Additional income characteristics
+          items:
+            type: string
+            enum:
+              - seasonal_employment
+              - commission_based_employment
+
+IncomeItemSelfemployed:
+  description: Income from self-employment.
+  allOf:
+    - $ref: '#/IncomeItem'
+    - type: object
+      properties:
+        businessName:
+          type: string
+          description: Business name (if applicable)
+          maxLength: 200
+        oneMonthsGrossIncome:
+          type: number
+          format: float
+          description: One month's gross income
+          minimum: 0
+        monthOfIncome:
+          type: string
+          description: Month of income
+          maxLength: 50
+        typeOfSelfEmployment:
+          type: array
+          description: Type of self-employment
+          items:
+            type: string
+            enum:
+              - sole_proprietor
+              - llc
+              - s_corp
+              - independent_contractor
+        utilitiesPaidForBusiness:
+          type: number
+          format: float
+          description: Utilities paid for business
+          minimum: 0
+        businessTaxesPaid:
+          type: number
+          format: float
+          description: Business taxes paid
+          minimum: 0
+        interestPaidForBusiness:
+          type: number
+          format: float
+          description: Interest paid for business
+          minimum: 0
+        grossBusinessLaborCosts:
+          type: number
+          format: float
+          description: Gross business labor costs
+          minimum: 0
+        costOfMerchandise:
+          type: number
+          format: float
+          description: Cost of merchandise
+          minimum: 0
+        otherBusinessCosts:
+          type: array
+          description: Other business costs
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                description: Type
+                maxLength: 100
+              amount:
+                type: number
+                format: float
+                description: Cost amount
+                minimum: 0
+        totalNetIncome:
+          type: number
+          format: float
+          description: Total Net Income (Subtract your expenses from your gross income)
+          minimum: 0
+
+IncomeItemLossOfEmployment:
+  description: Income information for someone who quit a job, lost a job, or reduced their work hours in the past 60 days.
+  allOf:
+    - $ref: '#/IncomeItem'
+    - type: object
+      properties:
+        employerName:
+          type: string
+          description: Employer name
+        employerPhoneNumber:
+          $ref: 'common.yaml#/PhoneNumber'
+        startDateOfJob:
+          type: string
+          format: date
+          description: Start date of job
+        endDateOfJob:
+          type: string
+          format: date
+          description: End date of job
+        monthlyWagesTips:
+          type: number
+          format: float
+          description: Monthly wages/tips (before taxes)
+          minimum: 0
+        dateOfLastPaycheck:
+          type: string
+          format: date
+          description: Date of last paycheck
+        amountOfLastPaycheck:
+          type: number
+          format: float
+          description: Amount of last paycheck
+          minimum: 0
+        payFrequency:
+          type: string
+          description: How often was this person paid?
+          enum:
+            - monthly
+            - yearly
+            - hourly
+            - weekly
+            - every_two_weeks
+            - twice_a_month
+
+IncomeItemUnearned:
+  description: Other types of unearned income.
+  allOf:
+    - $ref: '#/IncomeItem'
+    - type: object
+      properties:
+        typeOfMoneyIncome:
+          type: string
+          description: Type of Money/Income
+          maxLength: 200
+        monthlyAmount:
+          type: number
+          format: float
+          description: Monthly Amount
+          minimum: 0
+
+IncomeItemLumpSum:
+  description: Lump sum payment received or expected to be received.
+  allOf:
+    - $ref: '#/IncomeItem'
+    - type: object
+      properties:
+        dateReceived:
+          type: string
+          format: date
+          description: Date Received
+        typeOfLumpSum:
+          type: string
+          description: Type of Lump Sum
+          maxLength: 200
+        lumpSumAmount:
+          type: number
+          format: float
+          description: Lump sum amount
+          minimum: 0
+
+IncomeItemAmericanIndianAlaskan:
+  description: Income information for American Indian or Alaska Native individuals.
+  allOf:
+    - $ref: '#/IncomeItem'
+    - type: object
+      properties:
+        tribeName:
+          type: string
+          description: Tribe Name
+          maxLength: 200
+        tribeState:
+          type: string
+          description: Tribe State
+          maxLength: 2
+        typeOfIncomeReceived:
+          type: string
+          description: Type of Income Received
+          maxLength: 200
+        frequencyAndAmount:
+          type: string
+          description: Frequency and Amount
+          maxLength: 200
+
+IncomeItemStudent:
+  description: Income from financial aid (grants or scholarships), work-study income, or income through a GI Bill.
+  allOf:
+    - $ref: '#/IncomeItem'
+    - type: object
+      properties:
+        nameOfSchool:
+          type: string
+          description: Name of School
+          maxLength: 200
+        lastGradeCompleted:
+          type: string
+          description: Last Grade Completed
+          maxLength: 50
+        startDate:
+          type: string
+          format: date
+          description: Start date
+        expectedGraduationDate:
+          type: string
+          format: date
+          description: Expected Graduation Date
+        fullTimeStudent:
+          type: boolean
+          description: Full-time student?
+        amountUsedForLivingExpensesThisMonth:
+          type: number
+          format: float
+          description: What is the amount ($) of Grants, Scholarships, and/or Work Study used for living expenses this month?
+          minimum: 0
+        taxableAmountReceivedForYear:
+          type: number
+          format: float
+          description: What is the taxable amount ($) of Grants, Scholarships, and/or Work-Study this person received for the year?
+          minimum: 0
