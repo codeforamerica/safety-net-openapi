@@ -372,47 +372,9 @@ async function testApi(api, examples) {
     console.log(`\n  8. DELETE ${apiPath}/{id} - SKIPPED (no resource created)`);
   }
   
-  // Test 9: Search (if examples exist and have searchable fields)
-  if (examples.length > 0) {
-    try {
-      console.log(`\n  9. GET ${apiPath}?search=... (search)`);
-      
-      // Try to find a searchable string field
-      const exampleData = examples[0].data;
-      let searchValue = null;
-      
-      // Look for common searchable fields
-      if (exampleData.name?.firstName) {
-        searchValue = exampleData.name.firstName;
-      } else if (exampleData.email) {
-        searchValue = exampleData.email.split('@')[0];
-      } else if (typeof exampleData.name === 'string') {
-        searchValue = exampleData.name.split(' ')[0];
-      }
-      
-      if (searchValue) {
-        const response = await fetch(`${BASE_URL}${apiPath}?search=${searchValue}`);
-        const data = await response.json();
-        
-        if (response.ok && data.items) {
-          console.log(`     ✓ PASS: Search returns results`);
-          console.log(`       Query: "${searchValue}", Results: ${data.items.length}`);
-          passed++;
-        } else {
-          console.log('     ✗ FAIL: Search failed or invalid response');
-          failed++;
-        }
-      } else {
-        console.log(`     ⚠️  SKIP: No searchable fields found`);
-      }
-    } catch (error) {
-      console.log(`     ✗ FAIL: ${error.message}`);
-      failed++;
-    }
-  } else {
-    console.log(`\n  9. GET ${apiPath}?search=... - SKIPPED (no examples)`);
-  }
-  
+  // Note: Search functionality is now exclusively via GraphQL endpoint
+  // See graphql.test.js for GraphQL-based search tests
+
   return { passed, failed, total: passed + failed };
 }
 

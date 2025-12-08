@@ -217,13 +217,18 @@ npm run test:integration
 - ✅ Multiple APIs running simultaneously
 - ✅ Endpoints generated from specs
 
-**CRUD Operations:**
+**REST CRUD Operations:**
 - ✅ GET /resources - List all with pagination
-- ✅ GET /resources?search=query - Search filtering
 - ✅ GET /resources/{id} - Get single resource
 - ✅ POST /resources - Create new resource
 - ✅ PATCH /resources/{id} - Update resource
 - ✅ DELETE /resources/{id} - Delete resource
+
+**GraphQL Operations:**
+- ✅ List queries with search and pagination
+- ✅ Single item queries by ID
+- ✅ Cross-resource search
+- ✅ Schema introspection
 
 **Request Validation:**
 - ✅ Valid requests succeed
@@ -236,10 +241,8 @@ npm run test:integration
 - ✅ 422 for validation errors
 - ✅ Error responses have correct structure (code, message, details)
 
-**Query Parameters:**
+**Query Parameters (REST):**
 - ✅ Pagination (limit, offset)
-- ✅ Search across fields
-- ✅ Combined filters
 
 ### Example Integration Test
 
@@ -282,6 +285,73 @@ describe('Person lifecycle', () => {
     assert.strictEqual(response.status, 204);
   });
 });
+```
+
+---
+
+## GraphQL Testing
+
+The GraphQL endpoint at `http://localhost:1080/graphql` provides flexible querying and search capabilities.
+
+### Quick Start
+
+```bash
+# Start the mock server
+npm run mock:start
+
+# Test with curl
+curl -X POST http://localhost:1080/graphql \
+  -H "Content-Type: application/json" \
+  -d '{"query": "{ persons(limit: 5) { items { id email } total } }"}'
+```
+
+### Available Queries
+
+**Per-Resource Queries:**
+- `{resources}(search, limit, offset)` - List with search and pagination
+- `{resource}(id)` - Get single item by ID
+
+**Cross-Resource Search:**
+- `search(query, limit, offset)` - Search across all resources
+
+### Example Queries
+
+**List resources with pagination:**
+```bash
+curl -X POST http://localhost:1080/graphql \
+  -H "Content-Type: application/json" \
+  -d '{"query": "{ persons(limit: 10, offset: 0) { items { id email } total hasNext } }"}'
+```
+
+**Search within a resource:**
+```bash
+curl -X POST http://localhost:1080/graphql \
+  -H "Content-Type: application/json" \
+  -d '{"query": "{ persons(search: \"Springfield\") { items { id email } total } }"}'
+```
+
+**Get single item by ID:**
+```bash
+curl -X POST http://localhost:1080/graphql \
+  -H "Content-Type: application/json" \
+  -d '{"query": "{ person(id: \"4d1f13f0-3e26-4c50-b2fb-8d140f7ec1c2\") { id email } }"}'
+```
+
+**Cross-resource search:**
+```bash
+curl -X POST http://localhost:1080/graphql \
+  -H "Content-Type: application/json" \
+  -d '{"query": "{ search(query: \"Springfield\") { persons { id email } households { id } applications { id } totalCount } }"}'
+```
+
+### Schema Introspection
+
+GraphQL introspection is enabled. Use any GraphQL client or IDE to explore the schema:
+
+```bash
+curl -X POST http://localhost:1080/graphql \
+  -H "Content-Type: application/json" \
+  -d '{"query": "{ __schema { types { name } } }"}'
 ```
 
 ---
@@ -341,14 +411,6 @@ npm run mock:start
 5. Click **Execute**
 6. View created resource with new ID and timestamps
 
-**Example: Test Search**
-1. Navigate to `http://localhost:3000/persons`
-2. Expand `GET /persons`
-3. Click **Try it out**
-4. Set `search: Avery`
-5. Click **Execute**
-6. View filtered results
-
 ### Benefits
 
 ✅ **Visual:** See request/response in beautiful UI  
@@ -382,9 +444,11 @@ curl http://localhost:1080/persons
 curl http://localhost:1080/persons/4d1f13f0-3e26-4c50-b2fb-8d140f7ec1c2
 ```
 
-**Search persons:**
+**Search persons (via GraphQL):**
 ```bash
-curl "http://localhost:1080/persons?search=Avery&limit=10"
+curl -X POST http://localhost:1080/graphql \
+  -H "Content-Type: application/json" \
+  -d '{"query": "{ persons(search: \"Avery\", limit: 10) { items { id email } total } }"}'
 ```
 
 **Create person:**

@@ -27,32 +27,6 @@ paths:
       parameters:
       - "$ref": "./components/common-parameters.yaml#/LimitParam"
       - "$ref": "./components/common-parameters.yaml#/OffsetParam"
-      - name: status
-        in: query
-        description: Filter applications by status.
-        schema:
-          type: string
-          enum:
-          - draft
-          - submitted
-          - under_review
-          - approved
-          - denied
-          - pending_information
-          - withdrawn
-      - name: programs
-        in: query
-        description: Filter applications by program types. Can specify multiple programs (e.g., programs=snap&programs=cash_programs).
-        schema:
-          type: array
-          items:
-            type: string
-            enum:
-            - snap
-            - cash_programs
-            - medical_assistance
-        style: form
-        explode: true
       responses:
         '200':
           description: A paginated collection of applications.

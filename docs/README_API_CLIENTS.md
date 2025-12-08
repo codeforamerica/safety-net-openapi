@@ -104,8 +104,7 @@ const api = [
     alias: 'listPersons',
     parameters: [
       { name: 'limit', type: 'Query', schema: z.number().optional() },
-      { name: 'offset', type: 'Query', schema: z.number().optional() },
-      { name: 'search', type: 'Query', schema: z.string().optional() }
+      { name: 'offset', type: 'Query', schema: z.number().optional() }
     ],
     response: PersonListSchema
   },
@@ -132,10 +131,13 @@ export const personsClient = new Zodios('https://api.example.com', api);
 ```typescript
 import { personsClient } from './src/clients/persons';
 
-// List persons
+// List persons with pagination
 const persons = await personsClient.listPersons({
   queries: { limit: 10, offset: 0 }
 });
+
+// Note: Searching/filtering is done via GraphQL endpoint
+// See README_MOCK_SERVER.md for GraphQL search examples
 
 // Get a specific person
 const person = await personsClient.getPerson({

@@ -27,12 +27,6 @@ paths:
       parameters:
       - "$ref": "./components/common-parameters.yaml#/LimitParam"
       - "$ref": "./components/common-parameters.yaml#/OffsetParam"
-      - name: search
-        in: query
-        description: Filter by a partial match on first or last name.
-        schema:
-          type: string
-          minLength: 1
       responses:
         '200':
           description: A paginated collection of persons.

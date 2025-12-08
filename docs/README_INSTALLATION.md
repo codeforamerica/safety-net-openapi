@@ -40,7 +40,7 @@ Download from [nodejs.org](https://nodejs.org/)
 
 ```bash
 git clone <repository-url>
-cd model-app-openapi
+cd safety-net-openapi
 ```
 
 ### 3. Install Dependencies

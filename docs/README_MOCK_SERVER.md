@@ -12,6 +12,7 @@ Creates fully functional mock APIs that match your OpenAPI specifications, with 
 - ✅ Support for all HTTP methods
 - ✅ Query parameters, path parameters, and request bodies
 - ✅ Multiple scenarios (success, errors, edge cases)
+- ✅ GraphQL endpoint for flexible queries and cross-resource search
 
 **Example:**
 ```bash
@@ -32,6 +33,8 @@ curl http://localhost:1080/persons
 - **AJV** - JSON Schema validation
 - **js-yaml** - OpenAPI spec parsing
 - **@apidevtools/json-schema-ref-parser** - Reference resolution
+- **Apollo Server** - GraphQL server
+- **graphql** - GraphQL JavaScript implementation
 
 ## Quick Start
 
@@ -39,10 +42,17 @@ curl http://localhost:1080/persons
 # Start the mock server
 npm run mock:start
 
-# Server available at: http://localhost:1080
+# Server available at:
+# - REST API: http://localhost:1080
+# - GraphQL:  http://localhost:1080/graphql
 
-# Test it
+# Test REST
 curl http://localhost:1080/persons
+
+# Test GraphQL
+curl -X POST http://localhost:1080/graphql \
+  -H "Content-Type: application/json" \
+  -d '{"query": "{ persons { items { id email } total } }"}'
 ```
 
 ## Available Commands
@@ -215,6 +225,84 @@ curl "http://localhost:1080/persons?search=Rivera&limit=5"
 
 The search parameter automatically searches across all string fields in your resource.
 
+## GraphQL Endpoint
+
+The mock server includes a GraphQL endpoint that provides flexible querying capabilities across all resources.
+
+**Endpoint:** `http://localhost:1080/graphql`
+
+### Features
+
+- **Per-resource queries** - Query each resource with search, pagination, and field selection
+- **Cross-resource search** - Search across all resources with a single query
+- **Dynamic schema** - GraphQL types are automatically generated from OpenAPI specs
+- **Field selection** - Request only the fields you need
+- **Introspection** - Schema exploration enabled for development tools
+
+### Available Queries
+
+| Query | Description |
+|-------|-------------|
+| `persons(search, limit, offset)` | List/search persons |
+| `person(id)` | Get single person by ID |
+| `households(search, limit, offset)` | List/search households |
+| `household(id)` | Get single household by ID |
+| `applications(search, limit, offset)` | List/search applications |
+| `application(id)` | Get single application by ID |
+| `search(query, limit, offset)` | Search across all resources |
+
+### Example Queries
+
+**List resources with field selection:**
+```bash
+curl -X POST http://localhost:1080/graphql \
+  -H "Content-Type: application/json" \
+  -d '{"query": "{ persons(limit: 10) { items { id name { firstName lastName } email } total hasNext } }"}'
+```
+
+**Search with nested fields:**
+```bash
+curl -X POST http://localhost:1080/graphql \
+  -H "Content-Type: application/json" \
+  -d '{"query": "{ persons(search: \"Avery\") { items { id email address { city stateProvince } } total } }"}'
+```
+
+**Get single resource:**
+```bash
+curl -X POST http://localhost:1080/graphql \
+  -H "Content-Type: application/json" \
+  -d '{"query": "{ person(id: \"4d1f13f0-3e26-4c50-b2fb-8d140f7ec1c2\") { id name { firstName lastName } email citizenshipStatus } }"}'
+```
+
+**Cross-resource search:**
+```bash
+curl -X POST http://localhost:1080/graphql \
+  -H "Content-Type: application/json" \
+  -d '{"query": "{ search(query: \"Springfield\") { persons { id email } households { id } applications { id status } totalCount } }"}'
+```
+
+### Searchable Fields
+
+The `search` argument performs fuzzy matching across all string fields in the schema, including nested fields like `address.city` and `name.firstName`. This is derived dynamically from the OpenAPI specifications.
+
+### Response Format
+
+List queries return a connection type with pagination metadata:
+
+```json
+{
+  "data": {
+    "persons": {
+      "items": [...],
+      "total": 3,
+      "limit": 25,
+      "offset": 0,
+      "hasNext": false
+    }
+  }
+}
+```
+
 ## Adding New APIs
 
 The mock server **automatically discovers and generates endpoints** from OpenAPI specs. No manual coding required!
@@ -325,7 +413,12 @@ async function testLifecycle() {
 │   ├── database-manager.js     # SQLite operations
 │   ├── seeder.js               # Seeds data from examples
 │   ├── validator.js            # Request validation
-│   └── handlers/               # CRUD handlers
+│   ├── handlers/               # CRUD handlers
+│   └── graphql/                # GraphQL server
+│       ├── graphql-server.js   # Apollo Server setup
+│       ├── schema-generator.js # Generates schema from OpenAPI
+│       ├── resolver-factory.js # Query resolvers
+│       └── type-converters.js  # Type mapping utilities
 │
 ├── generated/mock-data/        # SQLite databases (gitignored)
 │   └── *.db                    # One database per API

@@ -62,6 +62,7 @@ npm start
 
 **Servers available at:**
 - Mock API: `http://localhost:1080`
+- GraphQL: `http://localhost:1080/graphql`
 - Swagger UI: `http://localhost:3000`
 
 Or start them individually:
@@ -91,7 +92,8 @@ Visit `http://localhost:3000` to browse all APIs with a beautiful interface and 
 
 Your development environment is now set up with:
 
-- ✅ **Mock Server** at `http://localhost:1080` - Full API backend
+- ✅ **Mock Server** at `http://localhost:1080` - Full REST API backend
+- ✅ **GraphQL Endpoint** at `http://localhost:1080/graphql` - Flexible queries and cross-resource search
 - ✅ **Swagger UI** at `http://localhost:3000` - Interactive docs
 - ✅ **TypeScript Clients** in `src/clients/` - Type-safe API access
 - ✅ **Postman Collection** in `generated/` - Automated testing
@@ -134,6 +136,11 @@ npm run test:all         # Run all tests (unit + integration)
 
 # Utilities
 npm run mock:reset       # Reset database
+
+# GraphQL (after starting mock server)
+curl -X POST http://localhost:1080/graphql \
+  -H "Content-Type: application/json" \
+  -d '{"query": "{ persons { items { id email } } }"}'
 ```
 
 ---

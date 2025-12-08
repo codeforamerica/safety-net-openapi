@@ -10,6 +10,7 @@ import { performSetup } from '../../src/mock-server/setup.js';
 import { registerAllRoutes } from '../../src/mock-server/route-generator.js';
 import { closeAll } from '../../src/mock-server/database-manager.js';
 import { validateJSON } from '../../src/mock-server/validator.js';
+import { createGraphQLMiddleware } from '../../src/mock-server/graphql/graphql-server.js';
 
 const HOST = process.env.MOCK_SERVER_HOST || 'localhost';
 const PORT = parseInt(process.env.MOCK_SERVER_PORT || '1080', 10);
@@ -52,7 +53,13 @@ async function startMockServer() {
     // Register API routes dynamically
     const baseUrl = `http://${HOST}:${PORT}`;
     const allEndpoints = registerAllRoutes(app, apiSpecs, baseUrl);
-    
+
+    // Register GraphQL endpoint
+    console.log('\nSetting up GraphQL endpoint...');
+    const graphqlMiddleware = await createGraphQLMiddleware(apiSpecs);
+    app.use('/graphql', graphqlMiddleware);
+    console.log('  GraphQL endpoint registered at /graphql');
+
     // 404 handler for undefined routes
     app.use((req, res) => {
       res.status(404).json({
@@ -77,6 +84,7 @@ async function startMockServer() {
       console.log('✓ Mock API Server Started Successfully!');
       console.log('='.repeat(70));
       console.log(`\n📡 Mock Server:    http://${HOST}:${PORT}`);
+      console.log(`🔮 GraphQL:        http://${HOST}:${PORT}/graphql`);
       console.log(`❤️  Health Check:   http://${HOST}:${PORT}/health`);
     });
     
