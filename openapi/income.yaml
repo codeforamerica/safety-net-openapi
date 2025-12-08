@@ -1,0 +1,307 @@
+openapi: 3.1.0
+info:
+  title: Income Service API
+  version: 1.0.0
+  description: |
+    REST API for managing income records. The specification defines CRUD operations
+    for creating, reading, updating, and deleting income items.
+    
+    Income items are polymorphic - the `type` field determines which specific income
+    type (employed, self_employed, unearned, etc.) and its associated properties.
+  contact:
+    name: API Support
+    email: support@example.com
+servers:
+- url: https://api.example.com
+  description: Production server
+- url: http://localhost:8080
+  description: Local development server
+tags:
+- name: Income
+  description: Manage income records.
+paths:
+  "/income-items":
+    get:
+      summary: List income items
+      description: Retrieve a paginated list of income items, optionally filtered by person.
+      operationId: listIncomeItems
+      tags:
+      - Income
+      parameters:
+      - "$ref": "#/components/parameters/LimitParam"
+      - "$ref": "#/components/parameters/OffsetParam"
+      - "$ref": "#/components/parameters/PersonIdFilterParam"
+      - name: type
+        in: query
+        description: Filter by income type.
+        schema:
+          type: string
+          enum:
+            - employed
+            - self_employed
+            - loss_of_employment
+            - unearned
+            - lump_sum
+            - american_indian_alaskan_native
+            - student
+      - name: isVerified
+        in: query
+        description: Filter by verification status.
+        schema:
+          type: boolean
+      responses:
+        '200':
+          description: A paginated collection of income items.
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/IncomeItemList"
+        '400':
+          "$ref": "#/components/responses/BadRequest"
+        '500':
+          "$ref": "#/components/responses/InternalError"
+    post:
+      summary: Create an income item
+      description: |
+        Create a new income item record. The `type` field determines which income
+        type is being created and which additional properties are valid.
+      operationId: createIncomeItem
+      tags:
+      - Income
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/IncomeItemCreate"
+      responses:
+        '201':
+          description: Income item created successfully.
+          headers:
+            Location:
+              description: URL of the newly created income item resource.
+              schema:
+                type: string
+                format: uri
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/IncomeItem"
+        '400':
+          "$ref": "#/components/responses/BadRequest"
+        '409':
+          "$ref": "#/components/responses/Conflict"
+        '422':
+          "$ref": "#/components/responses/UnprocessableEntity"
+        '500':
+          "$ref": "#/components/responses/InternalError"
+  "/income-items/{incomeItemId}":
+    parameters:
+    - name: incomeItemId
+      in: path
+      required: true
+      description: Unique identifier of the income item.
+      schema:
+        type: string
+        format: uuid
+      example: 1a2b3c4d-5e6f-7890-abcd-111111111111
+    get:
+      summary: Get an income item
+      description: Retrieve a single income item by identifier.
+      operationId: getIncomeItem
+      tags:
+      - Income
+      responses:
+        '200':
+          description: Income item retrieved successfully.
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/IncomeItem"
+        '404':
+          "$ref": "#/components/responses/NotFound"
+        '500':
+          "$ref": "#/components/responses/InternalError"
+    patch:
+      summary: Update an income item
+      description: |
+        Apply partial updates to an existing income item. The `type` field cannot
+        be changed after creation.
+      operationId: updateIncomeItem
+      tags:
+      - Income
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/IncomeItemUpdate"
+      responses:
+        '200':
+          description: Income item updated successfully.
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/IncomeItem"
+        '400':
+          "$ref": "#/components/responses/BadRequest"
+        '404':
+          "$ref": "#/components/responses/NotFound"
+        '409':
+          "$ref": "#/components/responses/Conflict"
+        '422':
+          "$ref": "#/components/responses/UnprocessableEntity"
+        '500':
+          "$ref": "#/components/responses/InternalError"
+    delete:
+      summary: Delete an income item
+      description: Permanently remove an income item record.
+      operationId: deleteIncomeItem
+      tags:
+      - Income
+      responses:
+        '204':
+          description: Income item deleted successfully.
+        '404':
+          "$ref": "#/components/responses/NotFound"
+        '500':
+          "$ref": "#/components/responses/InternalError"
+components:
+  parameters:
+    IncomeItemIdParam:
+      name: incomeItemId
+      in: path
+      required: true
+      description: Unique identifier of the income item.
+      schema:
+        type: string
+        format: uuid
+      example: 1a2b3c4d-5e6f-7890-abcd-111111111111
+    PersonIdFilterParam:
+      name: personId
+      in: query
+      description: Filter income items by the person they belong to.
+      schema:
+        type: string
+        format: uuid
+      example: 4d1f13f0-3e26-4c50-b2fb-8d140f7ec1c2
+    LimitParam:
+      name: limit
+      in: query
+      description: Maximum number of items to return (1-100).
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 25
+    OffsetParam:
+      name: offset
+      in: query
+      description: Number of items to skip before collecting results.
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+  schemas:
+    IncomeItem:
+      "$ref": "./components/income_item.yaml#/IncomeItem"
+    IncomeItemCreate:
+      allOf:
+      - "$ref": "./components/income_item.yaml#/IncomeItem"
+      - type: object
+        description: |
+          Payload to create a new income item record. The `type` field is required
+          and determines which additional properties are valid.
+          
+          Note: id is server-generated (readOnly) and will be returned in the response.
+    IncomeItemUpdate:
+      allOf:
+      - "$ref": "./components/income_item.yaml#/IncomeItem"
+      - type: object
+        description: |
+          Payload to update one or more mutable fields of an existing income item.
+          Partial updates are supported.
+          
+          Note: id is server-generated (readOnly) and cannot be updated.
+          The `type` field cannot be changed after creation.
+        minProperties: 1
+    IncomeItemList:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      - total
+      - limit
+      - offset
+      properties:
+        items:
+          type: array
+          items:
+            "$ref": "#/components/schemas/IncomeItem"
+        total:
+          type: integer
+          minimum: 0
+          description: Total number of income items available.
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 100
+          description: Maximum number of income items requested.
+        offset:
+          type: integer
+          minimum: 0
+          description: Number of items skipped before the current page.
+        hasNext:
+          type: boolean
+          description: Indicates whether more income items are available beyond the current page.
+    Error:
+      type: object
+      additionalProperties: false
+      required:
+      - code
+      - message
+      properties:
+        code:
+          type: string
+          description: Machine-readable error code.
+        message:
+          type: string
+          description: Human-readable error description.
+        details:
+          type: array
+          description: Additional error details.
+          items:
+            type: object
+            additionalProperties: true
+  responses:
+    BadRequest:
+      description: The request is malformed or contains invalid parameters.
+      content:
+        application/json:
+          schema:
+            "$ref": "#/components/schemas/Error"
+    NotFound:
+      description: The requested resource was not found.
+      content:
+        application/json:
+          schema:
+            "$ref": "#/components/schemas/Error"
+    Conflict:
+      description: A conflict occurred with the current state of the resource.
+      content:
+        application/json:
+          schema:
+            "$ref": "#/components/schemas/Error"
+    UnprocessableEntity:
+      description: The request was well-formed but contained semantic errors.
+      content:
+        application/json:
+          schema:
+            "$ref": "#/components/schemas/Error"
+    InternalError:
+      description: An unexpected error occurred on the server.
+      content:
+        application/json:
+          schema:
+            "$ref": "#/components/schemas/Error"
+
