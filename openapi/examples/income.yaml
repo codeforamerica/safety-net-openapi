@@ -1,4 +1,13 @@
 # Income item examples showcasing different income types
+#
+# Supported income types:
+# - employed: Income from employment (EmployedEarnedIncomeItem)
+# - self_employed: Income from self-employment (SelfEmployedEarnedIncomeItem)
+# - unearned: Income from unearned sources (UnearnedIncomeItem with subtypes)
+#
+# For unearned income, use the typeOfUnearnedIncome field to specify the subtype:
+# - unemployment, kinship_payment, veterans_programs, ssi_or_ssdi, etc.
+
 IncomeExample1:
   id: 1a2b3c4d-5e6f-7890-abcd-111111111111
   personId: 4d1f13f0-3e26-4c50-b2fb-8d140f7ec1c2
@@ -8,25 +17,19 @@ IncomeExample1:
   frequency: monthly
   reportedOn: '2024-06-01'
   source: client
+  startDate: '2022-03-15'
   isVerified: true
   verifiedDate: '2024-06-05'
   verifiedBy: 9f8e7d6c-5b4a-3210-fedc-ba9876543210
-  proofsOfIncome:
-  - source: document_upload
-    type: pay_stub
-    value: https://storage.example.com/docs/pay-stub-avery-johnson-may-2024.pdf
-    dateCreated: '2024-06-01'
-  - source: equifax
-    type: employment_verification
-    value: eq-verify-ref-123456
-    dateCreated: '2024-06-05'
-  employerName: Acme Logistics
-  employerPhoneNumber: "+1-555-100-2000"
-  monthlyWages: 6200
-  hourlyWage: 35.71
+  verificationSourceIds:
+  - 1a2b3c4d-5e6f-7890-abcd-verification001
+  - 1a2b3c4d-5e6f-7890-abcd-verification002
+  employerId: 1a2b3c4d-5e6f-7890-abcd-employer001
   averageHoursPerWeek: 40
-  payFrequency: every_2_weeks
-  jobEndsWithinThreeMonths: false
+  temporary: false
+  seasonal: false
+  tipsOrCommission: false
+  didStrike: false
 
 IncomeExample2:
   id: 2b3c4d5e-6f7a-8b9c-0d1e-222222222222
@@ -37,15 +40,12 @@ IncomeExample2:
   frequency: monthly
   reportedOn: '2024-08-15'
   source: client
+  startDate: '2023-01-01'
   isVerified: false
-  proofsOfIncome:
-  - source: document_upload
-    type: bank_statement
-    value: https://storage.example.com/docs/bank-statement-bianca-rivera-aug-2024.pdf
-    dateCreated: '2024-08-15'
-  businessName: Rivera Consulting
+  verificationSourceIds:
+  - 2b3c4d5e-6f7a-8b9c-0d1e-verification001
+  employerId: 2b3c4d5e-6f7a-8b9c-0d1e-employer001
   oneMonthsGrossIncome: 4200
-  monthOfIncome: August
   typeOfSelfEmployment:
   - sole_proprietor
   utilitiesPaidForBusiness: 80
@@ -69,125 +69,92 @@ IncomeExample3:
   frequency: monthly
   reportedOn: '2024-07-11'
   source: client
+  startDate: '2021-06-01'
+  endDate: '2024-12-31'
   isVerified: true
   verifiedDate: '2024-07-15'
   verifiedBy: 9f8e7d6c-5b4a-3210-fedc-ba9876543210
-  proofsOfIncome:
-  - source: document_upload
-    type: pay_stub
-    value: https://storage.example.com/docs/pay-stub-jordan-fields-jul-2024.pdf
-    dateCreated: '2024-07-11'
-  employerName: Gotham Health
-  employerPhoneNumber: "+1-555-111-2222"
-  monthlyWages: 5800
-  hourlyWage: 35.00
+  verificationSourceIds:
+  - 3c4d5e6f-7a8b-9c0d-1e2f-verification001
+  employerId: 3c4d5e6f-7a8b-9c0d-1e2f-employer001
   averageHoursPerWeek: 40
-  payFrequency: every_2_weeks
-  jobEndsWithinThreeMonths: false
+  temporary: true
+  seasonal: false
+  tipsOrCommission: false
+  didStrike: false
 
 IncomeExample4:
   id: 4d5e6f7a-8b9c-0d1e-2f3a-444444444444
   personId: 3c4d5e6f-7a8b-9c0d-1e2f-3a4b5c6d7e8f
   type: unearned
+  typeOfUnearnedIncome: ssi_or_ssdi
   incomeBasis: net
   amount: 1500
   frequency: monthly
   reportedOn: '2024-05-20'
   source: county_worker
+  startDate: '2024-01-01'
   isVerified: true
   verifiedDate: '2024-05-22'
   verifiedBy: 9f8e7d6c-5b4a-3210-fedc-ba9876543210
-  proofsOfIncome:
-  - source: state_tax_system
-    type: disability_benefits
-    value: state-verify-ssdi-789012
-    dateCreated: '2024-05-22'
-  typeOfMoneyIncome: Social Security Disability Insurance (SSDI)
-  monthlyAmount: 1500
+  verificationSourceIds:
+  - 1a2b3c4d-5e6f-7890-abcd-verification001
+  claimNumber: 'SSA-123456789'
+  ssiApplicationDate: '2023-12-15'
+  ssiApplicationStatus: approved
+  ssiOrSsdiType: tbd
 
 IncomeExample5:
   id: 5e6f7a8b-9c0d-1e2f-3a4b-555555555555
   personId: 7e8f9a0b-1c2d-3e4f-5a6b-7c8d9e0f1a2b
-  type: student
+  type: unearned
+  typeOfUnearnedIncome: unemployment
   incomeBasis: net
-  amount: 350
+  amount: 2400
   frequency: monthly
-  reportedOn: '2024-09-01'
+  reportedOn: '2024-03-10'
   source: client
-  isVerified: false
-  nameOfSchool: Springfield Community College
-  lastGradeCompleted: 13 (some college)
-  startDate: '2024-08-25'
-  expectedGraduationDate: '2026-05-15'
-  fullTimeStudent: true
-  amountUsedForLivingExpensesThisMonth: 350
-  taxableAmountReceivedForYear: 4200
+  startDate: '2024-03-01'
+  isVerified: true
+  verifiedDate: '2024-03-12'
+  verifiedBy: 9f8e7d6c-5b4a-3210-fedc-ba9876543210
+  verificationSourceIds:
+  - 2b3c4d5e-6f7a-8b9c-0d1e-verification002
+  unemploymentType: unemployment_insurance_benefit
+  expectsIncomeToEndSoon: true
 
 IncomeExample6:
   id: 6f7a8b9c-0d1e-2f3a-4b5c-666666666666
   personId: 2b3c4d5e-6f7a-8b9c-0d1e-2f3a4b5c6d7e
-  type: loss_of_employment
-  incomeBasis: gross
-  amount: 0
+  type: unearned
+  typeOfUnearnedIncome: veterans_programs
+  incomeBasis: net
+  amount: 3200
   frequency: monthly
-  reportedOn: '2024-06-10'
-  source: client
+  reportedOn: '2024-06-15'
+  source: county_worker
+  startDate: '2022-01-01'
   isVerified: true
-  verifiedDate: '2024-06-12'
+  verifiedDate: '2024-06-17'
   verifiedBy: 9f8e7d6c-5b4a-3210-fedc-ba9876543210
-  proofsOfIncome:
-  - source: document_upload
-    type: termination_letter
-    value: https://storage.example.com/docs/termination-letter-jun-2024.pdf
-    dateCreated: '2024-06-10'
-  employerName: Springfield Manufacturing
-  employerPhoneNumber: "+1-555-200-3000"
-  startDateOfJob: '2022-03-15'
-  endDateOfJob: '2024-06-01'
-  monthlyWagesTips: 4800
-  dateOfLastPaycheck: '2024-06-01'
-  amountOfLastPaycheck: 2400
-  payFrequency: every_two_weeks
+  verificationSourceIds:
+  - 3c4d5e6f-7a8b-9c0d-1e2f-verification003
+  veteransIncomeType: veterans_100_percent_disability
+  veteransProgramsType: tbd
 
 IncomeExample7:
   id: 7a8b9c0d-1e2f-3a4b-5c6d-777777777777
   personId: 4d1f13f0-3e26-4c50-b2fb-8d140f7ec1c2
-  type: lump_sum
+  type: unearned
+  typeOfUnearnedIncome: scholarship
   incomeBasis: net
-  amount: 15000
-  frequency: yearly
-  reportedOn: '2024-04-15'
-  source: client
-  isVerified: true
-  verifiedDate: '2024-04-18'
-  verifiedBy: 9f8e7d6c-5b4a-3210-fedc-ba9876543210
-  proofsOfIncome:
-  - source: document_upload
-    type: tax_refund
-    value: https://storage.example.com/docs/tax-refund-2023.pdf
-    dateCreated: '2024-04-15'
-  dateReceived: '2024-04-15'
-  typeOfLumpSum: Federal tax refund
-  lumpSumAmount: 15000
-
-IncomeExample8:
-  id: 8b9c0d1e-2f3a-4b5c-6d7e-888888888888
-  personId: d2c8f19e-7e03-4fd2-8d56-6d8c7f7b5e2a
-  type: employed
-  incomeBasis: gross
-  amount: 2400
+  amount: 800
   frequency: monthly
-  reportedOn: '2024-03-10'
-  source: authorized_assister
-  isVerified: true
-  verifiedDate: '2024-03-12'
-  verifiedBy: 9f8e7d6c-5b4a-3210-fedc-ba9876543210
-  employerName: Sunshine Café
-  employerPhoneNumber: "+1-555-300-4000"
-  monthlyWages: 2400
-  hourlyWage: 15.00
-  averageHoursPerWeek: 37.5
-  payFrequency: weekly
-  jobEndsWithinThreeMonths: true
-  incomeTypes:
-  - seasonal_employment
+  reportedOn: '2024-08-20'
+  source: client
+  startDate: '2024-08-15'
+  isVerified: false
+  educationId: 8b9c0d1e-2f3a-4b5c-6d7e-education001
+  scholarshipType: tbd
+  highschoolGraduationStatus: graduated
+  isForEducationExpensesOnly: true

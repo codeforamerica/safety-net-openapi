@@ -39,11 +39,7 @@ paths:
           enum:
             - employed
             - self_employed
-            - loss_of_employment
             - unearned
-            - lump_sum
-            - american_indian_alaskan_native
-            - student
       - name: isVerified
         in: query
         description: Filter by verification status.

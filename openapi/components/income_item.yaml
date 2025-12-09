@@ -1,6 +1,5 @@
 # Work in progress: Income Item schema using discriminator-based inheritance
 # IncomeItem is the polymorphic type for REST endpoints; concrete types inherit via allOf
-# Enums are not intended as final values, but examples at this point.
 
 VerificationSource:
   description: A source of verification, which may be an external API or document.
@@ -78,9 +77,13 @@ IncomeItem:
         - authorized_assister
         - county_worker
     startDate:
-      pass
+      type: string
+      format: date
+      description: When did the applicant first receive this income?
     endDate:
-      pass
+      type: string
+      format: date
+      description: Does applicant expect this income to end soon or has it already ended?
     isVerified:
       type: boolean
       description: Whether the income has been verified.
@@ -94,11 +97,10 @@ IncomeItem:
       description: The county worker who verified the income.
     verificationSourceIds:
       type: array
-      description: "Array of verification sources related to this income."
+      description: Array of verification sources related to this income.
       items:
         type: string
         format: uuid
-
 
 EmployedEarnedIncomeItem:
   description: Income from employment.
@@ -121,12 +123,18 @@ EmployedEarnedIncomeItem:
           description: Average hours worked each week
           minimum: 0
           maximum: 168
-        seasonalOrTemporary:
-          pass
+        temporary:
+          type: boolean
+          description: Is the job considered temporary, lasting less than three months?
+        seasonal:
+          type: boolean
+          description: Is the job considered seasonal?
         tipsOrCommission:
-          pass
+          type: boolean
+          description: Is the job tip or commission-based?
         didStrike:
-          pass
+          type: boolean
+          description: Did the applicant go on strike during this employment?
 
 SelfEmployedEarnedIncomeItem:
   description: Income from self-employment.
@@ -202,7 +210,6 @@ SelfEmployedEarnedIncomeItem:
           description: Total Net Income (Subtract your expenses from your gross income)
           minimum: 0
 
-
 UnearnedIncomeItem:
   description: Income from an unearned source. Use the 'typeOfUnearnedIncome' field to determine the specific unearned income type.
   required:
@@ -269,59 +276,50 @@ UnearnedIncomeItem:
             - payment_for_participating_in_research
             - other_money_not_reported
 
-UnemploymentIncomeItem:
-  description: Income from unemployment benefits.
-  required:
-    - unemploymentType
+# Base unearned income items for inheritance.
+
+VeteransIncomeItemBase:
+  description: Base type for veterans-related income. Contains common fields for all veterans income types.
+  required: veteransIncomeType
   allOf:
     - $ref: '#/UnearnedIncomeItem'
     - type: object
       properties:
-        unemploymentType:
+        veteransIncomeType:
           type: str
+          description: Type of veterans income
           enum:
-            - tbd
+            - veterans_100_percent_disability
+            - veterans_90_percent_old_pensions
+            - veterans_aid_and_attendance
+            - veterans_compensation
+            - veterans_new_improved_pensions
+            - veterans_partial_disability
 
-KinshipPaymentIncomeItem:
-  description: Income from kinship payments.
+EducationIncomeItemBase:
+  description: Base type for education-related income. Contains common fields for all education income types.
   required:
-    - kinshipPaymentType
+    - educationId
   allOf:
     - $ref: '#/UnearnedIncomeItem'
     - type: object
       properties:
-        kinshipPaymentType:
+        educationId:
           type: str
-          enum:
-            - tbd
-
-VeteransProgramsIncomeItem:
-  description: Income from veterans programs.
-  required:
-    - veteransProgramsType
-  allOf:
-    - $ref: '#/UnearnedIncomeItem'
-    - type: object
-      properties:
-        veteransProgramsType:
+          format: uuid
+          description: The related education information.
+        highschoolGraduationStatus:
           type: str
+          description: Did the applicant graduate from high school?
           enum:
-            - tbd
+            - ged_or_highschool_equivalency
+            - graduated
+            - has_not_graduated
+        isForEducationExpensesOnly:
+          type: boolean
+          description: Is this money for education expenses only.
 
-AdoptionAndRefugeeServicesIncomeItem:
-  description: Income from adoption and refugee services.
-  required:
-    - adoptionAndRefugeeServicesType
-  allOf:
-    - $ref: '#/UnearnedIncomeItem'
-    - type: object
-      properties:
-        adoptionAndRefugeeServicesType:
-          type: str
-          enum:
-            - tbd
-
-SocialSecurityIncomeItem:
+SocialSecurityIncomeItemBase:
   description: Base type for Social Security-related income. Contains common fields for all Social Security income types.
   allOf:
     - $ref: '#/UnearnedIncomeItem'
@@ -343,19 +341,69 @@ SocialSecurityIncomeItem:
             - denied
             - appealed
 
+# Concrete unearned income.
+
+UnemploymentIncomeItem:
+  description: Income from unemployment benefits.
+  required:
+    - unemploymentType
+  allOf:
+    - $ref: '#/UnearnedIncomeItem'
+    - type: object
+      properties:
+        unemploymentType:
+          type: str
+          enum:
+            - tbd
+        expectsIncomeToEndSoon:
+          type: boolean
+          description: Does applicant expect this income to end soon or has it already ended?
+
+KinshipPaymentIncomeItem:
+  description: Income from kinship payments.
+  required:
+    - kinshipPaymentType
+  allOf:
+    - $ref: '#/UnearnedIncomeItem'
+    - type: object
+      properties:
+        kinshipPaymentType:
+          type: str
+          enum:
+            - tbd
+
+VeteransProgramsIncomeItem:
+  description: Income from veterans programs.
+  allOf:
+    - $ref: '#/VeteransIncomeItemBase'
+    - type: object
+
+AdoptionAndRefugeeServicesIncomeItem:
+  description: Income from adoption and refugee services.
+  required:
+    - adoptionAndRefugeeServicesType
+  allOf:
+    - $ref: '#/UnearnedIncomeItem'
+    - type: object
+      properties:
+        adoptionAndRefugeeServicesType:
+          type: str
+          enum:
+            - tbd
+
 SsiOrSsdiIncomeItem:
   description: Income from SSI or SSDI.
   required:
     - ssiOrSsdiType
   allOf:
-    - $ref: '#/SocialSecurityIncomeItem'
+    - $ref: '#/SocialSecurityIncomeItemBase'
     - type: object
       properties:
+        # @todo this could possibly move to SocialSecurityIncomeItemBase.
         ssiOrSsdiType:
           type: str
           enum:
             - tbd
-
 
 PrivateDisabilityIncomeItem:
   description: Income from private disability insurance.
@@ -385,16 +433,9 @@ WorkersCompensationIncomeItem:
 
 DisabilityFromVeteransProgramsIncomeItem:
   description: Income from disability benefits through veterans programs.
-  required:
-    - disabilityFromVeteransProgramsType
   allOf:
-    - $ref: '#/UnearnedIncomeItem'
+    - $ref: '#/VeteransIncomeItemBase'
     - type: object
-      properties:
-        disabilityFromVeteransProgramsType:
-          type: str
-          enum:
-            - tbd
 
 LegalFormOrSettlementIncomeItem:
   description: Income from legal forms or settlements.
@@ -409,35 +450,12 @@ LegalFormOrSettlementIncomeItem:
           enum:
             - tbd
 
-EducationIncomeItem:
-  description: Base type for education-related income. Contains common fields for all education income types.
-  required:
-    - educationId
-  allOf:
-    - $ref: '#/UnearnedIncomeItem'
-    - type: object
-      properties:
-        educationId:
-          type: str
-          format: uuid
-          description: The related education information.
-        highschoolGraduationStatus:
-          type: str
-          description: Did the applicant graduate from high school?
-          enum:
-            - ged_or_highschool_equivalency
-            - graduated
-            - has_not_graduated
-        isForEducationExpensesOnly:
-          type: boolean
-          description: Is this money for education expenses only.
-
 ScholarshipIncomeItem:
   description: Income from scholarships.
   required:
     - scholarshipType
   allOf:
-    - $ref: '#/EducationIncomeItem'
+    - $ref: '#/EducationIncomeItemBase'
     - type: object
       properties:
         scholarshipType:
@@ -450,7 +468,7 @@ EducationalGrantIncomeItem:
   required:
     - educationalGrantType
   allOf:
-    - $ref: '#/EducationIncomeItem'
+    - $ref: '#/EducationIncomeItemBase'
     - type: object
       properties:
         educationalGrantType:
@@ -464,7 +482,7 @@ WorkStudyIncomeItem:
   required:
     - workStudyType
   allOf:
-    - $ref: '#/EducationIncomeItem'
+    - $ref: '#/EducationIncomeItemBase'
     - type: object
       properties:
         workStudyType:
@@ -479,11 +497,6 @@ SpousalSupportIncomeItem:
   allOf:
     - $ref: '#/UnearnedIncomeItem'
     - type: object
-      properties:
-        spousalSupportType:
-          type: str
-          enum:
-            - tbd
 
 ChildSupportIncomeItem:
   description: Income from child support.
@@ -492,11 +505,6 @@ ChildSupportIncomeItem:
   allOf:
     - $ref: '#/UnearnedIncomeItem'
     - type: object
-      properties:
-        childSupportType:
-          type: str
-          enum:
-            - tbd
 
 RetirementOrPensionPlanIncomeItem:
   description: Income from retirement or pension plans.
@@ -529,13 +537,16 @@ SocialSecurityRetirementIncomeItem:
   required:
     - socialSecurityRetirementType
   allOf:
-    - $ref: '#/SocialSecurityIncomeItem'
+    - $ref: '#/SocialSecurityIncomeItemBase'
     - type: object
       properties:
+        # @todo this could possibly move to SocialSecurityIncomeItemBase.
         socialSecurityRetirementType:
           type: str
           enum:
             - tbd
+
+# @todo actively refine these three.
 
 RentingHomeIncomeItem:
   description: Income from renting a home.
@@ -651,5 +662,3 @@ OtherMoneyNotReportedIncomeItem:
           type: str
           enum:
             - tbd
-
-
