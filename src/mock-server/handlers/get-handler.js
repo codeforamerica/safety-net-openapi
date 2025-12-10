@@ -13,14 +13,19 @@ import { findById } from '../database-manager.js';
 export function createGetHandler(apiMetadata, endpoint) {
   return (req, res) => {
     try {
-      const resourceId = req.params[`${apiMetadata.name.slice(0, -1)}Id`] || req.params.id;
+      const paramMatch = endpoint.path.match(/\{(\w+)\}/);
+      const paramName = paramMatch ? paramMatch[1] : 'id';
+      const resourceId = req.params[paramName];
       
       const resource = findById(apiMetadata.name, resourceId);
       
       if (!resource) {
+        const singularName = apiMetadata.name.endsWith('s')
+          ? apiMetadata.name.slice(0, -1)
+          : apiMetadata.name;
         return res.status(404).json({
           code: 'NOT_FOUND',
-          message: `${capitalize(apiMetadata.name.slice(0, -1))} not found`
+          message: `${capitalize(singularName)} not found`
         });
       }
       
