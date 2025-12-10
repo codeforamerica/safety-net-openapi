@@ -200,10 +200,10 @@ components:
         default: 0
   schemas:
     IncomeItem:
-      "$ref": "./components/income_item.yaml#/IncomeItem"
+      "$ref": "./components/income_item.yaml#/IncomeItemBase"
     IncomeItemCreate:
       allOf:
-      - "$ref": "./components/income_item.yaml#/IncomeItem"
+      - "$ref": "./components/income_item.yaml#/IncomeItemBase"
       - type: object
         description: |
           Payload to create a new income item record. The `type` field is required
@@ -212,7 +212,7 @@ components:
           Note: id is server-generated (readOnly) and will be returned in the response.
     IncomeItemUpdate:
       allOf:
-      - "$ref": "./components/income_item.yaml#/IncomeItem"
+      - "$ref": "./components/income_item.yaml#/IncomeItemBase"
       - type: object
         description: |
           Payload to update one or more mutable fields of an existing income item.

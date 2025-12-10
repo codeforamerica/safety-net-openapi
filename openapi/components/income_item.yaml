@@ -1,5 +1,5 @@
 # Work in progress: Income Item schema using discriminator-based inheritance
-# IncomeItem is the polymorphic type for REST endpoints; concrete types inherit via allOf
+# IncomeItemBase is the polymorphic base type; concrete types inherit via allOf
 
 VerificationSource:
   description: A source of verification, which may be an external API or document.
@@ -10,9 +10,9 @@ VerificationSource:
       description: Unique identifier for the verification source.
       readOnly: true
 
-IncomeItem:
+IncomeItemBase:
   type: object
-  description: A single income item. Use the 'type' field to determine the specific income type and available properties.
+  description: Base type for all income items. Use the 'type' field to determine the specific income type and available properties.
   required:
     - personId
     - type
@@ -110,7 +110,7 @@ EmployedEarnedIncomeItem:
     - tipsOrCommission
     - didStrike
   allOf:
-    - $ref: '#/IncomeItem'
+    - $ref: '#/IncomeItemBase'
     - type: object
       properties:
         employerId:
@@ -142,7 +142,7 @@ SelfEmployedEarnedIncomeItem:
     - employerId
     - typeOfSelfEmployment
   allOf:
-    - $ref: '#/IncomeItem'
+    - $ref: '#/IncomeItemBase'
     - type: object
       properties:
         employerId:
@@ -215,7 +215,7 @@ UnearnedIncomeItem:
   required:
     - typeOfUnearnedIncome
   allOf:
-    - $ref: '#/IncomeItem'
+    - $ref: '#/IncomeItemBase'
     - type: object
       discriminator:
         propertyName: typeOfUnearnedIncome
