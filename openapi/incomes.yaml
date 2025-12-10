@@ -17,7 +17,7 @@ tags:
 - name: Income
   description: Manage income records.
 paths:
-  "/income":
+  "/incomes":
     get:
       summary: List income
       description: Retrieve a paginated list of income.
@@ -71,7 +71,7 @@ paths:
           "$ref": "./components/common-responses.yaml#/UnprocessableEntity"
         '500':
           "$ref": "./components/common-responses.yaml#/InternalError"
-  "/income/{incomeId}":
+  "/incomes/{incomeId}":
     parameters:
     - name: incomeId
       in: path
