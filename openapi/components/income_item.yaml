@@ -280,7 +280,8 @@ UnearnedIncomeItem:
 
 VeteransIncomeItemBase:
   description: Base type for veterans-related income. Contains common fields for all veterans income types.
-  required: veteransIncomeType
+  required:
+    - veteransIncomeType
   allOf:
     - $ref: '#/UnearnedIncomeItem'
     - type: object
@@ -289,17 +290,14 @@ VeteransIncomeItemBase:
           type: str
           description: Type of veterans income
           enum:
-            - veterans_100_percent_disability
-            - veterans_90_percent_old_pensions
-            - veterans_aid_and_attendance
-            - veterans_compensation
-            - veterans_new_improved_pensions
-            - veterans_partial_disability
+            - tbd
 
 EducationIncomeItemBase:
   description: Base type for education-related income. Contains common fields for all education income types.
   required:
     - educationId
+    - highschoolGraduationStatus
+    - isForEducationExpensesOnly
   allOf:
     - $ref: '#/UnearnedIncomeItem'
     - type: object
@@ -321,10 +319,19 @@ EducationIncomeItemBase:
 
 SocialSecurityIncomeItemBase:
   description: Base type for Social Security-related income. Contains common fields for all Social Security income types.
+  required:
+    - socialSecurityType
+    - claimNumber
+    - ssiApplicationDate
+    - ssiApplicationStatus
   allOf:
     - $ref: '#/UnearnedIncomeItem'
     - type: object
       properties:
+        socialSecurityType:
+          type: str
+          enum:
+            - tbd
         claimNumber:
           type: str
           description: Claim number
@@ -398,12 +405,6 @@ SsiOrSsdiIncomeItem:
   allOf:
     - $ref: '#/SocialSecurityIncomeItemBase'
     - type: object
-      properties:
-        # @todo this could possibly move to SocialSecurityIncomeItemBase.
-        ssiOrSsdiType:
-          type: str
-          enum:
-            - tbd
 
 PrivateDisabilityIncomeItem:
   description: Income from private disability insurance.
@@ -539,14 +540,7 @@ SocialSecurityRetirementIncomeItem:
   allOf:
     - $ref: '#/SocialSecurityIncomeItemBase'
     - type: object
-      properties:
-        # @todo this could possibly move to SocialSecurityIncomeItemBase.
-        socialSecurityRetirementType:
-          type: str
-          enum:
-            - tbd
 
-# @todo actively refine these three.
 RentingHomeIncomeItem:
   description: Income from renting a home.
   required:
