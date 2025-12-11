@@ -11,3 +11,6 @@ generated/mock-data/
 
 # Cursor AI working files
 cursor/
+
+# Claude Code local settings
+.claude/
