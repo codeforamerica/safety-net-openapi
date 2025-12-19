@@ -1,0 +1,18 @@
+{
+  "name": "@safety-net/clients",
+  "version": "1.0.0",
+  "description": "Generated API clients and collections for Safety Net APIs",
+  "type": "module",
+  "scripts": {
+    "generate": "node scripts/generate-zodios.js",
+    "postman": "node scripts/generate-postman.js"
+  },
+  "dependencies": {
+    "@apidevtools/json-schema-ref-parser": "^11.7.2",
+    "@safety-net/schemas": "*",
+    "js-yaml": "^4.1.0"
+  },
+  "devDependencies": {
+    "openapi-zod-client": "^1.18.2"
+  }
+}

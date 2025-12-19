@@ -1,0 +1,152 @@
+overlay: 1.0.0
+info:
+  title: Colorado State Overlay
+  version: 1.0.0
+  description: |
+    Colorado-specific modifications to the base Safety Net API schemas.
+    Includes state program names, Colorado PEAK integration fields,
+    and county-based administration tracking.
+
+actions:
+  # ============================================================================
+  # Person Schema Modifications (components/person.yaml)
+  # ============================================================================
+
+  # Colorado gender options
+  - target: $.Person.properties.gender.enum
+    description: Colorado allows X gender marker on state IDs
+    update:
+      - male
+      - female
+      - x
+      - unknown
+
+  # Add Colorado-specific county tracking
+  - target: $.Person.properties
+    description: Add Colorado county and PEAK integration fields
+    update:
+      countyCode:
+        type: string
+        description: Colorado county FIPS code (001-125, odd numbers only).
+        pattern: "^[0-1][0-2][0-9]$"
+        example: "001"
+      countyName:
+        type: string
+        description: Colorado county name.
+        enum:
+          - Adams
+          - Alamosa
+          - Arapahoe
+          - Archuleta
+          - Baca
+          - Bent
+          - Boulder
+          - Broomfield
+          - Chaffee
+          - Cheyenne
+          - Clear Creek
+          - Conejos
+          - Costilla
+          - Crowley
+          - Custer
+          - Delta
+          - Denver
+          - Dolores
+          - Douglas
+          - Eagle
+          - El Paso
+          - Elbert
+          - Fremont
+          - Garfield
+          - Gilpin
+          - Grand
+          - Gunnison
+          - Hinsdale
+          - Huerfano
+          - Jackson
+          - Jefferson
+          - Kiowa
+          - Kit Carson
+          - La Plata
+          - Lake
+          - Larimer
+          - Las Animas
+          - Lincoln
+          - Logan
+          - Mesa
+          - Mineral
+          - Moffat
+          - Montezuma
+          - Montrose
+          - Morgan
+          - Otero
+          - Ouray
+          - Park
+          - Phillips
+          - Pitkin
+          - Prowers
+          - Pueblo
+          - Rio Blanco
+          - Rio Grande
+          - Routt
+          - Saguache
+          - San Juan
+          - San Miguel
+          - Sedgwick
+          - Summit
+          - Teller
+          - Washington
+          - Weld
+          - Yuma
+        example: "Denver"
+      peakAccountId:
+        type: string
+        description: Colorado PEAK (Program Eligibility and Application Kit) account identifier.
+        pattern: "^[A-Z0-9]{10}$"
+        example: "PEAK123456"
+      coloradoWorksEligible:
+        type: boolean
+        description: Indicates eligibility for Colorado Works (TANF).
+      snapEligible:
+        type: boolean
+        description: Indicates eligibility for Colorado SNAP.
+      healthFirstColoradoEligible:
+        type: boolean
+        description: Indicates eligibility for Health First Colorado (Medicaid).
+      andcsEligible:
+        type: boolean
+        description: Indicates eligibility for Aid to the Needy Disabled - Colorado Supplement.
+
+  # Colorado income sources include state-specific programs
+  - target: $.Person.properties.incomeSources.items.enum
+    description: Add Colorado-specific income sources
+    update:
+      - employment
+      - self_employment
+      - unemployment_benefits
+      - social_security
+      - disability_benefits
+      - child_support
+      - alimony
+      - pension
+      - colorado_works_cash
+      - old_age_pension
+      - andcs
+      - other
+
+  # ============================================================================
+  # Application Schema Modifications (components/application.yaml)
+  # ============================================================================
+
+  # Colorado program names
+  - target: $.Application.properties.programs.items.enum
+    description: Colorado program names
+    update:
+      - snap
+      - colorado_works
+      - health_first_colorado
+      - child_health_plan_plus
+      - old_age_pension
+      - andcs
+      - leap
+      - cccap

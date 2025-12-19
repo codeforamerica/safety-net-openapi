@@ -1,0 +1,149 @@
+overlay: 1.0.0
+info:
+  title: California State Overlay
+  version: 1.0.0
+  description: |
+    California-specific modifications to the base Safety Net API schemas.
+    Includes state program names, additional fields required by California
+    regulations, and terminology adjustments.
+
+actions:
+  # ============================================================================
+  # Person Schema Modifications (components/person.yaml)
+  # These target the standalone component file structure
+  # ============================================================================
+
+  # California uses different terminology for citizenship status
+  - target: $.Person.properties.citizenshipStatus.enum
+    description: California uses USCIS-aligned terminology
+    update:
+      - us_citizen
+      - lawful_permanent_resident
+      - qualified_alien
+      - prucol
+      - undocumented
+      - other
+
+  # California tracks additional gender options per state law
+  - target: $.Person.properties.gender.enum
+    description: California Gender Recognition Act compliance
+    update:
+      - male
+      - female
+      - nonbinary
+      - unknown
+
+  # Add California-specific county code field
+  - target: $.Person.properties
+    description: Add California county tracking
+    update:
+      countyCode:
+        type: string
+        description: California county code (01-58) for benefit administration.
+        pattern: "^[0-5][0-9]$"
+        example: "19"
+      countyName:
+        type: string
+        description: California county name.
+        enum:
+          - Alameda
+          - Alpine
+          - Amador
+          - Butte
+          - Calaveras
+          - Colusa
+          - Contra Costa
+          - Del Norte
+          - El Dorado
+          - Fresno
+          - Glenn
+          - Humboldt
+          - Imperial
+          - Inyo
+          - Kern
+          - Kings
+          - Lake
+          - Lassen
+          - Los Angeles
+          - Madera
+          - Marin
+          - Mariposa
+          - Mendocino
+          - Merced
+          - Modoc
+          - Mono
+          - Monterey
+          - Napa
+          - Nevada
+          - Orange
+          - Placer
+          - Plumas
+          - Riverside
+          - Sacramento
+          - San Benito
+          - San Bernardino
+          - San Diego
+          - San Francisco
+          - San Joaquin
+          - San Luis Obispo
+          - San Mateo
+          - Santa Barbara
+          - Santa Clara
+          - Santa Cruz
+          - Shasta
+          - Sierra
+          - Siskiyou
+          - Solano
+          - Sonoma
+          - Stanislaus
+          - Sutter
+          - Tehama
+          - Trinity
+          - Tulare
+          - Tuolumne
+          - Ventura
+          - Yolo
+          - Yuba
+        example: "Los Angeles"
+      calworksEligible:
+        type: boolean
+        description: Indicates eligibility for California Work Opportunity and Responsibility to Kids (CalWORKs).
+      calfreshEligible:
+        type: boolean
+        description: Indicates eligibility for CalFresh (California SNAP).
+      medicalEligible:
+        type: boolean
+        description: Indicates eligibility for Medi-Cal.
+
+  # California income sources include state-specific programs
+  - target: $.Person.properties.incomeSources.items.enum
+    description: Add California-specific income sources
+    update:
+      - employment
+      - self_employment
+      - unemployment_benefits
+      - social_security
+      - disability_benefits
+      - child_support
+      - alimony
+      - pension
+      - ssi_ssp
+      - calworks_cash_aid
+      - ihss_wages
+      - other
+
+  # ============================================================================
+  # Application Schema Modifications (components/application.yaml)
+  # ============================================================================
+
+  # California program names
+  - target: $.Application.properties.programs.items.enum
+    description: California uses branded program names
+    update:
+      - calfresh
+      - calworks
+      - medi_cal
+      - calfresh_healthy_living
+      - general_assistance
+      - capi
+      - ihss

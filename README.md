@@ -2,45 +2,70 @@
 
 This toolkit helps teams build consistent, well-documented APIs for safety net programs—enabling faster integration between benefits systems and reducing the technical barriers to improving service delivery.
 
-It provides a standardized foundation for designing APIs that handle common patterns in benefits administration: searching and filtering records, managing cases and applications, and exchanging eligibility data between systems. By codifying these patterns into reusable templates and validation rules, teams can focus on their domain logic rather than reinventing API conventions.
+## About This Repository
 
-The toolkit generates mock servers, TypeScript clients, and Postman collections from your OpenAPI specifications, making it easier to prototype integrations and onboard developers.
+This is an evolving repository where Code for America stores integrated benefits API specifications for the different states we work with. The specifications are built on a common data model that captures the core concepts shared across safety net programs—applications, households, income, eligibility—while allowing for state-specific variations in terminology, program names, and data requirements.
+
+## Getting Started
+
+Choose your path based on your role:
+
+| Role | You want to... | Start here |
+|------|----------------|------------|
+| **Backend Developer** | Design APIs, validate specs, test backend implementations | [Backend Developer Guide](./docs/getting-started/backend-developers.md) |
+| **Frontend Developer** | Build UIs against the APIs, use generated clients | [Frontend Developer Guide](./docs/getting-started/frontend-developers.md) |
 
 ## Quick Start
 
 ```bash
 npm install
-npm start                # Mock server (1080) + Swagger UI (3000)
+
+# Set your state
+export STATE=california
+
+# Start mock server + Swagger UI
+npm start
 ```
 
-Visit `http://localhost:3000` for interactive API docs, or test directly:
-```bash
-curl http://localhost:1080/persons
-```
+Visit `http://localhost:3000` for interactive API docs.
 
 ## Commands
 
 | Command | Description |
 |---------|-------------|
 | `npm start` | Start mock server + Swagger UI |
-| `npm run validate` | Validate specs and examples |
-| `npm run api:new -- --name "x" --resource "X"` | Generate new API from template |
-| `npm run clients:generate` | Generate TypeScript/Zodios clients |
+| `npm run validate` | Validate base specs |
+| `npm run validate:state` | Validate specs for current STATE |
+| `npm run validate:all-states` | Validate all states |
+| `npm run clients:generate` | Generate TypeScript clients |
 | `npm run postman:generate` | Generate Postman collection |
-| `npm test` | Run unit tests |
-| `npm run test:all` | Run all tests (unit + integration) |
 | `npm run mock:reset` | Reset database to example data |
+| `npm test` | Run unit tests |
+
+[Full command reference →](./docs/reference/commands.md)
 
 ## Documentation
 
-| Guide | Description |
-|-------|-------------|
-| [Creating APIs](./docs/README_CREATING_APIS.md) | Generate new APIs with established patterns |
-| [Validation](./docs/README_VALIDATION.md) | Spec validation and linting rules |
-| [Mock Server](./docs/README_MOCK_SERVER.md) | Search, pagination, and CRUD operations |
-| [Testing](./docs/README_TESTING.md) | Unit tests, integration tests, Postman, Swagger UI |
-| [API Clients](./docs/README_API_CLIENTS.md) | TypeScript/Zodios client generation |
-| [Developer Guide](./docs/README_DEVELOPER.md) | Project structure, extending, troubleshooting |
+### Guides
+- [Creating APIs](./docs/guides/creating-apis.md) — Design new API specifications
+- [State Overlays](./docs/guides/state-overlays.md) — Work with state-specific variations
+- [Validation](./docs/guides/validation.md) — Validate specs and fix errors
+- [Mock Server](./docs/guides/mock-server.md) — Run and query the mock server
+- [Search Patterns](./docs/guides/search-patterns.md) — Search and filter syntax
+
+### Integration
+- [CI/CD for Backend](./docs/integration/ci-cd-backend.md) — Contract test your API implementation
+- [CI/CD for Frontend](./docs/integration/ci-cd-frontend.md) — Build and test frontend apps
+- [API Clients](./docs/integration/api-clients.md) — Use generated TypeScript clients
+
+### Reference
+- [Commands](./docs/reference/commands.md) — All available npm scripts
+- [Project Structure](./docs/reference/project-structure.md) — File layout and conventions
+- [Troubleshooting](./docs/reference/troubleshooting.md) — Common issues and solutions
+
+### Architecture Decisions
+- [Multi-State Overlays](./docs/architecture-decisions/multi-state-overlays.md)
+- [Search Patterns](./docs/architecture-decisions/search-patterns.md)
 
 ## Requirements
 

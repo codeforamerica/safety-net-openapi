@@ -1,41 +1,33 @@
 {
   "name": "safety-net-openapi",
   "version": "1.0.0",
+  "private": true,
   "description": "Generate Mock API server, Swagger UI, and Zodios API clients from OpenApi specifications",
   "type": "module",
   "engines": {
     "node": ">=18.0.0"
   },
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
-    "start": "node scripts/start-all.js",
-    "validate": "npm run validate:syntax && npm run validate:lint && npm run validate:patterns",
-    "validate:syntax": "node scripts/validate-openapi.js",
-    "validate:lint": "npx spectral lint 'openapi/*.yaml' --ignore-unknown-format",
-    "validate:patterns": "node scripts/validate-patterns.js",
-    "api:new": "node scripts/generate-api.js",
-    "clients:generate": "node scripts/generate-clients.js",
-    "postman:generate": "node scripts/generate-postman.js",
-    "mock:start": "node scripts/mock-server/server.js",
-    "mock:setup": "node scripts/mock-server/setup.js",
-    "mock:reset": "node scripts/mock-server/reset.js",
-    "swagger:start": "node scripts/swagger/server.js",
-    "test": "node tests/mock-server/run-all-tests.js --unit",
-    "test:unit": "node tests/mock-server/run-all-tests.js --unit",
-    "test:integration": "node tests/mock-server/run-all-tests.js --integration",
-    "test:all": "node tests/mock-server/run-all-tests.js --all"
-  },
-  "devDependencies": {
-    "@stoplight/spectral-cli": "^6.15.0",
-    "openapi-zod-client": "^1.18.2"
-  },
-  "dependencies": {
-    "@apidevtools/json-schema-ref-parser": "^11.7.2",
-    "ajv": "^8.12.0",
-    "ajv-formats": "^3.0.1",
-    "better-sqlite3": "^11.0.0",
-    "cors": "^2.8.5",
-    "express": "^5.1.0",
-    "js-yaml": "^4.1.0",
-    "swagger-ui-express": "^5.0.1"
+    "start": "npm start -w @safety-net/mock-server",
+    "validate": "npm run validate -w @safety-net/schemas",
+    "validate:syntax": "npm run validate:syntax -w @safety-net/schemas",
+    "validate:patterns": "npm run validate:patterns -w @safety-net/schemas",
+    "validate:state": "npm run validate:state -w @safety-net/schemas",
+    "validate:all-states": "npm run validate:all-states -w @safety-net/schemas",
+    "api:new": "npm run api:new -w @safety-net/schemas",
+    "overlay:resolve": "npm run overlay:resolve -w @safety-net/schemas",
+    "overlay:list": "npm run overlay:list -w @safety-net/schemas",
+    "clients:generate": "npm run generate -w @safety-net/clients",
+    "postman:generate": "npm run postman -w @safety-net/clients",
+    "mock:start": "npm start -w @safety-net/mock-server",
+    "mock:setup": "npm run setup -w @safety-net/mock-server",
+    "mock:reset": "npm run reset -w @safety-net/mock-server",
+    "test": "npm test --workspaces --if-present",
+    "test:unit": "npm run test:unit -w @safety-net/mock-server",
+    "test:integration": "npm run test:integration -w @safety-net/mock-server",
+    "test:all": "npm run test:all -w @safety-net/mock-server"
   }
 }
