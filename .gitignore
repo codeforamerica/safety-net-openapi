@@ -7,6 +7,7 @@ package-lock.json
 # Generated artifacts (state-specific, regenerate as needed)
 packages/generated
 packages/clients/generated
+packages/clients/dist-packages
 packages/schemas/openapi/resolved
 
 # Cursor AI working files
