@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { readdir, writeFile, unlink } from 'fs/promises';
+import { readdir, writeFile, unlink, mkdir } from 'fs/promises';
 import { join, basename, extname } from 'path';
 import { spawn } from 'child_process';
 import { fileURLToPath } from 'url';
@@ -98,6 +98,9 @@ async function generateClient(specPath) {
       }
     });
     
+    // Ensure output directory exists
+    await mkdir(dirname(tempSpecPath), { recursive: true });
+
     // Write dereferenced spec to temp file
     await writeFile(tempSpecPath, JSON.stringify(dereferencedSpec, null, 2));
     
@@ -128,7 +131,7 @@ async function generateClient(specPath) {
  * Main function to generate all clients
  */
 async function main() {
-  const openAPIDir = join(workspaceRoot, 'openapi');
+  const openAPIDir = join(workspaceRoot, '..', 'schemas', 'openapi', 'resolved');
   
   console.log('🚀 Starting Zodios API client generation...');
   console.log(`📂 Searching for OpenAPI specs in: ${openAPIDir}\n`);
