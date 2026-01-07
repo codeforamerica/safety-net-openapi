@@ -92,7 +92,7 @@ jobs:
           scope: '@codeforamerica'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
       - name: Build state package
         run: |
