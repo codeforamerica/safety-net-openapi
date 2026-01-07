@@ -28,13 +28,18 @@ npm install @zodios/core zod axios
 
 ## Package Structure
 
-Each package exports four modules:
+Each package exports:
 
 ```typescript
-import { persons, applications, households, incomes } from '@codeforamerica/safety-net-colorado';
+import {
+  // Search query helpers
+  q, search,
+  // API modules (namespaced)
+  persons, applications, households, incomes
+} from '@codeforamerica/safety-net-colorado';
 ```
 
-Each module contains:
+Each API module contains:
 
 | Export | Description |
 |--------|-------------|
@@ -133,6 +138,131 @@ const updated = await client.updatePerson({
 
 // Delete
 await client.deletePerson({ params: { personId: '...' } });
+```
+
+## Search Query Helpers
+
+The package includes type-safe utilities for building search queries using the `field:value` syntax supported by all list endpoints.
+
+### Basic Query Building
+
+```typescript
+import { q, search, persons } from '@codeforamerica/safety-net-colorado';
+
+const client = persons.createApiClient(BASE_URL);
+
+// Build queries with the search helper
+const query = q(
+  search.eq("status", "approved"),
+  search.gte("monthlyIncome", 1000),
+  search.in("programs", ["snap", "medical_assistance"])
+);
+// => "status:approved monthlyIncome:>=1000 programs:snap,medical_assistance"
+
+const results = await client.listPersons({
+  queries: { q: query, limit: 25 }
+});
+```
+
+### Query Syntax Reference
+
+| Pattern | Description | Example |
+|---------|-------------|---------|
+| `field:value` | Exact match | `status:approved` |
+| `field:*value*` | Contains (case-insensitive) | `name:*john*` |
+| `field:value*` | Starts with | `name:john*` |
+| `field:*value` | Ends with | `email:*@example.com` |
+| `field:"value"` | Quoted value (for spaces) | `name:"john doe"` |
+| `field.nested:value` | Nested field | `address.state:CA` |
+| `field:>value` | Greater than | `income:>1000` |
+| `field:>=value` | Greater than or equal | `income:>=1000` |
+| `field:<value` | Less than | `income:<5000` |
+| `field:<=value` | Less than or equal | `income:<=5000` |
+| `field:val1,val2` | Match any (OR) | `status:approved,pending` |
+| `-field:value` | Exclude / negate | `-status:denied` |
+| `field:*` | Field exists (not null) | `email:*` |
+| `-field:*` | Field does not exist | `-deletedAt:*` |
+
+### Available Search Methods
+
+```typescript
+import { search } from '@codeforamerica/safety-net-colorado';
+
+// Exact match
+search.eq("status", "approved")           // => "status:approved"
+
+// Comparisons
+search.gt("income", 1000)                 // => "income:>1000"
+search.gte("income", 1000)                // => "income:>=1000"
+search.lt("age", 65)                      // => "age:<65"
+search.lte("income", 5000)                // => "income:<=5000"
+
+// Multiple values (OR)
+search.in("status", ["approved", "pending"])  // => "status:approved,pending"
+
+// Negation
+search.not("status", "denied")            // => "-status:denied"
+
+// Existence checks
+search.exists("email")                    // => "email:*"
+search.notExists("deletedAt")             // => "-deletedAt:*"
+
+// String matching
+search.contains("name", "john")           // => "name:*john*"
+search.startsWith("name", "john")         // => "name:john*"
+search.endsWith("email", "@example.com")  // => "email:*@example.com"
+search.quoted("name", "john doe")         // => 'name:"john doe"'
+
+// Full-text search (no field specified)
+search.text("john")                       // => "john"
+search.textContains("john")               // => "*john*"
+search.textStartsWith("john")             // => "john*"
+search.textEndsWith("smith")              // => "*smith"
+```
+
+### Combining Conditions
+
+Use `q()` to combine multiple conditions. Multiple conditions are ANDed together:
+
+```typescript
+import { q, search } from '@codeforamerica/safety-net-colorado';
+
+// All conditions must match (AND)
+const query = q(
+  search.eq("status", "approved"),
+  search.gte("monthlyIncome", 1000),
+  search.not("county", "Denver")
+);
+// => "status:approved monthlyIncome:>=1000 -county:Denver"
+
+// OR within a single field (use comma-separated values)
+const statusQuery = q(
+  search.in("status", ["approved", "pending", "under_review"])
+);
+// => "status:approved,pending,under_review"
+```
+
+### Real-World Examples
+
+```typescript
+// Find active persons in a specific county with income above threshold
+const eligiblePersons = q(
+  search.eq("status", "active"),
+  search.eq("countyName", "Denver"),
+  search.gte("monthlyIncome", 2000),
+  search.exists("email")
+);
+
+// Find applications submitted this year, excluding denied
+const recentApplications = q(
+  search.gte("submittedAt", "2024-01-01"),
+  search.not("status", "denied")
+);
+
+// Search for persons by partial name match
+const nameSearch = q(
+  search.contains("name.lastName", "smith")
+);
 ```
 
 ## Recommended Setup
@@ -261,9 +391,16 @@ Usage in components:
 ```typescript
 // src/components/PersonList.tsx
 import { usePersons, useDeletePerson } from '../hooks/usePersons';
+import { q, search } from '@codeforamerica/safety-net-colorado';
 
 export function PersonList() {
-  const { data, isLoading, error } = usePersons({ limit: 25 });
+  // Use search helpers to build the query
+  const query = q(
+    search.eq("status", "active"),
+    search.exists("email")
+  );
+
+  const { data, isLoading, error } = usePersons({ limit: 25, q: query });
   const deletePerson = useDeletePerson();
 
   if (isLoading) return <div>Loading...</div>;

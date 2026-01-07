@@ -130,6 +130,10 @@ async function main() {
     }
   }
 
+  // Copy search helpers utility
+  cpSync(join(templatesDir, 'search-helpers.ts'), join(srcDir, 'search-helpers.ts'));
+  console.log('  Copied search-helpers.ts');
+
   // Step 4: Generate package.json from template
   console.log('\n4. Generating package.json...');
   const packageTemplate = readFileSync(join(templatesDir, 'package.template.json'), 'utf8');
