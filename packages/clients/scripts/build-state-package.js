@@ -7,7 +7,7 @@
  *
  * This script:
  * 1. Resolves the state overlay
- * 2. Generates Zodios clients
+ * 2. Generates Zodios clients (with exported schemas)
  * 3. Creates package directory with package.json
  * 4. Compiles TypeScript to JavaScript
  * 5. Outputs ready-to-publish package in dist-packages/{state}/

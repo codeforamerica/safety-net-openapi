@@ -109,7 +109,8 @@ async function generateClient(specPath) {
       'openapi-zod-client',
       tempSpecPath,
       '-o',
-      outputPath
+      outputPath,
+      '--export-schemas'
     ]);
     
     console.log(`✅ Successfully generated client for: ${specName}`);
