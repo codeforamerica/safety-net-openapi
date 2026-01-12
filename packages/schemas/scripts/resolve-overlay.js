@@ -48,16 +48,16 @@ function listAvailableStates() {
     return [];
   }
 
-  return readdirSync(overlaysDir)
-    .filter(f => f.endsWith('.overlay.yaml'))
-    .map(f => f.replace('.overlay.yaml', ''));
+  return readdirSync(overlaysDir, { withFileTypes: true })
+    .filter(entry => entry.isDirectory() && existsSync(join(overlaysDir, entry.name, 'modifications.yaml')))
+    .map(entry => entry.name);
 }
 
 /**
  * Process all YAML files in a directory, applying overlay where targets match
  * Returns: array of warning strings
  */
-function processDirectory(sourceDir, overlay, targetDir) {
+function processDirectory(sourceDir, overlay, targetDir, overlayDir) {
   const files = readdirSync(sourceDir, { withFileTypes: true });
   let allWarnings = [];
 
@@ -71,15 +71,15 @@ function processDirectory(sourceDir, overlay, targetDir) {
         continue;
       }
       mkdirSync(targetPath, { recursive: true });
-      const dirWarnings = processDirectory(sourcePath, overlay, targetPath);
+      const dirWarnings = processDirectory(sourcePath, overlay, targetPath, overlayDir);
       allWarnings = allWarnings.concat(dirWarnings);
-    } else if (file.name.endsWith('.yaml') && !file.name.endsWith('.overlay.yaml')) {
+    } else if (file.name.endsWith('.yaml')) {
       // Process YAML files
       const content = readFileSync(sourcePath, 'utf8');
       const spec = yaml.load(content);
 
       // Apply overlay transformations
-      const { result: resolved, warnings } = applyOverlay(spec, overlay, file.name);
+      const { result: resolved, warnings } = applyOverlay(spec, overlay, { overlayDir });
       allWarnings = allWarnings.concat(warnings);
 
       // Write resolved spec
@@ -142,7 +142,8 @@ function main() {
   }
 
   // Load overlay
-  const overlayPath = join(overlaysDir, `${state}.overlay.yaml`);
+  const stateOverlayDir = join(overlaysDir, state);
+  const overlayPath = join(stateOverlayDir, 'modifications.yaml');
   console.log(`Applying overlay: ${state}`);
   console.log(`Overlay file: ${overlayPath}`);
   console.log('');
@@ -155,7 +156,7 @@ function main() {
   console.log('');
 
   // Process all specs with overlay
-  const warnings = processDirectory(openapiDir, overlay, resolvedDir);
+  const warnings = processDirectory(openapiDir, overlay, resolvedDir, stateOverlayDir);
 
   // Display warnings if any
   if (warnings.length > 0) {

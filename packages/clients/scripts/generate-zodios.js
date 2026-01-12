@@ -10,6 +10,7 @@ import { validateSpec } from '@safety-net/schemas/validation';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const workspaceRoot = join(__dirname, '..');
+const schemasRoot = join(__dirname, '..', '..', 'schemas');
 
 /**
  * Executes a command and returns a promise
@@ -128,8 +129,8 @@ async function generateClient(specPath) {
  * Main function to generate all clients
  */
 async function main() {
-  const openAPIDir = join(workspaceRoot, 'openapi');
-  
+  const openAPIDir = join(schemasRoot, 'openapi');
+
   console.log('🚀 Starting Zodios API client generation...');
   console.log(`📂 Searching for OpenAPI specs in: ${openAPIDir}\n`);
 
