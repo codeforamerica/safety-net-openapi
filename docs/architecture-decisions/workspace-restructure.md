@@ -73,11 +73,10 @@ safety-net-openapi/
 │   └── clients/                    # Generated API clients
 │       ├── package.json
 │       ├── generated/
+│       │   ├── zodios/
 │       │   └── postman-collection.json
-│       ├── dist-packages/          # Built state packages
 │       └── scripts/
-│           ├── generate-modular-zod.js
-│           ├── build-state-package.js
+│           ├── generate-zodios.js
 │           └── generate-postman.js
 ```
 

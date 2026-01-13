@@ -54,15 +54,11 @@ safety-net-openapi/
 │   └── clients/                    # Generated API clients
 │       ├── package.json
 │       ├── scripts/                # Generator scripts
-│       │   ├── generate-modular-zod.js  # Zod schema generator
-│       │   ├── build-state-package.js   # State package builder
+│       │   ├── generate-zodios.js
 │       │   └── generate-postman.js
-│       ├── generated/              # Output directory
-│       │   └── postman-collection.json
-│       ├── dist-packages/          # Built npm packages
-│       │   ├── california/
-│       │   └── colorado/
-│       └── templates/              # Package templates
+│       └── generated/              # Output directory
+│           ├── zodios/             # TypeScript clients
+│           └── postman-collection.json
 │
 └── docs/                           # Documentation
     ├── getting-started/            # Persona-based onboarding

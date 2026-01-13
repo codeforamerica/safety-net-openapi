@@ -4,17 +4,19 @@
   "description": "Generated API clients and collections for Safety Net APIs",
   "type": "module",
   "scripts": {
-    "generate": "node scripts/generate-modular-zod.js --all",
+    "generate": "node scripts/generate-zodios.js",
     "postman": "node scripts/generate-postman.js",
-    "build-package": "node scripts/build-state-package.js"
+    "validate": "tsc --noEmit -p tsconfig.validate.json"
   },
   "dependencies": {
     "@apidevtools/json-schema-ref-parser": "^11.7.2",
     "@safety-net/schemas": "*",
+    "@zodios/core": "^10.9.6",
     "js-yaml": "^4.1.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "openapi-zod-client": "^1.18.2",
     "typescript": "^5.3.3"
   }
 }
