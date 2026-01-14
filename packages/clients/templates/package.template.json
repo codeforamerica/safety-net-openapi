@@ -11,17 +11,21 @@
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
     },
-    "./sdk": {
-      "import": "./dist/sdk.gen.js",
-      "types": "./dist/sdk.gen.d.ts"
+    "./persons": {
+      "import": "./dist/persons/index.js",
+      "types": "./dist/persons/index.d.ts"
     },
-    "./types": {
-      "import": "./dist/types.gen.js",
-      "types": "./dist/types.gen.d.ts"
+    "./applications": {
+      "import": "./dist/applications/index.js",
+      "types": "./dist/applications/index.d.ts"
     },
-    "./zod": {
-      "import": "./dist/zod.gen.js",
-      "types": "./dist/zod.gen.d.ts"
+    "./households": {
+      "import": "./dist/households/index.js",
+      "types": "./dist/households/index.d.ts"
+    },
+    "./incomes": {
+      "import": "./dist/incomes/index.js",
+      "types": "./dist/incomes/index.d.ts"
     }
   },
   "peerDependencies": {

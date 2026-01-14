@@ -2,7 +2,7 @@
   "name": "safety-net-openapi",
   "version": "1.0.0",
   "private": true,
-  "description": "Generate Mock API server, Swagger UI, and Zodios API clients from OpenApi specifications",
+  "description": "Generate Mock API server, Swagger UI, and typed API clients from OpenAPI specifications",
   "type": "module",
   "engines": {
     "node": ">=18.0.0"

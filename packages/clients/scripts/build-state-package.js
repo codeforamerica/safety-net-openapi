@@ -117,8 +117,6 @@ async function main() {
   const srcDir = join(outputDir, 'src');
   const templatesDir = join(clientsRoot, 'templates');
   const resolvedDir = join(repoRoot, 'packages', 'schemas', 'openapi', 'resolved');
-  const bundledSpec = join(outputDir, 'openapi-bundled.yaml');
-  const configPath = join(outputDir, 'openapi-ts.config.js');
 
   console.log(`\nBuilding package for ${stateTitle}...`);
   console.log(`  State: ${state}`);
@@ -136,42 +134,62 @@ async function main() {
   console.log('\n1. Resolving state overlay...');
   await exec('npm', ['run', 'overlay:resolve', '-w', '@safety-net/schemas', '--', `--state=${state}`]);
 
-  // Step 2: Find and bundle all resolved spec files
-  console.log('\n2. Bundling OpenAPI specs...');
+  // Step 2: Generate client for each domain spec
+  console.log('\n2. Generating domain clients...');
   const specFiles = readdirSync(resolvedDir).filter(f => f.endsWith('.yaml') && !f.startsWith('.'));
 
   if (specFiles.length === 0) {
     throw new Error('No resolved spec files found');
   }
 
-  // For now, bundle each spec separately and use persons as the main one
-  // In the future, we could merge all specs into one
-  const mainSpec = join(resolvedDir, 'persons.yaml');
-  await exec('npx', [
-    '@apidevtools/swagger-cli', 'bundle',
-    mainSpec,
-    '-o', bundledSpec,
-    '--dereference'
-  ]);
-  console.log(`  Bundled: ${bundledSpec}`);
+  console.log(`  Found specs: ${specFiles.join(', ')}`);
+  const domains = [];
 
-  // Step 3: Generate client using openapi-ts
-  console.log('\n3. Generating API client with openapi-ts...');
-  const configContent = createOpenApiTsConfig(bundledSpec, srcDir);
-  writeFileSync(configPath, configContent);
+  for (const file of specFiles) {
+    const domain = file.replace('.yaml', '');
+    domains.push(domain);
+    const specPath = join(resolvedDir, file);
+    const domainBundled = join(outputDir, `${domain}-bundled.yaml`);
+    const domainSrcDir = join(srcDir, domain);
+    const domainConfigPath = join(outputDir, `${domain}.config.js`);
 
-  await exec('npx', ['@hey-api/openapi-ts', '-f', configPath], { cwd: outputDir });
-  console.log('  Client generated successfully');
+    console.log(`\n  Processing ${domain}...`);
 
-  // Post-process: Remove unused @ts-expect-error directives from generated code
-  // (openapi-ts generates these for compatibility but they cause TS2578 errors)
-  const clientGenPath = join(srcDir, 'client', 'client.gen.ts');
-  if (existsSync(clientGenPath)) {
-    let content = readFileSync(clientGenPath, 'utf8');
-    content = content.replace(/^\s*\/\/\s*@ts-expect-error\s*$/gm, '');
-    writeFileSync(clientGenPath, content);
-    console.log('  Cleaned up @ts-expect-error directives');
+    // Bundle spec (dereference $refs)
+    await exec('npx', [
+      '@apidevtools/swagger-cli', 'bundle',
+      specPath,
+      '-o', domainBundled,
+      '--dereference'
+    ]);
+
+    // Generate client for this domain
+    mkdirSync(domainSrcDir, { recursive: true });
+    const configContent = createOpenApiTsConfig(domainBundled, domainSrcDir);
+    writeFileSync(domainConfigPath, configContent);
+
+    await exec('npx', ['@hey-api/openapi-ts', '-f', domainConfigPath], { cwd: outputDir });
+
+    // Post-process: Remove unused @ts-expect-error directives
+    const clientGenPath = join(domainSrcDir, 'client', 'client.gen.ts');
+    if (existsSync(clientGenPath)) {
+      let content = readFileSync(clientGenPath, 'utf8');
+      content = content.replace(/^\s*\/\/\s*@ts-expect-error\s*$/gm, '');
+      writeFileSync(clientGenPath, content);
+    }
+
+    // Clean up temp files
+    rmSync(domainBundled, { force: true });
+    rmSync(domainConfigPath, { force: true });
+
+    console.log(`    Generated: ${domain}`);
   }
+
+  // Step 3: Create index.ts that re-exports all domains
+  console.log('\n3. Creating index exports...');
+  const indexContent = domains.map(d => `export * as ${d} from './${d}/index.js';`).join('\n') + '\n';
+  writeFileSync(join(srcDir, 'index.ts'), indexContent);
+  console.log('  Created index.ts')
 
   // Step 4: Generate package.json from template
   console.log('\n4. Generating package.json...');
@@ -221,10 +239,6 @@ async function main() {
     }
   }
   console.log('  Compilation complete');
-
-  // Clean up temporary files
-  rmSync(bundledSpec, { force: true });
-  rmSync(configPath, { force: true });
 
   // Summary
   console.log('\n========================================');
