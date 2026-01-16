@@ -549,6 +549,14 @@ Potential domains and functionality not included in the current design, for futu
 
 ### Medium Priority
 
+**Staffing Forecasting**
+- Project task volume based on historical patterns and upcoming deadlines
+- Calculate required staff hours vs current capacity
+- Identify staffing gaps by office, queue, or program
+- Potential entities: `StaffingForecast`, `DeadlineProjection`
+
+*Rationale*: Helps supervisors plan staffing during surges and avoid SLA breaches. Depends on mature Task and Caseload data to be useful.
+
 **Change Reporting**
 - Mid-certification changes reported by clients
 - Change processing and verification
