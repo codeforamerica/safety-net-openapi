@@ -72,28 +72,41 @@ CaseWorker:
       - on_leave
     supervisorId: uuid
     teamId: uuid
-    certifications: CaseWorkerCertification[]
+    skills: CaseWorkerSkill[]       # Skills, certifications, languages
     programs: enum[]                # Programs certified to work: snap, medicaid, tanf
     workloadCapacity: integer       # Max concurrent tasks
     currentWorkload: integer        # Current assigned tasks (computed)
-    languagesSpoken: Language[]
     createdAt, updatedAt: datetime
 ```
 
-### CaseWorkerCertification
+### CaseWorkerSkill
 
-Skills and certifications for a case worker.
+Skills, certifications, and language abilities for a case worker.
 
 ```yaml
-CaseWorkerCertification:
+CaseWorkerSkill:
   properties:
-    certificationId: string         # Unique identifier for the certification type
-    name: string                    # "SNAP Eligibility", "Expedited Processing", "Appeals"
-    issuedDate: date
-    expirationDate: date            # Optional
+    skillId: string                 # Unique identifier for the skill type
+    name: string                    # "SNAP Eligibility", "Expedited Processing", "Spanish"
+    skillType:
+      - certification               # Formal credential (training, exam)
+      - language                    # Language proficiency
+      - specialization              # Area of expertise without formal cert
+    # For certifications:
+    certification:                  # Only present when skillType = certification
+      issuedDate: date
+      expirationDate: date
+      issuingAuthority: string      # Who issued the certification
+    # For languages:
+    proficiencyLevel:               # Only present when skillType = language
+      - basic
+      - conversational
+      - fluent
+      - native
     status:
       - active
-      - expired
+      - inactive
+      - expired                     # For certifications past expiration
       - pending_renewal
 ```
 

@@ -149,7 +149,7 @@ WorkflowRule:
       - specific_team               # Assign to targetTeamId
       - round_robin                 # Distribute evenly across team/queue members
       - least_loaded                # Assign to worker with lowest caseload
-      - skill_match                 # Match task requiredSkills to worker certifications
+      - skill_match                 # Match task requiredSkills to worker skills
     targetQueueId: uuid             # For specific_queue strategy
     targetTeamId: uuid              # For specific_team strategy
     fallbackQueueId: uuid           # If primary assignment fails
@@ -338,6 +338,6 @@ PATCH /tasks/batch
 ### Skill Matching
 
 When using `skill_match` assignment strategy:
-1. Task's `requiredSkills` are compared against CaseWorker's `certifications`
+1. Task's `requiredSkills` are compared against CaseWorker's `skills`
 2. Only workers with all required skills are considered
 3. Among qualified workers, `least_loaded` logic is applied
