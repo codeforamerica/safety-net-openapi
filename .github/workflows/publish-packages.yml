@@ -116,6 +116,21 @@ jobs:
             --state=${{ matrix.state }} \
             --version=${{ needs.setup.outputs.version }}
 
+      - name: Debug before publish
+        working-directory: packages/clients/dist-packages/${{ matrix.state }}
+        run: |
+          echo "=== npm config ==="
+          npm config list
+          echo ""
+          echo "=== .npmrc in package dir ==="
+          cat .npmrc 2>/dev/null || echo "No .npmrc in package dir"
+          echo ""
+          echo "=== ~/.npmrc ==="
+          cat ~/.npmrc 2>/dev/null || echo "No ~/.npmrc"
+          echo ""
+          echo "=== package.json publishConfig ==="
+          grep -A5 '"publishConfig"' package.json || echo "No publishConfig"
+
       - name: Publish to npm
         working-directory: packages/clients/dist-packages/${{ matrix.state }}
         run: npm publish --access public
