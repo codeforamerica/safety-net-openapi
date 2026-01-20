@@ -359,6 +359,85 @@ file_structure:
     postman_collection: "generated/postman-collection.json"
 
 # =============================================================================
+# Process API Metadata [PROCESS]
+# =============================================================================
+# STATUS: Not yet implemented in validation
+# Process APIs use OpenAPI extension fields to declare metadata about
+# who can call them and what capability they provide.
+process_api_metadata:
+  description: |
+    Process APIs are organized by capability, not by actor. Extension fields
+    declare which actors can call an endpoint and what capability it provides.
+    This enables documentation generation, authorization rules, and API discovery.
+
+  extensions:
+    x-actors:
+      description: Which actors/roles can call this endpoint
+      type: array
+      location: Operation level (under paths/{path}/{method})
+      values:
+        - client              # Person applying for/receiving benefits
+        - authorized_rep      # Representative acting on behalf of client
+        - caseworker          # Staff processing applications
+        - supervisor          # Team lead with approval authority
+        - system              # Automated/batch processes
+      example: |
+        paths:
+          /processes/applications/submit:
+            post:
+              x-actors: [client, caseworker, authorized_rep]
+              summary: Submit an application
+
+    x-capability:
+      description: The business capability this endpoint provides
+      type: string
+      location: Operation level (under paths/{path}/{method})
+      purpose: |
+        Groups related Process API endpoints for documentation and discovery.
+        Maps to business capabilities, not technical concerns.
+      values:
+        - application-intake      # Submitting and managing applications
+        - eligibility             # Determining eligibility
+        - task-management         # Managing workflow tasks
+        - case-management         # Managing cases and assignments
+        - document-management     # Uploading and managing documents
+        - scheduling              # Appointments and interviews
+        - notifications           # Sending notices and alerts
+        - reporting               # Generating reports
+        - configuration           # Managing system configuration
+      example: |
+        paths:
+          /processes/applications/submit:
+            post:
+              x-capability: application-intake
+              x-actors: [client, caseworker]
+
+    x-idempotent:
+      description: Whether this operation is idempotent (safe to retry)
+      type: boolean
+      location: Operation level
+      default: false for POST
+      note: All Process API POST operations should specify this explicitly
+      example: |
+        paths:
+          /processes/applications/submit:
+            post:
+              x-idempotent: true  # Safe to retry with same Idempotency-Key
+
+  usage_in_authorization: |
+    The x-actors extension can be used by API gateways or middleware to
+    enforce role-based access control:
+    1. Extract user's role from JWT token
+    2. Check if role is in x-actors array for the endpoint
+    3. Return 403 Forbidden if not authorized
+
+  usage_in_documentation: |
+    Documentation generators can use these extensions to:
+    - Group endpoints by x-capability
+    - Show which roles can access each endpoint
+    - Generate role-specific API documentation
+
+# =============================================================================
 # Validation Rules [BOTH]
 # =============================================================================
 # Syntax and lint rules apply to both. Pattern checks differ by API type.
@@ -924,3 +1003,240 @@ audit_logging:
       - Log field names accessed, not field values
       - Use correlation ID to link to audit detail in secure storage
       - Mask any PII that must appear in logs (e.g., last 4 of SSN)
+
+# =============================================================================
+# Correlation IDs [BOTH]
+# =============================================================================
+# STATUS: Not yet implemented
+correlation_ids:
+  description: |
+    Unique identifier that follows a request through all services and logs.
+    Essential for distributed tracing and debugging.
+
+  header:
+    name: X-Correlation-ID
+    format: UUID v4
+    behavior: |
+      1. If client provides X-Correlation-ID, use it
+      2. If not provided, generate a new UUID
+      3. Include in all downstream service calls
+      4. Include in all log entries
+      5. Return in response header
+
+  response_header:
+    name: X-Correlation-ID
+    description: Echo back the correlation ID used for this request
+
+  logging_integration:
+    description: All log entries must include correlationId field
+    example: |
+      {
+        "timestamp": "2024-01-15T10:30:00Z",
+        "level": "info",
+        "correlationId": "550e8400-e29b-41d4-a716-446655440000",
+        "service": "task-api",
+        "message": "Task created",
+        "taskId": "abc-123"
+      }
+
+  propagation:
+    description: Pass correlation ID to all downstream calls
+    guidance:
+      - Include X-Correlation-ID header in HTTP calls to other services
+      - Include in message queue message headers
+      - Include in async job metadata
+
+# =============================================================================
+# ETags and Optimistic Concurrency [SYSTEM]
+# =============================================================================
+# STATUS: Not yet implemented
+etags:
+  description: |
+    ETags enable optimistic concurrency control (prevent lost updates) and
+    conditional requests (caching). System APIs should support ETags for
+    resources that can be updated.
+
+  response_headers:
+    ETag:
+      description: Opaque identifier for the current resource version
+      format: Quoted string (e.g., "abc123" or W/"abc123" for weak)
+      generation: Hash of resource content or version number
+
+  request_headers:
+    If-Match:
+      description: Update only if ETag matches (optimistic locking)
+      use_case: Prevent lost updates when multiple users edit same resource
+      behavior: |
+        1. Client GETs resource, receives ETag
+        2. Client PATCHes with If-Match: "etag-value"
+        3. If ETag matches current: apply update, return new ETag
+        4. If ETag doesn't match: return 412 Precondition Failed
+
+    If-None-Match:
+      description: Return resource only if ETag differs (caching)
+      use_case: Avoid re-downloading unchanged resources
+      behavior: |
+        1. Client GETs resource, caches response with ETag
+        2. Client GETs again with If-None-Match: "etag-value"
+        3. If ETag matches: return 304 Not Modified (no body)
+        4. If ETag differs: return 200 with new resource and ETag
+
+  error_responses:
+    412:
+      code: PRECONDITION_FAILED
+      description: If-Match ETag doesn't match current version
+      message: Resource has been modified by another request
+      guidance: Client should re-fetch and retry or notify user of conflict
+
+    304:
+      description: Not Modified - resource unchanged since ETag
+      body: Empty (client uses cached version)
+
+  implementation_notes:
+    - ETags should be opaque to clients (don't expose version numbers directly)
+    - Use strong ETags for byte-for-byte comparison
+    - Use weak ETags (W/"...") for semantic equivalence
+    - Consider ETag scope: entire resource or specific fields
+
+# =============================================================================
+# Sorting [SYSTEM]
+# =============================================================================
+# STATUS: Not yet implemented
+sorting:
+  description: |
+    Standard query parameter for sorting list endpoint results.
+    Sorting is typically used with System APIs that return collections.
+
+  parameter:
+    name: sort
+    location: query
+    type: string
+    description: |
+      Comma-separated list of fields to sort by. Prefix with - for descending.
+      First field is primary sort, subsequent fields are secondary sorts.
+
+  syntax:
+    ascending: "fieldName"
+    descending: "-fieldName"
+    multiple: "field1,-field2,field3"
+
+  examples:
+    - sort=createdAt           # Oldest first
+    - sort=-createdAt          # Newest first
+    - sort=status,-priority    # By status (asc), then priority (desc)
+    - sort=-dueDate,createdAt  # By due date (desc), then created (asc)
+
+  default_behavior:
+    description: If no sort specified, use sensible default per resource
+    typical_defaults:
+      - List endpoints: -createdAt (newest first)
+      - Search results: relevance score (if applicable)
+
+  error_handling:
+    invalid_field:
+      status: 400
+      code: INVALID_SORT_FIELD
+      message: "Unknown sort field: {field}"
+    unsortable_field:
+      status: 400
+      code: FIELD_NOT_SORTABLE
+      message: "Field '{field}' does not support sorting"
+
+  implementation_notes:
+    - Document sortable fields in OpenAPI spec
+    - Consider index implications for sortable fields
+    - Limit number of sort fields (e.g., max 3)
+
+# =============================================================================
+# Long-Running Operations [PROCESS primarily]
+# =============================================================================
+# STATUS: Not yet implemented
+long_running_operations:
+  description: |
+    Pattern for operations that take too long for a synchronous response.
+    Common in Process APIs for complex business operations (e.g., batch
+    eligibility determination, bulk document processing).
+
+  threshold:
+    description: Operations expected to take >30 seconds should be async
+    note: Exact threshold depends on client requirements and infrastructure
+
+  pattern:
+    name: Polling with Operation Resource
+    flow: |
+      1. Client POSTs to initiate operation
+      2. Server returns 202 Accepted with operation ID and status URL
+      3. Client polls status URL until complete
+      4. When complete, status includes result or result URL
+
+  initiation:
+    request:
+      method: POST
+      path: "/processes/{capability}/{action}"
+      body: Operation parameters
+      headers:
+        Idempotency-Key: Required (operations are idempotent)
+
+    response:
+      status: 202 Accepted
+      headers:
+        Location: URL to poll for status
+      body:
+        operationId: UUID
+        status: "pending" | "running"
+        statusUrl: "/operations/{operationId}"
+        estimatedCompletionTime: ISO 8601 datetime (optional)
+
+  status_polling:
+    request:
+      method: GET
+      path: "/operations/{operationId}"
+
+    response_pending:
+      status: 200
+      body:
+        operationId: UUID
+        status: "pending" | "running"
+        progress: 0-100 (optional)
+        message: Human-readable status (optional)
+
+    response_completed:
+      status: 200
+      body:
+        operationId: UUID
+        status: "completed"
+        completedAt: ISO 8601 datetime
+        result: Inline result (if small)
+        resultUrl: URL to fetch result (if large)
+
+    response_failed:
+      status: 200
+      body:
+        operationId: UUID
+        status: "failed"
+        error:
+          code: Error code
+          message: Error description
+        failedAt: ISO 8601 datetime
+
+  cancellation:
+    description: Allow clients to cancel long-running operations
+    request:
+      method: DELETE
+      path: "/operations/{operationId}"
+    response:
+      status: 200 (cancelled) or 409 (cannot cancel - already complete)
+
+  polling_guidance:
+    initial_delay: 1 second
+    max_delay: 30 seconds
+    backoff: Exponential with jitter
+    note: Include Retry-After header in status responses
+
+  alternative_patterns:
+    webhooks:
+      description: Server calls client webhook when complete
+      trade_off: More complex but avoids polling overhead
+    server_sent_events:
+      description: Client maintains connection for real-time updates
+      trade_off: More complex, connection management issues
