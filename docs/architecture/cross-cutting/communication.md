@@ -23,19 +23,17 @@ Communication is cross-cutting because notices and correspondence can originate 
 | Capability | Supported By |
 |------------|--------------|
 | **Caseworker** | |
-| Generate notice from task | `Notice.generatedByTaskId`, notice templates |
-| Review notice before sending | `Notice.status: pending_review` |
-| Track notice delivery | `DeliveryRecord` entity |
+| Send notice to client | `POST /processes/communication/notices/send` |
+| Retry failed delivery | `POST /processes/communication/notices/retry` |
+| Track notice delivery | `GET /notices`, `GET /delivery-records` (System APIs) |
 | **Supervisor** | |
-| Approve notices before sending | `Notice.status: approved` |
-| Monitor failed deliveries | `DeliveryRecord.status: failed/returned` |
+| Approve notice before sending | `POST /processes/communication/notices/approve` |
+| Monitor failed deliveries | `GET /delivery-records?q=status:failed` (System API) |
 | **System/Automation** | |
-| Auto-generate notices on determination | `Notice.noticeType`, triggered by eligibility events |
-| Retry failed deliveries | `DeliveryRecord.retryCount` |
-| Track response deadlines | `Notice.responseDueDate`, `Notice.responseReceivedDate` |
+| Auto-send notices on events | `POST /processes/communication/notices/send` (skipReview: true) |
+| Retry failed deliveries | `POST /processes/communication/notices/retry` |
 | **Client** | |
-| View notices in portal | `DeliveryRecord.deliveryMethod: portal` |
-| Respond to RFI | `Notice.responseReceivedDate` |
+| View notices in portal | `GET /notices` (System API, client-scoped) |
 
 **Notes:**
 - Notices are triggered by events in other domains (Intake, Eligibility, Workflow, Case Management).
