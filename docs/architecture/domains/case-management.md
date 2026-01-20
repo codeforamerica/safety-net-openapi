@@ -20,25 +20,11 @@ The Case Management domain manages ongoing client relationships, staff, and orga
 
 ## Capabilities
 
-| Capability | Supported By |
-|------------|--------------|
-| **Supervisor** | |
-| Assign worker to case/task | `POST /processes/case-management/workers/assign` |
-| Transfer case to office/worker | `POST /processes/case-management/cases/transfer` |
-| Rebalance team workload | `POST /processes/case-management/teams/rebalance` |
-| View worker capacity | `GET /processes/case-management/workers/capacity` |
-| Update worker availability | `POST /processes/case-management/workers/update-availability` |
-| Monitor team workload | `GET /caseloads`, `GET /teams` (System APIs) |
-| **Caseworker** | |
-| Update own availability | `POST /processes/case-management/workers/update-availability` |
-| **System/Automation** | |
-| Auto-assign by rules | `POST /processes/workflow/tasks/route` (calls Case Mgmt for capacity) |
-| Query worker capacity | `GET /processes/case-management/workers/capacity` |
+See [Workflow domain](workflow.md) for the complete workflow capabilities table. Case Management provides the worker, team, and organizational data that Workflow uses for task routing and assignment.
 
-**Notes:**
-- Task-specific capabilities (status updates, SLA tracking, queues, rules) are in the [Workflow domain](workflow.md).
-- Case Management tracks *who* is assigned and assignment history. Workflow tracks *task state* changes.
-- Auto-assign data (Office, Caseload, Skills) lives here; auto-assign rules (`WorkflowRule`) live in Workflow.
+**Domain responsibilities:**
+- **Case Management**: Tracks *who* is assigned and manages worker/team/office data
+- **Workflow**: Tracks *task state* and applies routing rules
 
 ---
 

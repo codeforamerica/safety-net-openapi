@@ -23,11 +23,13 @@ The Workflow domain manages work items, tasks, SLA tracking, and task routing.
 | Capability | Supported By |
 |------------|--------------|
 | **Supervisor** | |
+| Create task manually | `POST /processes/workflow/tasks/create` |
 | Reassign task to worker/queue | `POST /processes/workflow/tasks/reassign` |
 | Set or change task priority | `POST /processes/workflow/tasks/reassign` (with priority) |
 | Bulk reassign or reprioritize | `POST /processes/workflow/tasks/bulk-reassign` |
 | Escalate task | `POST /processes/workflow/tasks/escalate` |
 | Monitor task queues | `GET /queues`, `GET /tasks` (System APIs) |
+| Monitor team workload | `GET /caseloads` (Case Mgmt System API) |
 | Monitor deadlines and alerts | `GET /tasks?q=slaStatus:at_risk` (System API) |
 | **Caseworker** | |
 | Claim task from queue | `POST /processes/workflow/tasks/claim` |
@@ -37,12 +39,15 @@ The Workflow domain manages work items, tasks, SLA tracking, and task routing.
 | Start verification | `POST /processes/workflow/verification/start` |
 | Complete verification | `POST /processes/workflow/verification/complete` |
 | **System/Automation** | |
-| Route task by rules | `POST /processes/workflow/tasks/route` |
+| Create task on events | `POST /processes/workflow/tasks/create` |
+| Route and prioritize by rules | `POST /processes/workflow/tasks/route` |
 | Auto-verify data | `POST /processes/workflow/verification/start` |
 | **Future** | |
 | Forecast staffing needs | See [Future Considerations](../roadmap.md) |
+| Run productivity/backlog reports | TBD |
 
 **Notes:**
+- Task creation is event-driven: triggered by application submission, eligibility determination, verification needs, etc.
 - Staff and organizational entities (CaseWorker, Office, Team, Caseload) are in the [Case Management domain](case-management.md).
 - Workflow tracks *task state* changes. Case Management tracks *who* is assigned and assignment history.
 - Auto-assign rules (`WorkflowRule`) live here; auto-assign data (Office, Caseload, Skills) lives in Case Management.
@@ -385,6 +390,7 @@ See [API Architecture](../api-architecture.md) for the full Process API pattern.
 
 | Endpoint | Actors | Description |
 |----------|--------|-------------|
+| `POST /processes/workflow/tasks/create` | supervisor, system | Create a new task (manual or event-triggered) |
 | `POST /processes/workflow/tasks/claim` | caseworker | Claim an unassigned task from a queue |
 | `POST /processes/workflow/tasks/complete` | caseworker | Complete a task with outcome |
 | `POST /processes/workflow/tasks/release` | caseworker | Return a task to the queue |
@@ -406,6 +412,47 @@ See [API Architecture](../api-architecture.md) for the full Process API pattern.
 | `POST /processes/workflow/verification/complete` | caseworker, system | Record verification result |
 
 ---
+
+### Create Task
+
+Create a new task, either manually by a supervisor or triggered by system events.
+
+```yaml
+POST /processes/workflow/tasks/create
+x-actors: [supervisor, system]
+x-capability: workflow
+
+requestBody:
+  taskType: string             # Type of task (verify_income, eligibility_determination, etc.)
+  applicationId: uuid          # Associated application (optional)
+  caseId: uuid                 # Associated case (optional)
+  programType: string          # snap, medicaid, tanf
+  priority: string             # expedited, high, normal, low (optional, can be set by rules)
+  dueDate: datetime            # Explicit deadline (optional, can be calculated from SLA)
+  requiredSkills: string[]     # Skills needed (optional)
+  notes: string                # Context for the task
+  sourceInfo:                  # What triggered this task
+    sourceType: string         # application_submitted, determination_complete, manual, etc.
+    sourceId: uuid             # ID of triggering entity
+    sourceDomain: string       # intake, eligibility, case-management, etc.
+  skipRouting: boolean         # If true, don't apply routing rules
+  targetQueueId: uuid          # Direct assignment to queue (if skipRouting)
+  targetWorkerId: uuid         # Direct assignment to worker (if skipRouting)
+
+responses:
+  201:
+    task: Task                 # Created task
+    assignment: Assignment     # If worker was assigned
+    rulesApplied: string[]     # Routing/priority rules that matched
+
+# Orchestrates:
+# 1. Create Task with provided fields
+# 2. Calculate SLA deadline based on taskType and programType
+# 3. If not skipRouting, apply WorkflowRules for priority and queue
+# 4. If rule assigns to worker, create Assignment
+# 5. Create TaskAuditEvent (created)
+# 6. Update Caseload if worker assigned
+```
 
 ### Claim Task
 
