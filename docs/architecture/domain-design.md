@@ -736,6 +736,24 @@ Key decisions made during design, with alternatives considered. These are **prop
 
 ---
 
+**Should there be an Experience Layer?**
+
+| Option | Considered | Chosen |
+|--------|------------|--------|
+| Experience Layer now | Tailored APIs for each client type (mobile, web, caseworker portal) | No |
+| Process APIs serve all clients | Clients call Process APIs directly | Yes |
+| GraphQL in the future | Flexible querying when client needs diverge | Deferred |
+
+*What is an Experience Layer?* An Experience Layer (sometimes called "Backend for Frontend" or BFF) is an API layer that sits above Process APIs and tailors responses for specific client applications. For example, a mobile app might need a lightweight response with only essential fields, while a caseworker dashboard might need aggregated data from multiple domains in a single call. The Experience Layer handles this translation so Process APIs remain client-agnostic.
+
+*Rationale*: An Experience Layer adds complexity that isn't justified yet. Process APIs are sufficient for current use cases. Adding this layer now would mean maintaining three API layers before we understand the actual client requirements.
+
+*Reconsider if*: Client applications need significantly different data shapes (e.g., mobile app needs minimal payloads, web dashboard needs aggregated views), or if multiple teams are building frontends with duplicated data-fetching logic.
+
+*Future direction*: When an Experience Layer becomes necessary, GraphQL is likely the best choice. It allows clients to request exactly the fields they need, reducing over-fetching and enabling frontend teams to evolve independently. A GraphQL gateway could sit above Process APIs without changing the underlying architecture.
+
+---
+
 ### Domain Separation
 
 | Decision | Rationale |
