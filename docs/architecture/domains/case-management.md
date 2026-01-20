@@ -16,6 +16,16 @@ The Case Management domain manages ongoing client relationships, staff, and orga
 | **Caseload** | Workload for a case worker |
 | **Team** | Group of case workers |
 
+### Cases vs Tasks
+
+A **Case** is the long-lived relationship with a client or household—it spans years, multiple applications, and multiple programs. A **Task** is a discrete unit of work with a deadline.
+
+- A case worker can be **assigned to a case** (ongoing responsibility for a client) or **assigned to a task** (one-time work item)
+- Tasks can be **case-level** (e.g., annual renewal, quality audit) or **application-level** (e.g., verify income for a specific application)
+- Transferring a case typically transfers its active tasks as well
+
+See [Workflow domain](workflow.md#tasks-vs-cases) for more detail on the Task entity.
+
 ---
 
 ## Capabilities

@@ -16,18 +16,40 @@ The Workflow domain manages work items, tasks, SLA tracking, and task routing.
 | **TaskSLAInfo** | SLA tracking details (embedded in Task) |
 | **TaskAuditEvent** | Immutable audit trail |
 
+### Tasks vs Cases
+
+**Tasks** and **Cases** serve different purposes:
+
+| | Task | Case |
+|---|------|------|
+| **Lifespan** | Short-lived (created → worked → completed) | Long-lived (spans years, multiple programs) |
+| **Purpose** | A discrete unit of work with a deadline | The ongoing relationship with a client/household |
+| **Examples** | Verify income, determine eligibility, send notice | The Smith household's SNAP and Medicaid participation |
+| **Owned by** | Workflow domain | Case Management domain |
+
+**Tasks can be linked at two levels:**
+
+- **Application-level tasks**: Tied to a specific application (e.g., verify income for application #123, determine eligibility for a new SNAP application)
+- **Case-level tasks**: Tied to the ongoing case, not a specific application (e.g., annual renewal review, case maintenance, quality audit)
+
+Both `applicationId` and `caseId` are optional on a Task—a task will have one or both depending on context.
+
 ---
 
 ## Capabilities
 
 | Capability | Supported By |
 |------------|--------------|
-| **Supervisor** | |
+| **Supervisor - Tasks** | |
 | Create task manually | `POST /processes/workflow/tasks/create` |
 | Reassign task to worker/queue | `POST /processes/workflow/tasks/reassign` |
 | Set or change task priority | `POST /processes/workflow/tasks/reassign` (with priority) |
 | Bulk reassign or reprioritize | `POST /processes/workflow/tasks/bulk-reassign` |
 | Escalate task | `POST /processes/workflow/tasks/escalate` |
+| **Supervisor - Cases** | |
+| Assign worker to case | `POST /processes/case-management/workers/assign` |
+| Transfer case to office/worker | `POST /processes/case-management/cases/transfer` |
+| **Supervisor - Monitoring** | |
 | Monitor task queues | `GET /queues`, `GET /tasks` (System APIs) |
 | Monitor team workload | `GET /caseloads` (Case Mgmt System API) |
 | Monitor deadlines and alerts | `GET /tasks?q=slaStatus:at_risk` (System API) |
@@ -48,6 +70,7 @@ The Workflow domain manages work items, tasks, SLA tracking, and task routing.
 
 **Notes:**
 - Task creation is event-driven: triggered by application submission, eligibility determination, verification needs, etc.
+- Case capabilities reference [Case Management](case-management.md) Process APIs; task capabilities reference Workflow Process APIs.
 - Staff and organizational entities (CaseWorker, Office, Team, Caseload) are in the [Case Management domain](case-management.md).
 - Workflow tracks *task state* changes. Case Management tracks *who* is assigned and assignment history.
 - Auto-assign rules (`WorkflowRule`) live here; auto-assign data (Office, Caseload, Skills) lives in Case Management.
@@ -109,7 +132,9 @@ Task:
       - high           # Approaching deadline
       - normal         # Standard processing
       - low            # Deferred/backlog
-    applicationId: uuid      # Reference to Application (Intake)
+    # Context: a task is linked to an application, a case, or both
+    applicationId: uuid      # Reference to Application (Intake) - for application-level tasks
+    caseId: uuid             # Reference to Case (Case Management) - for case-level tasks
     assignedToId: uuid       # Reference to CaseWorker (Case Management)
     queueId: uuid            # Reference to Queue
     officeId: uuid           # Reference to Office (Case Management)
