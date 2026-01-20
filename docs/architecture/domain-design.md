@@ -658,6 +658,84 @@ Key decisions made during design, with alternatives considered. These are **prop
 
 ---
 
+**System APIs vs Process APIs?**
+
+| Option | Considered | Chosen |
+|--------|------------|--------|
+| Single API layer | Simpler, fewer moving parts | No |
+| Two layers (System + Process) | Clear separation of data access vs orchestration | Yes |
+
+*Rationale*: System APIs provide RESTful CRUD access to domain data. Process APIs orchestrate business operations by calling System APIs. This separation means Process APIs contain business logic while System APIs remain simple and reusable.
+
+*Reconsider if*: The overhead of maintaining two layers isn't justified by the complexity of the business processes, or if most operations map 1:1 to CRUD actions.
+
+---
+
+**What should the mock server cover?**
+
+| Option | Considered | Chosen |
+|--------|------------|--------|
+| All APIs | Complete testing environment | No |
+| System APIs only | Mock data layer, test real orchestration | Yes |
+
+*Rationale*: Process APIs are orchestration logic—that's what you want to test. Mocking them defeats the purpose. Real Process API implementations call mock System APIs during development.
+
+*Reconsider if*: Teams need to develop against Process APIs before implementations exist, or if Process API behavior is complex enough to warrant contract testing via mocks.
+
+---
+
+**How to organize Process APIs?**
+
+| Option | Considered | Chosen |
+|--------|------------|--------|
+| By actor (client/, caseworker/, admin/) | Intuitive grouping by who uses it | No |
+| By capability (applications/, eligibility/, tasks/) | Actor-agnostic, same operation available to multiple actors | Yes |
+
+*Rationale*: Many operations are used by multiple actors (e.g., both clients and caseworkers can submit applications). Organizing by capability with actor metadata (`x-actors: [client, caseworker]`) avoids duplication.
+
+*Reconsider if*: Actor-specific behavior diverges significantly (different request/response shapes), making shared endpoints awkward.
+
+---
+
+**What is the purpose of reference implementations?**
+
+| Option | Considered | Chosen |
+|--------|------------|--------|
+| Production-ready code to extend | States fork and customize | No |
+| Educational examples | States learn patterns, implement from scratch | Yes |
+
+*Rationale*: Reference implementations demonstrate how to implement Process APIs against System API contracts. States implement in their preferred language/framework. Extending reference code creates maintenance burden and hidden coupling.
+
+*Reconsider if*: Implementation patterns are complex enough that reference code provides significant value, or if a common framework emerges across states.
+
+---
+
+**How to achieve vendor independence?**
+
+| Option | Considered | Chosen |
+|--------|------------|--------|
+| Standardize on specific vendors | Simpler, less abstraction | No |
+| Adapter pattern | Thin translation layer between contracts and vendors | Yes |
+
+*Rationale*: Process APIs call System API contracts, not vendor APIs directly. Adapters translate between canonical models and vendor-specific implementations. Switching vendors means rewriting adapters, not business logic.
+
+*Reconsider if*: Vendor capabilities diverge so significantly that adapters become complex business logic themselves.
+
+---
+
+**What's configurable vs code?**
+
+| Option | Considered | Chosen |
+|--------|------------|--------|
+| Everything in code | Simpler deployment, version controlled | No |
+| Split by who changes it | Policy analyst changes = config; developer changes = code | Yes |
+
+*Rationale*: Workflow rules, eligibility thresholds, SLA timelines, and notice templates change frequently and shouldn't require deployments. Business users can adjust these through Admin APIs. Configuration is versioned and audited.
+
+*Reconsider if*: Configuration complexity grows to the point where it's effectively code, or if audit/versioning requirements are better served by version control.
+
+---
+
 ### Domain Separation
 
 | Decision | Rationale |
