@@ -23,16 +23,17 @@ The Case Management domain manages ongoing client relationships, staff, and orga
 | Capability | Supported By |
 |------------|--------------|
 | **Supervisor** | |
-| Assign task to any caseworker | `Assignment` entity, `CaseWorker.id` as target |
-| Reassign between caseworkers/queues/counties | `Assignment`, `Office` for geographic routing |
-| Monitor team workload | `Caseload` entity, `Team` for grouping |
-| Run reports on productivity, backlog | `Caseload` (tasksOnTrack, tasksAtRisk, tasksBreached) |
+| Assign worker to case/task | `POST /processes/case-management/workers/assign` |
+| Transfer case to office/worker | `POST /processes/case-management/cases/transfer` |
+| Rebalance team workload | `POST /processes/case-management/teams/rebalance` |
+| View worker capacity | `GET /processes/case-management/workers/capacity` |
+| Update worker availability | `POST /processes/case-management/workers/update-availability` |
+| Monitor team workload | `GET /caseloads`, `GET /teams` (System APIs) |
 | **Caseworker** | |
-| Release or reassign a task | `Assignment.status: reassigned` |
+| Update own availability | `POST /processes/case-management/workers/update-availability` |
 | **System/Automation** | |
-| Auto-assign by county | `Office.countyCode`, `CaseWorker.officeId` |
-| Auto-assign by workload | `Caseload.activeTasks`, `CaseWorker.workloadCapacity` |
-| Auto-assign by skills | `CaseWorkerSkill` matched against task requirements |
+| Auto-assign by rules | `POST /processes/workflow/tasks/route` (calls Case Mgmt for capacity) |
+| Query worker capacity | `GET /processes/case-management/workers/capacity` |
 
 **Notes:**
 - Task-specific capabilities (status updates, SLA tracking, queues, rules) are in the [Workflow domain](workflow.md).

@@ -23,20 +23,24 @@ The Workflow domain manages work items, tasks, SLA tracking, and task routing.
 | Capability | Supported By |
 |------------|--------------|
 | **Supervisor** | |
-| Set or change task priority | `Task.priority`, `TaskAuditEvent.priority_changed` |
-| Monitor task queues | `Queue` entity |
-| Bulk reassign or reprioritize | Batch Operations API (`PATCH /tasks/batch`) |
-| Monitor deadlines and alerts | `TaskSLAInfo.slaStatus`, `TaskAuditEvent.sla_warning/sla_breached` |
-| Create tasks from external systems | `Task.sourceInfo` |
+| Reassign task to worker/queue | `POST /processes/workflow/tasks/reassign` |
+| Set or change task priority | `POST /processes/workflow/tasks/reassign` (with priority) |
+| Bulk reassign or reprioritize | `POST /processes/workflow/tasks/bulk-reassign` |
+| Escalate task | `POST /processes/workflow/tasks/escalate` |
+| Monitor task queues | `GET /queues`, `GET /tasks` (System APIs) |
+| Monitor deadlines and alerts | `GET /tasks?q=slaStatus:at_risk` (System API) |
 | **Caseworker** | |
-| Update task status | `Task.status` (pending, in_progress, completed, etc.) |
-| Release task I cannot complete | `Task.status: returned_to_queue` |
+| Claim task from queue | `POST /processes/workflow/tasks/claim` |
+| Complete task with outcome | `POST /processes/workflow/tasks/complete` |
+| Release task to queue | `POST /processes/workflow/tasks/release` |
+| Escalate task | `POST /processes/workflow/tasks/escalate` |
+| Start verification | `POST /processes/workflow/verification/start` |
+| Complete verification | `POST /processes/workflow/verification/complete` |
 | **System/Automation** | |
-| Auto-assign by rules | `WorkflowRule` with `ruleType: assignment` |
-| Auto-prioritize based on rules | `WorkflowRule` with `ruleType: priority` |
-| Create tasks on application submission | `Task.applicationId`, `Task.sourceInfo` |
+| Route task by rules | `POST /processes/workflow/tasks/route` |
+| Auto-verify data | `POST /processes/workflow/verification/start` |
 | **Future** | |
-| Forecast staffing needs | See [Future Considerations](../domain-design.md#future-considerations) |
+| Forecast staffing needs | See [Future Considerations](../roadmap.md) |
 
 **Notes:**
 - Staff and organizational entities (CaseWorker, Office, Team, Caseload) are in the [Case Management domain](case-management.md).
