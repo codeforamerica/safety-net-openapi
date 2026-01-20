@@ -11,7 +11,7 @@ Research and recommendations for organizing the Safety Net OpenAPI toolkit aroun
 
 ### Overview
 
-The Safety Net Benefits API is organized into 7 domains, with Communication and Reporting as cross-cutting concerns:
+The Safety Net Benefits API is organized into 7 domains, with 4 cross-cutting concerns:
 
 | Domain | Purpose |
 |--------|---------|
@@ -175,9 +175,9 @@ Files and uploads.
 ## 2. Data Flow Between Domains
 
 ```
-                        ╔═══════════════════════════════════════════════════╗
-                        ║  CROSS-CUTTING: Communication, Reporting          ║
-                        ╚═══════════════════════════════════════════════════╝
+╔═════════════════════════════════════════════════════════════════════════════╗
+║  CROSS-CUTTING: Communication, Reporting, Configuration Mgmt, Observability ║
+╚═════════════════════════════════════════════════════════════════════════════╝
 
 ┌─────────────────────────────────────────────────────────────────────┐
 │                         CLIENT PERSPECTIVE                          │
@@ -280,8 +280,10 @@ Detailed schemas have been moved to domain-specific files for better organizatio
 | Workflow | [domains/workflow.md](domains/workflow.md) |
 | Case Management | [domains/case-management.md](domains/case-management.md) |
 | Communication | [cross-cutting/communication.md](cross-cutting/communication.md) |
+| Configuration Management | See [Section 7: Operational Architecture](#7-operational-architecture) |
+| Observability | See [Section 7: Operational Architecture](#7-operational-architecture) |
 
-*Note: Client Management, Intake, Eligibility, Scheduling, and Document Management schemas will be added as those domains are implemented.*
+*Note: Client Management, Intake, Eligibility, Scheduling, and Document Management schemas will be added as those domains are implemented. Reporting aggregates data from other domains and doesn't have its own schemas.*
 
 ---
 
