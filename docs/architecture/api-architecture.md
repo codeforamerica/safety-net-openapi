@@ -256,6 +256,134 @@ This architecture helps states avoid vendor lock-in when procuring backend syste
 - Standard fields: timestamp, level, service, correlationId, message
 - PII is masked or excluded from logs
 
+**Key SLI Metrics (API-level):**
+
+| Metric | Description | Target |
+|--------|-------------|--------|
+| `process_api_latency_seconds` | Process API response time (p50, p95, p99) | p95 < 500ms |
+| `system_api_latency_seconds` | System API response time (p50, p95, p99) | p95 < 200ms |
+| `error_rate` | API error rate by endpoint (4xx, 5xx) | < 1% |
+| `availability` | Service uptime percentage | 99.9% |
+
+Domain-specific metrics (task completion time, SLA breach rate, etc.) are documented in domain files. See [Workflow Operational Metrics](domains/workflow.md#operational-metrics).
+
+### Performance
+
+**Caching:**
+
+| Data Type | TTL | Rationale |
+|-----------|-----|-----------|
+| TaskType (config) | 5 minutes | Rarely changes, high read volume |
+| SLAType (config) | 5 minutes | Rarely changes, used in every task |
+| WorkflowRule (config) | 1 minute | May be updated by admins |
+| Queue (config) | 1 minute | May be updated by admins |
+| User session/permissions | 5 minutes | Balance security vs performance |
+
+**Pagination:**
+- Default limit: 25 items
+- Maximum limit: 100 items
+- Clients requesting more than 100 receive 100
+
+**Query Complexity:**
+- JSON Logic rules (WorkflowRule.conditions) are limited to:
+  - Maximum depth: 5 levels of nesting
+  - Maximum operations: 20 logical operators per rule
+  - Evaluation timeout: 100ms
+- Search queries (`q` parameter) are limited to 10 filter conditions
+
+### Reliability
+
+**Idempotency:**
+All state-changing operations support idempotent retries. See [api-patterns.yaml](../../packages/schemas/openapi/patterns/api-patterns.yaml#idempotency) for implementation details.
+
+**Circuit Breakers:**
+Circuit breakers protect the system when external dependencies fail. See [api-patterns.yaml](../../packages/schemas/openapi/patterns/api-patterns.yaml#circuit-breakers) for configuration.
+
+Key circuit breaker locations:
+- External verification sources (IRS, SSA, state databases)
+- Vendor system adapters (workflow tools, case management systems)
+- Notice delivery services (email, SMS, postal)
+
+### Security
+
+**Data Classification:**
+
+All API fields are classified for appropriate handling. See [api-patterns.yaml](../../packages/schemas/openapi/patterns/api-patterns.yaml#data-classification) for the full taxonomy.
+
+| Classification | Description | Example Fields |
+|----------------|-------------|----------------|
+| `pii` | Personally Identifiable Information | SSN, DOB, name, address |
+| `sensitive` | Sensitive but not PII | income, case notes, medical info |
+| `internal` | Internal operational data | assignedToId, queueId, timestamps |
+| `public` | Non-sensitive reference data | programType, taskTypeCode, status |
+
+**PII Handling:**
+- PII is encrypted at rest
+- PII is masked in logs (last 4 digits only for SSN)
+- PII access is logged for audit
+- PII fields are excluded from search indexes
+
+### Compliance
+
+**Data Retention:**
+See [Roadmap - Data Retention](roadmap.md#needs-architecture-documentation) for retention periods by data type.
+
+**Right to Deletion:**
+- Deletion requests must balance client rights against audit requirements
+- Application data may be anonymized rather than deleted if audit trail is required
+- States must document their deletion process per program requirements
+
+**Regulatory References:**
+- SNAP: 7 CFR 272.1 (record retention)
+- Medicaid: 42 CFR 431.17 (records and reports)
+- TANF: 45 CFR 265.2 (data collection)
+- HIPAA: Applies to Medicaid-related health information
+- FERPA: May apply when education data is used for eligibility
+
+*Note:* Detailed compliance mapping is state-specific. States should map these requirements to their specific field-level handling.
+
+---
+
+## 4. Quality Attributes Summary
+
+This section provides a central index of architectural quality attributes (-ilities) and where each is documented.
+
+| Quality Attribute | Status | Documentation Location |
+|-------------------|--------|------------------------|
+| **Reliability** | | |
+| Idempotency | Addressed | [api-patterns.yaml](../../packages/schemas/openapi/patterns/api-patterns.yaml#idempotency) |
+| Circuit breakers | Addressed | [api-patterns.yaml](../../packages/schemas/openapi/patterns/api-patterns.yaml#circuit-breakers) |
+| Error handling | Addressed | [api-patterns.yaml](../../packages/schemas/openapi/patterns/api-patterns.yaml#error-handling) |
+| Long-running operations | Addressed | [api-patterns.yaml](../../packages/schemas/openapi/patterns/api-patterns.yaml#long-running-operations) |
+| **Security** | | |
+| Authentication | Addressed | [api-patterns.yaml](../../packages/schemas/openapi/patterns/api-patterns.yaml#authentication) |
+| Authorization (RBAC/ABAC) | Addressed | [api-patterns.yaml](../../packages/schemas/openapi/patterns/api-patterns.yaml#authorization) |
+| Data classification | Addressed | [api-patterns.yaml](../../packages/schemas/openapi/patterns/api-patterns.yaml#data-classification) |
+| Security headers | Addressed | [api-patterns.yaml](../../packages/schemas/openapi/patterns/api-patterns.yaml#security-headers) |
+| Audit logging | Addressed | [api-patterns.yaml](../../packages/schemas/openapi/patterns/api-patterns.yaml#audit-logging) |
+| **Performance** | | |
+| Caching | Addressed | [api-architecture.md](#performance) (this file) |
+| Pagination | Addressed | [api-patterns.yaml](../../packages/schemas/openapi/patterns/api-patterns.yaml#list-endpoints) |
+| Rate limiting | Addressed | [api-patterns.yaml](../../packages/schemas/openapi/patterns/api-patterns.yaml#rate-limiting) |
+| Query complexity limits | Addressed | [api-architecture.md](#performance) (this file) |
+| **Observability** | | |
+| Health endpoints | Addressed | [api-architecture.md](#observability) (this file) |
+| Metrics (API-level) | Addressed | [api-architecture.md](#observability) (this file) |
+| Metrics (domain-specific) | Addressed | [workflow.md](domains/workflow.md#operational-metrics) |
+| Correlation IDs | Addressed | [api-patterns.yaml](../../packages/schemas/openapi/patterns/api-patterns.yaml#correlation-ids) |
+| Distributed tracing | Addressed | [api-architecture.md](#observability) (this file) |
+| **Compliance** | | |
+| Data retention | Partially addressed | [roadmap.md](roadmap.md#needs-architecture-documentation) |
+| Right to deletion | Addressed | [api-architecture.md](#compliance) (this file) |
+| Regulatory references | Addressed | [api-architecture.md](#compliance) (this file) |
+| **Interoperability** | | |
+| API versioning | Addressed | [api-patterns.yaml](../../packages/schemas/openapi/patterns/api-patterns.yaml#versioning) |
+| ETags/concurrency | Addressed | [api-patterns.yaml](../../packages/schemas/openapi/patterns/api-patterns.yaml#etags) |
+| Vendor independence | Addressed | [api-architecture.md](#2-vendor-independence) (this file) |
+| **Maintainability** | | |
+| Configuration management | Addressed | [api-architecture.md](#configuration-management) (this file) |
+| Schema patterns | Addressed | [api-patterns.yaml](../../packages/schemas/openapi/patterns/api-patterns.yaml#schema-patterns) |
+
 ---
 
 ## Related Resources

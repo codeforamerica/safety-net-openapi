@@ -145,6 +145,13 @@ Potential domains and functionality not included in the current design, for futu
 
 Topics identified but not yet fully documented or implemented.
 
+**Recently Addressed:**
+- Performance specifics (caching TTLs, pagination limits, query complexity) → [api-architecture.md](api-architecture.md#performance)
+- Circuit breaker pattern → [api-patterns.yaml](../../packages/schemas/openapi/patterns/api-patterns.yaml#circuit-breakers)
+- Data classification annotations → [api-patterns.yaml](../../packages/schemas/openapi/patterns/api-patterns.yaml#data-classification)
+- Domain-specific SLI metrics → [workflow.md](domains/workflow.md#operational-metrics)
+- Quality attributes summary → [api-architecture.md](api-architecture.md#4-quality-attributes-summary)
+
 ### Added to api-patterns.yaml (Not Yet Implemented)
 
 The following patterns have been added to [api-patterns.yaml](../../packages/schemas/openapi/patterns/api-patterns.yaml) but require implementation:
@@ -198,6 +205,18 @@ Additional patterns that may be valuable depending on implementation needs. Thes
 - Federal programs have specific retention requirements
 - Right to deletion must balance against audit requirements
 - Archived data must remain queryable for audits
+
+*Compliance Cross-References*:
+
+| Program | Regulation | Requirement |
+|---------|------------|-------------|
+| SNAP | 7 CFR 272.1 | Record retention requirements |
+| Medicaid | 42 CFR 431.17 | Records and reports |
+| TANF | 45 CFR 265.2 | Data collection and reporting |
+| All | HIPAA | Protected health information (Medicaid) |
+| All | FERPA | Education records (when used for eligibility) |
+
+*See also*: [API Architecture - Compliance](api-architecture.md#compliance) for field-level handling and right-to-deletion process.
 
 **Event-Driven Architecture / Webhooks**
 

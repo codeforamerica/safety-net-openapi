@@ -802,3 +802,52 @@ responses:
 # 4. Update EligibilityRequest if verification affects eligibility
 # 5. If all verifications complete, trigger next workflow step
 ```
+
+---
+
+## Operational Metrics
+
+Domain-specific SLI metrics for monitoring workflow health and performance. For API-level metrics, see [API Architecture - Observability](../api-architecture.md#observability).
+
+### Task Metrics
+
+| Metric | Description | Labels | Target |
+|--------|-------------|--------|--------|
+| `task_completion_time_seconds` | Time from task creation to completion | taskType, programType, priority | p95 < SLA |
+| `task_wait_time_seconds` | Time task spends unassigned in queue | queueId, programType | p95 < 4 hours |
+| `tasks_in_queue` | Current tasks waiting in queue | queueId, programType, priority | Trend down |
+| `tasks_by_status` | Current task count by status | status, programType | N/A |
+
+### SLA Metrics
+
+| Metric | Description | Labels | Target |
+|--------|-------------|--------|--------|
+| `sla_breach_rate` | Percentage of tasks that breach SLA | slaTypeCode, programType | < 5% |
+| `sla_at_risk_count` | Tasks currently at risk of SLA breach | slaTypeCode, queueId | Alert threshold |
+| `days_until_breach_distribution` | Distribution of days remaining before SLA breach | programType | Monitor trend |
+
+### Verification Metrics
+
+| Metric | Description | Labels | Target |
+|--------|-------------|--------|--------|
+| `verification_success_rate` | External verification API success rate | sourceId, sourceType | > 99% |
+| `verification_latency_seconds` | Time to receive verification response | sourceId, integrationMethod | p95 < 10s |
+| `verification_match_rate` | Rate of matches vs mismatches | sourceId, verificationType | Monitor trend |
+| `verification_source_availability` | Availability of each verification source | sourceId | > 99.5% |
+
+### Assignment Metrics
+
+| Metric | Description | Labels | Target |
+|--------|-------------|--------|--------|
+| `assignment_count` | Tasks assigned per period | workerId, queueId | Balance across workers |
+| `reassignment_rate` | Rate of tasks being reassigned | queueId, reason | < 10% |
+| `escalation_rate` | Rate of tasks being escalated | escalationType, queueId | Monitor trend |
+
+### Alert Thresholds
+
+| Condition | Threshold | Action |
+|-----------|-----------|--------|
+| SLA breach imminent | > 10 tasks at risk in queue | Page supervisor |
+| Verification source down | Availability < 95% for 5 min | Enable manual fallback |
+| Queue depth spike | > 2x normal volume | Alert capacity planning |
+| Worker overload | > 40 active tasks per worker | Rebalance assignments |
