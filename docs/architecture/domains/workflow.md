@@ -373,7 +373,7 @@ When using `skill_match` assignment strategy:
 
 ## Process APIs
 
-Process APIs orchestrate business operations by calling System APIs. They follow the pattern `POST /processes/{capability}/{action}` and use `x-actors` and `x-capability` metadata.
+Process APIs orchestrate business operations by calling System APIs. They follow the pattern `POST /processes/{domain}/{resource}/{action}` and use `x-actors` and `x-capability` metadata.
 
 See [API Architecture](../api-architecture.md) for the full Process API pattern.
 
@@ -381,25 +381,25 @@ See [API Architecture](../api-architecture.md) for the full Process API pattern.
 
 | Endpoint | Actors | Description |
 |----------|--------|-------------|
-| `POST /processes/tasks/claim` | caseworker | Claim an unassigned task from a queue |
-| `POST /processes/tasks/complete` | caseworker | Complete a task with outcome |
-| `POST /processes/tasks/release` | caseworker | Return a task to the queue |
-| `POST /processes/tasks/reassign` | supervisor | Reassign a task to different worker/queue |
-| `POST /processes/tasks/escalate` | caseworker, supervisor | Escalate a task to supervisor |
-| `POST /processes/tasks/bulk-reassign` | supervisor | Reassign multiple tasks |
+| `POST /processes/workflow/tasks/claim` | caseworker | Claim an unassigned task from a queue |
+| `POST /processes/workflow/tasks/complete` | caseworker | Complete a task with outcome |
+| `POST /processes/workflow/tasks/release` | caseworker | Return a task to the queue |
+| `POST /processes/workflow/tasks/reassign` | supervisor | Reassign a task to different worker/queue |
+| `POST /processes/workflow/tasks/escalate` | caseworker, supervisor | Escalate a task to supervisor |
+| `POST /processes/workflow/tasks/bulk-reassign` | supervisor | Reassign multiple tasks |
 
 ### Task Routing
 
 | Endpoint | Actors | Description |
 |----------|--------|-------------|
-| `POST /processes/tasks/route` | system | Apply workflow rules to determine queue/assignment |
+| `POST /processes/workflow/tasks/route` | system | Apply workflow rules to determine queue/assignment |
 
 ### Verification
 
 | Endpoint | Actors | Description |
 |----------|--------|-------------|
-| `POST /processes/verification/start` | caseworker, system | Initiate external data verification |
-| `POST /processes/verification/complete` | caseworker, system | Record verification result |
+| `POST /processes/workflow/verification/start` | caseworker, system | Initiate external data verification |
+| `POST /processes/workflow/verification/complete` | caseworker, system | Record verification result |
 
 ---
 
@@ -408,7 +408,7 @@ See [API Architecture](../api-architecture.md) for the full Process API pattern.
 Caseworker claims an unassigned task from a queue.
 
 ```yaml
-POST /processes/tasks/claim
+POST /processes/workflow/tasks/claim
 x-actors: [caseworker]
 x-capability: task-management
 
@@ -435,7 +435,7 @@ responses:
 Caseworker completes a task with an outcome.
 
 ```yaml
-POST /processes/tasks/complete
+POST /processes/workflow/tasks/complete
 x-actors: [caseworker]
 x-capability: task-management
 
@@ -464,7 +464,7 @@ responses:
 Caseworker returns a task to the queue (cannot complete it).
 
 ```yaml
-POST /processes/tasks/release
+POST /processes/workflow/tasks/release
 x-actors: [caseworker]
 x-capability: task-management
 
@@ -491,7 +491,7 @@ responses:
 Supervisor reassigns a task to a different worker or queue.
 
 ```yaml
-POST /processes/tasks/reassign
+POST /processes/workflow/tasks/reassign
 x-actors: [supervisor]
 x-capability: task-management
 
@@ -521,7 +521,7 @@ responses:
 Escalate a task to supervisor for review.
 
 ```yaml
-POST /processes/tasks/escalate
+POST /processes/workflow/tasks/escalate
 x-actors: [caseworker, supervisor]
 x-capability: task-management
 
@@ -552,7 +552,7 @@ responses:
 Supervisor reassigns multiple tasks during surge or rebalancing.
 
 ```yaml
-POST /processes/tasks/bulk-reassign
+POST /processes/workflow/tasks/bulk-reassign
 x-actors: [supervisor]
 x-capability: task-management
 
@@ -587,7 +587,7 @@ responses:
 Apply workflow rules to determine task queue/assignment (typically system-initiated).
 
 ```yaml
-POST /processes/tasks/route
+POST /processes/workflow/tasks/route
 x-actors: [system]
 x-capability: task-management
 
@@ -616,7 +616,7 @@ responses:
 Initiate external data verification for a verification task.
 
 ```yaml
-POST /processes/verification/start
+POST /processes/workflow/verification/start
 x-actors: [caseworker, system]
 x-capability: verification
 
@@ -645,7 +645,7 @@ responses:
 Record verification result and resolve any discrepancies.
 
 ```yaml
-POST /processes/verification/complete
+POST /processes/workflow/verification/complete
 x-actors: [caseworker, system]
 x-capability: verification
 

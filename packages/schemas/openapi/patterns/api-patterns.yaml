@@ -14,8 +14,9 @@ version: "1.0"
 #   - Located in: openapi/domains/
 #
 # PROCESS APIs: RPC-style orchestration of business operations
-#   - Example: POST /processes/applications/submit
-#   - Located in: openapi/processes/
+#   - Pattern: POST /processes/{domain}/{resource}/{action}
+#   - Example: POST /processes/workflow/tasks/claim
+#   - Located in: openapi/processes/{domain}/{resource}/{action}.yaml
 #
 # Each section below indicates which API type it applies to:
 #   [SYSTEM]         - System APIs only
@@ -141,8 +142,8 @@ search_syntax:
 # CRUD Operations [SYSTEM]
 # =============================================================================
 # Process APIs are RPC-style (POST with action verbs), not RESTful CRUD.
-# Process API pattern: POST /processes/{capability}/{action}
-# Example: POST /processes/applications/submit, POST /processes/tasks/bulk-reassign
+# Process API pattern: POST /processes/{domain}/{resource}/{action}
+# Example: POST /processes/workflow/tasks/claim, POST /processes/case-management/workers/assign
 crud_operations:
   # CREATE - POST /resources
   create:
@@ -366,9 +367,37 @@ file_structure:
 # who can call them and what capability they provide.
 process_api_metadata:
   description: |
-    Process APIs are organized by capability, not by actor. Extension fields
-    declare which actors can call an endpoint and what capability it provides.
+    Process APIs are organized by domain, then resource, then action:
+
+      /processes/{domain}/{resource}/{action}
+
+    Examples:
+      /processes/workflow/tasks/claim
+      /processes/workflow/verification/start
+      /processes/case-management/workers/assign
+      /processes/communication/notices/send
+
     This enables documentation generation, authorization rules, and API discovery.
+
+  path_convention:
+    pattern: "/processes/{domain}/{resource}/{action}"
+    components:
+      domain: The owning domain (workflow, case-management, intake, eligibility, communication, etc.)
+      resource: The resource being acted upon (tasks, workers, cases, notices, etc.)
+      action: The operation being performed (claim, assign, transfer, send, etc.)
+    convention: |
+      When an operation involves multiple resources, place it under the resource
+      being acted upon (not the primary output). This matches natural language
+      and improves discoverability.
+    examples:
+      - path: /processes/workflow/tasks/claim
+        description: Claim a task (task is acted upon)
+      - path: /processes/case-management/workers/assign
+        description: Assign a worker (worker is acted upon)
+      - path: /processes/case-management/cases/transfer
+        description: Transfer a case (case is acted upon)
+      - path: /processes/communication/notices/send
+        description: Send a notice (notice is acted upon)
 
   extensions:
     x-actors:
@@ -383,7 +412,7 @@ process_api_metadata:
         - system              # Automated/batch processes
       example: |
         paths:
-          /processes/applications/submit:
+          /processes/intake/applications/submit:
             post:
               x-actors: [client, caseworker, authorized_rep]
               summary: Submit an application
@@ -400,14 +429,15 @@ process_api_metadata:
         - eligibility             # Determining eligibility
         - task-management         # Managing workflow tasks
         - case-management         # Managing cases and assignments
+        - verification            # Data verification operations
         - document-management     # Uploading and managing documents
         - scheduling              # Appointments and interviews
-        - notifications           # Sending notices and alerts
+        - communication           # Sending notices and alerts
         - reporting               # Generating reports
         - configuration           # Managing system configuration
       example: |
         paths:
-          /processes/applications/submit:
+          /processes/intake/applications/submit:
             post:
               x-capability: application-intake
               x-actors: [client, caseworker]
@@ -420,7 +450,7 @@ process_api_metadata:
       note: All Process API POST operations should specify this explicitly
       example: |
         paths:
-          /processes/applications/submit:
+          /processes/intake/applications/submit:
             post:
               x-idempotent: true  # Safe to retry with same Idempotency-Key
 
@@ -1172,7 +1202,7 @@ long_running_operations:
   initiation:
     request:
       method: POST
-      path: "/processes/{capability}/{action}"
+      path: "/processes/{domain}/{resource}/{action}"
       body: Operation parameters
       headers:
         Idempotency-Key: Required (operations are idempotent)

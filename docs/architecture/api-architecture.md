@@ -15,7 +15,7 @@ Following API-led connectivity principles, APIs are organized into layers.
 | Layer | Purpose | Style | Example |
 |-------|---------|-------|---------|
 | **System APIs** | Direct access to domain data | RESTful CRUD | `GET /tasks/{id}`, `POST /applications` |
-| **Process APIs** | Orchestrate business operations | RPC-style actions | `POST /processes/applications/submit` |
+| **Process APIs** | Orchestrate business operations | RPC-style actions | `POST /processes/workflow/tasks/claim` |
 
 **Key distinctions:**
 - **System APIs** own canonical schemas and provide granular CRUD operations on resources
@@ -35,14 +35,23 @@ openapi/
 │   ├── intake/
 │   └── eligibility/
 │
-├── processes/                            # Process API contracts (use-case-based)
-│   ├── applications/
-│   │   ├── submit.yaml
-│   │   └── withdraw.yaml
-│   ├── eligibility/
-│   │   └── determine.yaml
-│   ├── tasks/
-│   │   └── bulk-reassign.yaml
+├── processes/                            # Process APIs (domain/resource/action)
+│   ├── workflow/
+│   │   ├── tasks/
+│   │   │   ├── claim.yaml
+│   │   │   ├── complete.yaml
+│   │   │   └── reassign.yaml
+│   │   └── verification/
+│   │       ├── start.yaml
+│   │       └── complete.yaml
+│   ├── case-management/
+│   │   ├── workers/
+│   │   │   └── assign.yaml
+│   │   └── cases/
+│   │       └── transfer.yaml
+│   ├── communication/
+│   │   └── notices/
+│   │       └── send.yaml
 │   └── components/schemas.yaml           # Process-specific DTOs
 │
 └── components/                           # Shared primitives (Address, Name, etc.)
@@ -50,12 +59,38 @@ openapi/
 
 ### Process API Organization
 
-Process APIs are organized **by capability** (not by actor), with actor metadata:
+Process APIs are organized **by domain, then resource, then action**:
+
+```
+/processes/{domain}/{resource}/{action}
+```
+
+**Examples:**
+```
+/processes/workflow/tasks/claim
+/processes/workflow/tasks/complete
+/processes/workflow/verification/start
+/processes/case-management/workers/assign
+/processes/case-management/cases/transfer
+/processes/communication/notices/send
+```
+
+**Convention:** When an operation involves multiple resources, place it under **the resource being acted upon** (not the primary output). This matches natural language and improves discoverability:
+
+| Operation | Resource acted upon | Path |
+|-----------|---------------------|------|
+| Claim a task | Task | `/processes/workflow/tasks/claim` |
+| Assign a worker | Worker | `/processes/case-management/workers/assign` |
+| Transfer a case | Case | `/processes/case-management/cases/transfer` |
+| Send a notice | Notice | `/processes/communication/notices/send` |
+
+**Metadata:** Each operation includes actor and capability metadata:
 
 ```yaml
-# processes/applications/submit.yaml
-x-actors: [client, caseworker]    # Who can call this
-x-capability: application-intake
+# processes/workflow/tasks/claim.yaml
+post:
+  x-actors: [caseworker]          # Who can call this
+  x-capability: task-management   # Business capability
 ```
 
 ### What This Repo Provides

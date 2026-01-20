@@ -269,7 +269,7 @@ CaseWorker (1) ──< (many) Case (via assignedWorkerId)
 
 ## Process APIs
 
-Process APIs orchestrate business operations by calling System APIs. They follow the pattern `POST /processes/{capability}/{action}` and use `x-actors` and `x-capability` metadata.
+Process APIs orchestrate business operations by calling System APIs. They follow the pattern `POST /processes/{domain}/{resource}/{action}` and use `x-actors` and `x-capability` metadata.
 
 See [API Architecture](../api-architecture.md) for the full Process API pattern.
 
@@ -277,16 +277,16 @@ See [API Architecture](../api-architecture.md) for the full Process API pattern.
 
 | Endpoint | Actors | Description |
 |----------|--------|-------------|
-| `POST /processes/assignments/assign` | supervisor, system | Assign worker to case, application, or task |
-| `POST /processes/cases/transfer` | supervisor | Transfer case to different office/worker |
+| `POST /processes/case-management/workers/assign` | supervisor, system | Assign worker to case, application, or task |
+| `POST /processes/case-management/cases/transfer` | supervisor | Transfer case to different office/worker |
 
 ### Workload Management
 
 | Endpoint | Actors | Description |
 |----------|--------|-------------|
-| `POST /processes/teams/rebalance` | supervisor | Redistribute tasks across team members |
-| `POST /processes/workers/update-availability` | caseworker, supervisor | Update worker status and availability |
-| `GET /processes/workers/capacity` | supervisor, system | Get worker capacity for assignment decisions |
+| `POST /processes/case-management/teams/rebalance` | supervisor | Redistribute tasks across team members |
+| `POST /processes/case-management/workers/update-availability` | caseworker, supervisor | Update worker status and availability |
+| `GET /processes/case-management/workers/capacity` | supervisor, system | Get worker capacity for assignment decisions |
 
 ---
 
@@ -295,7 +295,7 @@ See [API Architecture](../api-architecture.md) for the full Process API pattern.
 Assign a worker to a case, application, or task.
 
 ```yaml
-POST /processes/assignments/assign
+POST /processes/case-management/workers/assign
 x-actors: [supervisor, system]
 x-capability: case-management
 
@@ -328,7 +328,7 @@ responses:
 Transfer a case to a different office or worker.
 
 ```yaml
-POST /processes/cases/transfer
+POST /processes/case-management/cases/transfer
 x-actors: [supervisor]
 x-capability: case-management
 
@@ -363,7 +363,7 @@ responses:
 Redistribute tasks across team members based on capacity.
 
 ```yaml
-POST /processes/teams/rebalance
+POST /processes/case-management/teams/rebalance
 x-actors: [supervisor]
 x-capability: case-management
 
@@ -396,7 +396,7 @@ responses:
 Update a worker's status and availability, triggering reassignment if needed.
 
 ```yaml
-POST /processes/workers/update-availability
+POST /processes/case-management/workers/update-availability
 x-actors: [caseworker, supervisor]
 x-capability: case-management
 
@@ -435,7 +435,7 @@ responses:
 Get real-time capacity information for assignment decisions.
 
 ```yaml
-GET /processes/workers/capacity
+GET /processes/case-management/workers/capacity
 x-actors: [supervisor, system]
 x-capability: case-management
 
