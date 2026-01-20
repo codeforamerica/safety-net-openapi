@@ -36,5 +36,6 @@ jobs:
             --version=$VERSION
 
       - name: Publish to npm
-        working-directory: packages/clients/dist-packages/${{ matrix.state }}
-        run: npm publish
+        uses: JS-DevTools/npm-publish@v4
+        with:
+          package: packages/clients/dist-packages/${{ matrix.state }}/package.json
