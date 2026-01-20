@@ -68,7 +68,7 @@ Visit `http://localhost:3000` for interactive API docs.
 - [Troubleshooting](./docs/reference/troubleshooting.md) — Common issues and solutions
 
 ### Architecture
-- [Domain Design](./docs/architecture/domain-design.md) — Domain organization and entity design
+- [Architecture Overview](./docs/architecture/README.md) — Domain design, API architecture, design decisions, and roadmap
 
 ### Architecture Decisions
 - [Multi-State Overlays](./docs/architecture-decisions/multi-state-overlays.md)
