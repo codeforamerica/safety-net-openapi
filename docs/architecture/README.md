@@ -14,16 +14,6 @@ This directory contains architecture documentation for the Safety Net Benefits A
 | [Design Decisions](design-decisions.md) | Key decisions with rationale and alternatives considered |
 | [Roadmap](roadmap.md) | Migration, implementation phases, future considerations, and documentation gaps |
 
-## Domain Schema Details
-
-| Domain | File |
-|--------|------|
-| Workflow | [domains/workflow.md](domains/workflow.md) |
-| Case Management | [domains/case-management.md](domains/case-management.md) |
-| Communication | [cross-cutting/communication.md](cross-cutting/communication.md) |
-
-*Additional domain schemas will be added as those domains are implemented.*
-
 ## Related Resources
 
 | Resource | Description |
