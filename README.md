@@ -2,7 +2,7 @@
 
 This toolkit helps teams build consistent, well-documented APIs for safety net programs—enabling faster integration between benefits systems and reducing the technical barriers to improving service delivery.
 
-**New here?** Start with the [Executive Summary](./docs/presentation/executive-summary.md) for a one-page overview, or view the [Toolkit Overview](https://codeforamerica.github.io/safety-net-openapi/presentation/safety-net-openapi-overview.html) presentation for a detailed walkthrough.
+**New here?** Start with the [Executive Summary](./docs/presentation/executive-summary.md) for a one-page overview, or view the [Toolkit Overview](https://codeforamerica.github.io/safety-net-openapi/presentation/safety-net-openapi-overview.html) presentation for a detailed walkthrough. For the technical design, see the [Domain Architecture](./docs/architecture/domain-design.md).
 
 ## About This Repository
 
@@ -66,6 +66,9 @@ Visit `http://localhost:3000` for interactive API docs.
 - [Commands](./docs/reference/commands.md) — All available npm scripts
 - [Project Structure](./docs/reference/project-structure.md) — File layout and conventions
 - [Troubleshooting](./docs/reference/troubleshooting.md) — Common issues and solutions
+
+### Architecture
+- [Architecture Overview](./docs/architecture/README.md) — Domain design, API architecture, design decisions, and roadmap
 
 ### Architecture Decisions
 - [Multi-State Overlays](./docs/architecture-decisions/multi-state-overlays.md)
