@@ -1,4 +1,19 @@
 # Common shared components and schemas
+#
+# This file contains schemas shared across multiple APIs.
+#
+# Schemas in this file:
+#   Identity/Contact:
+#     - Address, Email, Name, PhoneNumber, SocialSecurityNumber
+#
+#   Authentication/Authorization:
+#     - AuthorizationClaims    Custom claims for authorization (role, permissions, etc.)
+#     - JwtClaims              Full JWT structure (standard + authorization claims)
+#     - RoleType               Available authorization roles
+#
+#   Domain:
+#     - EmployerInfo, Language, Program, Signature
+
 Address:
   type: object
   description: Residential or mailing address used to determine eligibility.
@@ -38,6 +53,58 @@ Address:
       description: County or equivalent administrative region.
       maxLength: 100
 
+AuthorizationClaims:
+  type: object
+  description: |
+    Custom authorization claims embedded in JWT tokens. These claims are
+    provided by the User Service during login and used by domain APIs
+    for authorization decisions.
+  properties:
+    userId:
+      type: string
+      format: uuid
+      description: User Service identifier.
+    role:
+      $ref: "#/RoleType"
+    permissions:
+      type: array
+      items:
+        type: string
+      description: |
+        Permission strings in the format {resource}:{action}.
+        Examples: applications:read, persons:update, users:create
+      example:
+        - "applications:read"
+        - "applications:create"
+        - "applications:update"
+        - "persons:read"
+    countyCode:
+      type: string
+      description: Primary county FIPS code for data scoping.
+      example: "06001"
+    counties:
+      type: array
+      items:
+        type: string
+      description: All county FIPS codes the user can access.
+      example: ["06001", "06013"]
+    organizationId:
+      type: string
+      format: uuid
+      description: Organization or agency identifier.
+    personId:
+      type: string
+      format: uuid
+      description: |
+        Link to Person record if user is an applicant.
+        Used to scope self-service access to own data.
+    caseWorkerId:
+      type: string
+      format: uuid
+      description: |
+        Link to CaseWorker record if user is staff.
+        Populated when Case Management domain is implemented.
+
 Email:
   type: string
   format: email
@@ -63,6 +130,60 @@ EmployerInfo:
       type: string
       description: Employer Identification Number (EIN).
       maxLength: 50
+
+JwtClaims:
+  type: object
+  description: |
+    Expected JWT claims structure for domain API authentication.
+    Combines standard JWT claims with custom authorization claims.
+
+    Domain APIs validate the JWT signature and read these claims
+    for authorization decisions. No runtime calls to User Service required.
+  required:
+    - sub
+    - iss
+    - aud
+    - exp
+    - role
+  allOf:
+    - type: object
+      properties:
+        # Standard JWT claims (RFC 7519)
+        sub:
+          type: string
+          description: |
+            Subject identifier from the Identity Provider.
+            Uniquely identifies the user within the IdP.
+          example: "auth0|507f1f77bcf86cd799439011"
+        iss:
+          type: string
+          format: uri
+          description: Token issuer (IdP URL).
+          example: "https://your-tenant.auth0.com/"
+        aud:
+          type: string
+          description: Intended audience (API identifier).
+          example: "https://api.safetynet.example.com"
+        exp:
+          type: integer
+          description: Expiration timestamp (Unix epoch seconds).
+          example: 1706300000
+        iat:
+          type: integer
+          description: Issued-at timestamp (Unix epoch seconds).
+          example: 1706296400
+        # Identity claims
+        email:
+          type: string
+          format: email
+          description: User's email address.
+          example: "jane.smith@alameda.gov"
+        name:
+          type: string
+          description: User's display name.
+          example: "Jane Smith"
+    # Authorization claims
+    - $ref: "#/AuthorizationClaims"
 
 PhoneNumber:
   type: string
@@ -112,6 +233,25 @@ Program:
     - tanf
     - adult_financial
     - medical_assistance
+
+RoleType:
+  type: string
+  description: |
+    Authorization roles that determine base permissions and data scoping.
+
+    - applicant: Self-service access to own applications (scoped by personId)
+    - case_worker: Process applications for assigned county
+    - supervisor: Oversee case workers, approve determinations (may span counties)
+    - county_admin: Administer county staff and configuration
+    - state_admin: Statewide oversight and administration (all counties)
+    - partner_readonly: External partner with limited read access
+  enum:
+    - applicant
+    - case_worker
+    - supervisor
+    - county_admin
+    - state_admin
+    - partner_readonly
 
 Signature:
   type: object
