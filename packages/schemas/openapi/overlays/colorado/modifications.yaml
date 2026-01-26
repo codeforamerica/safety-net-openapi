@@ -139,3 +139,93 @@ actions:
       - andcs
       - leap
       - cccap
+
+  # ============================================================================
+  # User/Auth Schema Modifications (components/user.yaml, components/common.yaml)
+  # ============================================================================
+
+  # Colorado role terminology
+  - target: $.RoleType.enum
+    file: components/common.yaml
+    description: |
+      Colorado uses different role names:
+      - technician (processes applications)
+      - supervisor (oversees technicians)
+      - district_ops_manager (oversees district operations)
+    update:
+      - applicant
+      - technician
+      - supervisor
+      - district_ops_manager
+      - county_admin
+      - state_admin
+      - partner_readonly
+
+  # Update RoleType description for Colorado terminology
+  - target: $.RoleType.description
+    file: components/common.yaml
+    description: Colorado role descriptions
+    update: |
+      Authorization roles that determine base permissions and data scoping.
+
+      - applicant: Self-service access to own applications (scoped by personId)
+      - technician: Process applications for assigned counties/programs
+      - supervisor: Oversee technicians, approve determinations
+      - district_ops_manager: Oversee district operations across counties
+      - county_admin: Administer county staff and configuration
+      - state_admin: Statewide oversight and administration (all counties)
+      - partner_readonly: External partner with limited read access
+
+  # Add district and program assignments to User
+  - target: $.User.properties
+    file: components/user.yaml
+    description: Colorado uses districts and program-based assignments
+    update:
+      districts:
+        type: array
+        items:
+          type: string
+        description: |
+          Colorado administrative districts the user can access.
+          Users may be assigned to multiple districts.
+        example: ["D01", "D05"]
+      programs:
+        type: array
+        items:
+          $ref: "./common.yaml#/Program"
+        description: |
+          Programs the user is authorized to work on.
+          Technicians, supervisors, and district ops managers may be
+          assigned to multiple programs.
+        example: ["snap", "colorado_works"]
+
+  # Add districts and programs to AuthorizationClaims (for JWT)
+  - target: $.AuthorizationClaims.properties
+    file: components/common.yaml
+    description: Colorado JWT claims include districts and programs
+    update:
+      districts:
+        type: array
+        items:
+          type: string
+        description: Colorado administrative districts for data scoping.
+        example: ["D01", "D05"]
+      programs:
+        type: array
+        items:
+          type: string
+        description: Programs the user is authorized to access.
+        example: ["snap", "colorado_works"]
+
+  # Add PEAK integration module to UiPermissions
+  - target: $.UiPermissions.properties.availableModules.items.enum
+    file: components/user.yaml
+    description: Colorado includes PEAK integration module
+    update:
+      - cases
+      - tasks
+      - reports
+      - documents
+      - scheduling
+      - admin
+      - peak_integration
