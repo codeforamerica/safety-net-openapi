@@ -7,7 +7,7 @@
 #     - Address, Email, Name, PhoneNumber, SocialSecurityNumber
 #
 #   Authentication/Authorization:
-#     - AuthorizationClaims    Custom claims for authorization (role, permissions, etc.)
+#     - AuthorizationContext   Custom claims for authorization (role, permissions, etc.)
 #     - JwtClaims              Full JWT structure (standard + authorization claims)
 #     - RoleType               Available authorization roles
 #
@@ -53,12 +53,14 @@ Address:
       description: County or equivalent administrative region.
       maxLength: 100
 
-AuthorizationClaims:
+AuthorizationContext:
   type: object
   description: |
-    Custom authorization claims embedded in JWT tokens. These claims are
-    provided by the User Service during login and used by domain APIs
-    for authorization decisions.
+    Authorization context for a user. Stored in the User Service and embedded
+    in JWT tokens during login. Domain APIs read these claims for authorization
+    decisions without runtime calls to the User Service.
+  required:
+    - role
   properties:
     userId:
       type: string
@@ -182,8 +184,8 @@ JwtClaims:
           type: string
           description: User's display name.
           example: "Jane Smith"
-    # Authorization claims
-    - $ref: "#/AuthorizationClaims"
+    # Authorization context
+    - $ref: "#/AuthorizationContext"
 
 PhoneNumber:
   type: string

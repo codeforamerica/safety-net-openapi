@@ -8,112 +8,70 @@
 #   Primary:
 #     - User                    User account with role and permissions
 #
-#   Supporting:
-#     - Role                    Role definition with permissions
+#   Supporting (alphabetical):
 #     - UiPermissions           Computed UI permissions for frontend
 #     - UserPreferences         User preferences
 #     - UserStatus              User account status
 #
 # Shared schemas (in common.yaml):
-#     - AuthorizationClaims     Claims for JWT enrichment (used by POST /token/claims)
+#     - AuthorizationContext    Authorization context (role, permissions, counties)
 #     - JwtClaims               Full JWT structure for domain APIs
 #     - RoleType                Available authorization roles
 
 User:
-  type: object
   description: |
     User account for authentication and authorization. Links an IdP identity
     to roles, permissions, and county assignments.
 
     Note: Job function details (skills, team, workload) are not stored here.
     Staff users link to a CaseWorker record in the Case Management domain.
-  required:
-    - id
-    - idpSubject
-    - email
-    - role
-    - status
-    - createdAt
-    - updatedAt
-  properties:
-    id:
-      type: string
-      format: uuid
-      readOnly: true
-      description: Unique identifier for the user.
-    idpSubject:
-      type: string
-      description: |
-        Subject identifier from the Identity Provider. Immutable after creation.
-        Format varies by IdP (e.g., "auth0|507f1f77bcf86cd799439011").
-      example: "auth0|507f1f77bcf86cd799439011"
-    email:
-      type: string
-      format: email
-      description: User's email address (from IdP or manually set).
-      example: "jane.smith@alameda.gov"
-    name:
-      type: string
-      description: User's display name.
-      example: "Jane Smith"
-    role:
-      $ref: "./common.yaml#/RoleType"
-    status:
-      $ref: "#/UserStatus"
-    counties:
-      type: array
-      items:
-        type: string
-      description: |
-        County FIPS codes the user can access. For staff, determines data scope.
-        Empty for applicants (scoped by personId instead).
-      example: ["06001", "06013"]
-    primaryCountyCode:
-      type: string
-      description: Primary county for the user (first in counties array).
-      example: "06001"
-    organizationId:
-      type: string
-      format: uuid
-      description: Organization or agency the user belongs to.
-    personId:
-      type: string
-      format: uuid
-      description: |
-        Link to Person record if user is an applicant. Enables self-service
-        access to their own applications and household data.
-    caseWorkerId:
-      type: string
-      format: uuid
-      description: |
-        Link to CaseWorker record if user is staff. Populated when Case
-        Management domain is implemented.
-    permissions:
-      type: array
-      items:
-        type: string
-      readOnly: true
-      description: |
-        Computed permissions based on role. Read-only; modify via role assignment.
-      example:
-        - "applications:read"
-        - "applications:create"
-        - "applications:update"
-        - "persons:read"
-    ui:
-      $ref: "#/UiPermissions"
-    preferences:
-      $ref: "#/UserPreferences"
-    createdAt:
-      type: string
-      format: date-time
-      readOnly: true
-      description: Timestamp when the user was created.
-    updatedAt:
-      type: string
-      format: date-time
-      readOnly: true
-      description: Timestamp when the user was last updated.
+  allOf:
+    - $ref: "./common.yaml#/AuthorizationContext"
+    - type: object
+      required:
+        - id
+        - idpSubject
+        - email
+        - status
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Unique identifier for the user (same as userId in JWT claims).
+        idpSubject:
+          type: string
+          description: |
+            Subject identifier from the Identity Provider. Immutable after creation.
+            Format varies by IdP (e.g., "auth0|507f1f77bcf86cd799439011").
+          example: "auth0|507f1f77bcf86cd799439011"
+        email:
+          type: string
+          format: email
+          description: User's email address (from IdP or manually set).
+          example: "jane.smith@alameda.gov"
+        name:
+          type: string
+          description: User's display name.
+          example: "Jane Smith"
+        status:
+          $ref: "#/UserStatus"
+        ui:
+          $ref: "#/UiPermissions"
+        preferences:
+          $ref: "#/UserPreferences"
+        createdAt:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Timestamp when the user was created.
+        updatedAt:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Timestamp when the user was last updated.
 
 # Supporting schemas (alphabetical)
 
@@ -156,48 +114,6 @@ UiPermissions:
     canImpersonate:
       type: boolean
       description: Can act on behalf of another user.
-
-Role:
-  type: object
-  description: Role definition with associated permissions.
-  required:
-    - id
-    - name
-    - permissions
-  properties:
-    id:
-      $ref: "./common.yaml#/RoleType"
-    name:
-      type: string
-      description: Human-readable role name.
-      example: "Case Worker"
-    description:
-      type: string
-      description: Description of the role's purpose and access level.
-    permissions:
-      type: array
-      items:
-        type: string
-      description: Permissions granted to this role.
-      example:
-        - "applications:read"
-        - "applications:create"
-        - "applications:update"
-    scoping:
-      type: string
-      enum:
-        - userId
-        - countyCode
-        - counties
-        - none
-        - custom
-      description: |
-        How data access is scoped for this role:
-        - userId: Own records only (applicants)
-        - countyCode: Single assigned county
-        - counties: Multiple assigned counties
-        - none: All data (state admin)
-        - custom: Per-agreement (partners)
 
 UserPreferences:
   type: object

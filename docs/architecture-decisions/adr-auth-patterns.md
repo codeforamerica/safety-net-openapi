@@ -185,7 +185,7 @@ The User Service is intentionally minimal:
 
 | File | Components | Purpose |
 |------|------------|---------|
-| `components/common.yaml` | `AuthorizationClaims`, `JwtClaims`, `RoleType` | JWT structure and role definitions |
+| `components/common.yaml` | `AuthorizationContext`, `JwtClaims`, `RoleType` | JWT structure and role definitions |
 | `components/common-responses.yaml` | `Unauthorized`, `Forbidden` | Auth error responses (401, 403) |
 
 ### Integration Points
@@ -249,21 +249,30 @@ Different security schemes are supported either per state (via overlays) or per 
 
 ## Frontend Authorization Pattern
 
-The `ui` object on the User model provides computed flags for frontend feature toggling. This keeps authorization logic on the backend while giving frontends a simple API for showing/hiding features.
+Frontends need to know what features to show or hide based on the user's permissions. The question is: how should the frontend get this information?
 
 ### Options Considered
 
 | Option | Description | Pros | Cons |
 |--------|-------------|------|------|
-| 1. Modules + action flags | Backend computes both modules and specific actions | Simple frontend, single source of truth | More fields to maintain |
-| 2. Modules only | Backend returns modules; frontend checks permissions array | Simpler schema | Permission logic duplicated in frontend |
-| 3. Raw permissions only | Frontend parses permissions array for everything | Minimal backend work | Complex frontend logic, inconsistent |
+| 1. Backend provides `ui` object with modules + action flags | Backend computes which modules and actions are available; frontend reads flags | Simple frontend, single source of truth | More fields to maintain on backend |
+| 2. Backend provides `ui` object with modules only | Backend returns available modules; frontend checks `permissions` array for specific actions | Simpler schema | Permission logic duplicated in frontend |
+| 3. No `ui` object; frontend parses `permissions` array | Frontend interprets permission strings (e.g., `applications:read`) for everything | Minimal backend work | Complex frontend logic, inconsistent across apps |
 
 ### Recommendation
 
-**Option 1: Modules + action flags**
+**Option 1: Backend provides `ui` object with modules + action flags**
 
-Authorization logic belongs on the backend. The `permissions` array is for API enforcement; the `ui` object is for frontend feature toggling. This separation ensures:
+The User model includes a `ui` object that the backend computes based on the user's role and permissions. This keeps authorization logic on the backend while giving frontends a simple API.
+
+```yaml
+ui:
+  availableModules: [cases, tasks, reports]
+  canApproveApplications: true
+  canViewSensitivePII: false
+```
+
+The `permissions` array (e.g., `["applications:read", "applications:update"]`) is for API enforcement. The `ui` object is for frontend feature toggling. This separation ensures:
 
 - Frontends don't need to understand permission string patterns
 - Changes to permission structure don't break frontend logic
@@ -271,9 +280,9 @@ Authorization logic belongs on the backend. The `permissions` array is for API e
 
 See [Identity & Access: Frontend Authorization](../architecture/cross-cutting/identity-access.md#frontend-authorization) for implementation details.
 
-### Open Question: UiPermissions Structure
+### Open Question: Structure of the `ui` Object
 
-The current `UiPermissions` schema uses flat boolean flags (Option 1). This is simple but may not scale well. We need to decide on a structure before the schema stabilizes.
+Given that we recommend the backend provide a `ui` object, what should its internal structure be? The current schema uses flat boolean flags, which is simple but may not scale well. We need to decide on a structure before the schema stabilizes.
 
 **Structures under consideration:**
 
@@ -378,6 +387,142 @@ actions:
         # ...
 ```
 
+### Customizing Roles and Permissions
+
+States can use overlays to add roles, modify permissions, or extend the authorization context for state-specific needs.
+
+**Adding state-specific roles:**
+
+```yaml
+# Example: Texas adds a regional coordinator role
+overlay: 1.0.0
+info:
+  title: Texas State Overlay
+  version: 1.0.0
+
+actions:
+  # Extend RoleType enum with state-specific roles
+  - target: $.RoleType.enum
+    file: components/common.yaml
+    description: Texas adds regional coordinator role
+    update:
+      - applicant
+      - case_worker
+      - supervisor
+      - county_admin
+      - state_admin
+      - partner_readonly
+      - regional_coordinator  # Texas-specific: oversees multiple counties in a region
+
+  # Document the new role's scoping behavior
+  - target: $.RoleType.description
+    file: components/common.yaml
+    update: |
+      Authorization roles that determine base permissions and data scoping.
+
+      - applicant: Self-service access to own applications (scoped by personId)
+      - case_worker: Process applications for assigned county
+      - supervisor: Oversee case workers, approve determinations (may span counties)
+      - county_admin: Administer county staff and configuration
+      - state_admin: Statewide oversight and administration (all counties)
+      - partner_readonly: External partner with limited read access
+      - regional_coordinator: Texas-specific role for multi-county regional oversight
+```
+
+**Adding state-specific permissions:**
+
+```yaml
+# Example: New York adds audit-specific permissions for compliance
+actions:
+  # Extend AuthorizationContext to include audit permissions
+  - target: $.AuthorizationContext.properties.permissions.example
+    file: components/common.yaml
+    description: New York includes audit permissions in examples
+    update:
+      - "applications:read"
+      - "applications:create"
+      - "persons:read"
+      - "audit:read"           # NY-specific
+      - "audit:export"         # NY-specific
+      - "compliance:review"    # NY-specific
+
+  # Add state-specific permission documentation
+  - target: $.AuthorizationContext.properties.permissions.description
+    file: components/common.yaml
+    update: |
+      Permission strings in the format {resource}:{action}.
+      Base permissions: applications:read, persons:update, users:create
+      New York additions: audit:read, audit:export, compliance:review
+```
+
+**Adding program-based authorization:**
+
+Some states scope access not just by county but also by program (SNAP, TANF, etc.). California's overlay demonstrates this pattern:
+
+```yaml
+# From California's overlay - adding program-based scoping
+actions:
+  # Add programs to AuthorizationContext (for JWT)
+  - target: $.AuthorizationContext.properties
+    file: components/common.yaml
+    description: California JWT claims may include programs
+    update:
+      programs:
+        type: array
+        items:
+          type: string
+        description: Programs the user is authorized to access (empty = all programs).
+        example: ["calfresh", "calworks"]
+
+  # Add programs to User model
+  - target: $.User.properties
+    file: components/user.yaml
+    description: California supports optional program-based assignments
+    update:
+      programs:
+        type: array
+        items:
+          $ref: "./common.yaml#/Program"
+        description: |
+          Programs the user is authorized to work on.
+          Optional; if empty, user can access all programs within assigned counties.
+        example: ["calfresh", "calworks"]
+```
+
+**Restricting permissions for a role:**
+
+States can also restrict what permissions a role receives by default:
+
+```yaml
+# Example: State restricts partner access more than the base spec
+actions:
+  # Override partner_readonly description to clarify restrictions
+  - target: $.RoleType.description
+    file: components/common.yaml
+    update: |
+      ...
+      - partner_readonly: External partner with read-only access to aggregate
+        reports only. No access to individual case data per state policy.
+```
+
+**Adding UI modules for state systems:**
+
+```yaml
+# Example: California adds CalSAWS integration module
+actions:
+  - target: $.UiPermissions.properties.availableModules.items.enum
+    file: components/user.yaml
+    description: California includes CalSAWS integration module
+    update:
+      - cases
+      - tasks
+      - reports
+      - documents
+      - scheduling
+      - admin
+      - calsaws_integration  # CA-specific legacy system integration
+```
+
 ### What Stays the Same
 
 Regardless of auth mechanism:
@@ -386,6 +531,50 @@ Regardless of auth mechanism:
 - **Separation of concerns** - IdP handles authentication, User Service handles authorization context
 - **Permission model** - `{resource}:{action}` format, role-based with county scoping
 - **Frontend pattern** - `GET /users/me` returns user profile with `ui` permissions object
+
+---
+
+## BFF/Gateway Pattern
+
+When a BFF (Backend-for-Frontend) or API gateway sits between the frontend and backend services, it may handle tokens differently depending on the destination.
+
+### Role of the Middleware
+
+The BFF or gateway acts as an intermediary that can enrich tokens for the frontend while keeping backend API calls minimal:
+
+1. Receives JWT with AuthorizationContext from IdP (during login flow)
+2. Calls `/users/me` to get `ui` and `preferences`
+3. Creates an enriched token for the frontend
+4. Routes the appropriate token based on destination
+
+### Token Routing by Destination
+
+| Destination | Token Contents | Rationale |
+|-------------|----------------|-----------|
+| **Frontend** | AuthorizationContext + `ui` + `preferences` | Everything the frontend needs for feature toggling and personalization |
+| **Backend APIs** | AuthorizationContext only | Minimal claims; only what APIs need for authorization |
+
+### Why the Schema Separation Supports This
+
+The separation between AuthorizationContext (minimal, for API enforcement) and the User model (`ui` + `preferences`) supports both direct and BFF patterns:
+
+- **AuthorizationContext stays minimal** - Backend APIs receive only what they need for authorization decisions
+- **`ui` and `preferences` live on User** - Retrieved via `/users/me`, not embedded in every JWT
+- **Middleware combines as needed** - BFF can enrich tokens for frontend without bloating backend API calls
+- **Backend APIs never receive `ui` data** - They don't need it; authorization is based on `permissions` and `counties`
+
+### Frontend Behavior with Middleware
+
+When a BFF/gateway is present, the frontend experience may differ:
+
+| Aspect | Direct (No Middleware) | With BFF/Gateway |
+|--------|------------------------|------------------|
+| `/users/me` call | Frontend calls directly | Middleware may provide data in enriched token |
+| Token contents | AuthorizationContext only | May include `ui` + `preferences` |
+| Feature toggling | Based on `/users/me` response | Based on enriched token |
+| Backend API calls | Frontend sends JWT directly | Middleware routes appropriate token |
+
+In both cases, backend APIs still receive minimal tokens with just AuthorizationContext for authorization.
 
 ---
 

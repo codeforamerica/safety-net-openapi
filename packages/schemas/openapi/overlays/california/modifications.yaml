@@ -172,8 +172,8 @@ actions:
           within their assigned counties.
         example: ["calfresh", "calworks"]
 
-  # Add programs to AuthorizationClaims (for JWT)
-  - target: $.AuthorizationClaims.properties
+  # Add programs to AuthorizationContext (for JWT)
+  - target: $.AuthorizationContext.properties
     file: components/common.yaml
     description: California JWT claims may include programs
     update:

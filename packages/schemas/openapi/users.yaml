@@ -29,8 +29,6 @@ servers:
 tags:
   - name: Users
     description: User account management.
-  - name: Roles
-    description: Role definitions (reference data).
   - name: Token
     description: JWT enrichment (called by IdP).
 
@@ -181,56 +179,6 @@ paths:
           $ref: "./components/common-responses.yaml#/NotFound"
 
   # ─────────────────────────────────────────────────────────────────────────────
-  # Roles (Reference Data)
-  # ─────────────────────────────────────────────────────────────────────────────
-  /roles:
-    get:
-      summary: List roles
-      description: |
-        Returns predefined roles and their permissions.
-        This is a small, fixed set of reference data.
-      operationId: listRoles
-      tags: [Roles]
-      parameters:
-        - $ref: "./components/common-parameters.yaml#/SearchQueryParam"
-        - $ref: "./components/common-parameters.yaml#/LimitParam"
-        - $ref: "./components/common-parameters.yaml#/OffsetParam"
-      responses:
-        "200":
-          description: List of available roles.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/RoleList"
-        "401":
-          $ref: "./components/common-responses.yaml#/Unauthorized"
-
-  /roles/{roleId}:
-    get:
-      summary: Get a role
-      description: Get role details including permissions.
-      operationId: getRole
-      tags: [Roles]
-      parameters:
-        - name: roleId
-          in: path
-          required: true
-          description: Role identifier.
-          schema:
-            $ref: "./components/common.yaml#/RoleType"
-      responses:
-        "200":
-          description: Role details.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Role"
-        "401":
-          $ref: "./components/common-responses.yaml#/Unauthorized"
-        "404":
-          $ref: "./components/common-responses.yaml#/NotFound"
-
-  # ─────────────────────────────────────────────────────────────────────────────
   # Token Enrichment (IdP Integration)
   # ─────────────────────────────────────────────────────────────────────────────
   /token/claims/{sub}:
@@ -303,12 +251,10 @@ components:
     # References to component files
     User:
       $ref: "./components/user.yaml#/User"
-    Role:
-      $ref: "./components/user.yaml#/Role"
     RoleType:
       $ref: "./components/common.yaml#/RoleType"
     TokenClaims:
-      $ref: "./components/common.yaml#/AuthorizationClaims"
+      $ref: "./components/common.yaml#/AuthorizationContext"
     UserStatus:
       $ref: "./components/user.yaml#/UserStatus"
     UserPreferences:
@@ -400,34 +346,4 @@ components:
         hasNext:
           type: boolean
           description: Whether more users exist beyond this page.
-
-    RoleList:
-      type: object
-      description: Paginated list of roles.
-      required:
-        - items
-        - total
-        - limit
-        - offset
-      properties:
-        items:
-          type: array
-          items:
-            $ref: "#/components/schemas/Role"
-        total:
-          type: integer
-          minimum: 0
-          description: Total number of roles.
-        limit:
-          type: integer
-          minimum: 1
-          maximum: 100
-          description: Maximum number of roles requested.
-        offset:
-          type: integer
-          minimum: 0
-          description: Number of roles skipped.
-        hasNext:
-          type: boolean
-          description: Whether more roles exist beyond this page.
 

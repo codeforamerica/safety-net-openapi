@@ -199,8 +199,8 @@ actions:
           assigned to multiple programs.
         example: ["snap", "colorado_works"]
 
-  # Add districts and programs to AuthorizationClaims (for JWT)
-  - target: $.AuthorizationClaims.properties
+  # Add districts and programs to AuthorizationContext (for JWT)
+  - target: $.AuthorizationContext.properties
     file: components/common.yaml
     description: Colorado JWT claims include districts and programs
     update:

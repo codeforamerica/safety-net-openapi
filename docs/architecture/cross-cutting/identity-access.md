@@ -54,7 +54,7 @@ Domain APIs expect these claims in the JWT. The IdP embeds them by calling the U
 
 **Schema definitions:**
 - Full JWT structure: [`common.yaml#/JwtClaims`](../../../packages/schemas/openapi/components/common.yaml)
-- Authorization claims only: [`common.yaml#/AuthorizationClaims`](../../../packages/schemas/openapi/components/common.yaml)
+- Authorization claims only: [`common.yaml#/AuthorizationContext`](../../../packages/schemas/openapi/components/common.yaml)
 - Role enum: [`common.yaml#/RoleType`](../../../packages/schemas/openapi/components/common.yaml)
 
 ### Claims Structure
@@ -71,7 +71,7 @@ iat: integer          # Issued-at timestamp
 email: string
 name: string
 
-# Authorization claims (from User Service via AuthorizationClaims schema)
+# Authorization claims (from User Service via AuthorizationContext schema)
 userId: uuid          # User Service ID
 role: RoleType        # Authorization role (see below)
 permissions: string[] # Explicit permission grants
@@ -449,5 +449,5 @@ The backend computes `ui` from `role` and `permissions`. Frontends should never 
 |----------|-------------|
 | [ADR: Auth Patterns](../../architecture-decisions/adr-auth-patterns.md) | Decision record for auth approach |
 | [User Service API](../../../packages/schemas/openapi/users.yaml) | OpenAPI specification |
-| [Common Schemas](../../../packages/schemas/openapi/components/common.yaml) | JwtClaims, AuthorizationClaims, RoleType |
+| [Common Schemas](../../../packages/schemas/openapi/components/common.yaml) | JwtClaims, AuthorizationContext, RoleType |
 | [User Schemas](../../../packages/schemas/openapi/components/user.yaml) | User, Role, UserStatus, UserPreferences |
