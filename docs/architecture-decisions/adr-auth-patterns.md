@@ -208,6 +208,8 @@ X-API-Key: <idp-api-key>
 Response: { "userId": "...", "role": "case_worker", "permissions": [...], "counties": [...] }
 ```
 
+The API key shown above is an example. Teams should use whatever authentication method makes sense for their IdP integration (API key, OAuth2 client credentials, mTLS, etc.).
+
 **Frontend → User Service:**
 ```
 GET /users/me
@@ -225,9 +227,9 @@ if "applications:read" not in claims["permissions"]:
 
 ---
 
-## Security Scheme
+## Security Schemes
 
-All API specs should include:
+The default security scheme is JWT bearer authentication:
 
 ```yaml
 components:
@@ -236,13 +238,12 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
-      description: |
-        JWT from Identity Provider with embedded permissions.
-        See identity-access.md for expected claims.
 
 security:
   - bearerAuth: []
 ```
+
+Different security schemes are supported either per state (via overlays) or per API, depending on requirements. For example, the User Service uses `apiKeyAuth` for the `/token/claims/{sub}` endpoint since it's a machine-to-machine call from the IdP before a JWT exists.
 
 ---
 
@@ -254,13 +255,13 @@ The `ui` object on the User model provides computed flags for frontend feature t
 
 | Option | Description | Pros | Cons |
 |--------|-------------|------|------|
-| Modules + action flags | Backend computes both modules and specific actions | Simple frontend, single source of truth | More fields to maintain |
-| Modules only | Backend returns modules; frontend checks permissions array | Simpler schema | Permission logic duplicated in frontend |
-| Raw permissions only | Frontend parses permissions array for everything | Minimal backend work | Complex frontend logic, inconsistent |
+| 1. Modules + action flags | Backend computes both modules and specific actions | Simple frontend, single source of truth | More fields to maintain |
+| 2. Modules only | Backend returns modules; frontend checks permissions array | Simpler schema | Permission logic duplicated in frontend |
+| 3. Raw permissions only | Frontend parses permissions array for everything | Minimal backend work | Complex frontend logic, inconsistent |
 
 ### Recommendation
 
-**Modules + action flags** (Option 1)
+**Option 1: Modules + action flags**
 
 Authorization logic belongs on the backend. The `permissions` array is for API enforcement; the `ui` object is for frontend feature toggling. This separation ensures:
 
@@ -272,22 +273,19 @@ See [Identity & Access: Frontend Authorization](../architecture/cross-cutting/id
 
 ### Open Question: UiPermissions Structure
 
-The current `UiPermissions` schema uses flat boolean flags. This is simple but may not scale well. We need to decide on a structure before the schema stabilizes.
+The current `UiPermissions` schema uses flat boolean flags (Option 1). This is simple but may not scale well. We need to decide on a structure before the schema stabilizes.
 
-**Current structure:**
+**Structures under consideration:**
+
 ```yaml
+# Option 1: Flat booleans (current)
 ui:
   availableModules: [cases, tasks, reports]
   canApproveApplications: true
   canViewSensitivePII: false
   canExportData: true
-  # ...more boolean flags as needed
-```
 
-**Alternative structures under consideration:**
-
-```yaml
-# Option A: Nested by module
+# Option 2: Nested by module
 ui:
   modules:
     cases:
@@ -297,12 +295,12 @@ ui:
       enabled: true
       actions: [manage_users]
 
-# Option B: Capabilities array
+# Option 3: Capabilities array
 ui:
   modules: [cases, tasks, reports]
   capabilities: [approve_applications, view_pii, export_data]
 
-# Option C: Current + escape hatch for custom flags
+# Option 4: Flat booleans + custom field
 ui:
   availableModules: [cases, tasks]
   canApproveApplications: true
@@ -312,14 +310,14 @@ ui:
 
 **Trade-offs:**
 
-| Approach | Simplicity | Extensibility | Type Safety |
-|----------|------------|---------------|-------------|
-| Current (flat booleans) | High | Low | High |
-| Nested by module | Medium | High | High |
-| Capabilities array | Medium | High | Lower |
-| Current + custom field | High | Medium | Mixed |
+| Option | Simplicity | Extensibility | Type Safety |
+|--------|------------|---------------|-------------|
+| 1. Flat booleans | High | Low | High |
+| 2. Nested by module | Medium | High | High |
+| 3. Capabilities array | Medium | High | Lower |
+| 4. Flat + custom field | High | Medium | Mixed |
 
-**Decision needed:** Which structure best balances simplicity for initial adopters against extensibility for future growth?
+**Decision needed:** Which option best balances simplicity for initial adopters against extensibility for future growth?
 
 ---
 
@@ -341,6 +339,7 @@ The default approach uses JWT bearer tokens with embedded claims. States using d
 1. **Permission retrieval** - Without JWT claims, domain APIs need runtime calls to User Service (Option 2 trade-off: added latency, but always current permissions)
 2. **`/token/claims/{sub}` endpoint** - Only needed for JWT enrichment flows; states not using JWT can remove it via overlay
 3. **Security scheme** - Must be replaced in all API specs
+4. **Frontend auth handling** - With session cookies, the browser manages authentication automatically (no token storage or refresh logic needed); `GET /users/me` still provides the user profile and `ui` permissions object
 
 ### Overlay Support
 
