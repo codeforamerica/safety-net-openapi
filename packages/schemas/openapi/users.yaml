@@ -233,24 +233,31 @@ paths:
   # ─────────────────────────────────────────────────────────────────────────────
   # Token Enrichment (IdP Integration)
   # ─────────────────────────────────────────────────────────────────────────────
-  /token/claims:
-    post:
+  /token/claims/{sub}:
+    get:
       summary: Get claims for JWT enrichment
       description: |
         Called by the IdP during login to fetch the user's role and permissions
         for embedding in the JWT.
+
+        **When this is called:** During OAuth token issuance. When a user logs in,
+        the IdP (Auth0, Okta, etc.) calls this endpoint before issuing the JWT.
+        The returned claims are embedded in the token. This is how permissions
+        get into the JWT without runtime authorization calls.
 
         Authenticated via API key (not user JWT).
       operationId: getTokenClaims
       tags: [Token]
       security:
         - apiKeyAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/TokenClaimsRequest"
+      parameters:
+        - name: sub
+          in: path
+          required: true
+          description: IdP subject identifier (the user's unique ID in the IdP).
+          schema:
+            type: string
+          example: "auth0|507f1f77bcf86cd799439011"
       responses:
         "200":
           description: Claims to embed in JWT.
@@ -258,8 +265,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/TokenClaims"
-        "400":
-          $ref: "./components/common-responses.yaml#/BadRequest"
         "401":
           $ref: "./components/common-responses.yaml#/Unauthorized"
         "404":
@@ -426,17 +431,3 @@ components:
           type: boolean
           description: Whether more roles exist beyond this page.
 
-    TokenClaimsRequest:
-      type: object
-      description: Request body for token claims endpoint.
-      required:
-        - sub
-      properties:
-        sub:
-          type: string
-          description: IdP subject identifier.
-          example: "auth0|507f1f77bcf86cd799439011"
-        email:
-          type: string
-          format: email
-          description: User's email (for matching if sub not found).

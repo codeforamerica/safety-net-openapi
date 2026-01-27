@@ -41,7 +41,7 @@ We propose a **three-layer architecture** with:
 
 ### Key Design Choices
 
-| Decision | Rationale |
+| Recommendation | Rationale |
 |----------|-----------|
 | Separate IdP from User Service | IdP handles login/MFA; User Service handles domain-specific roles |
 | Embed permissions in JWT | Avoid runtime calls to User Service on every API request |
@@ -63,7 +63,7 @@ Store all roles and permissions in the IdP using custom claims or groups.
 | | Requires IdP customization for each change |
 | | Hard to link users to domain entities |
 
-**Rejected because:** IdP custom attributes are too limited for multi-county assignments and domain entity linking.
+**Not recommended because:** IdP custom attributes are too limited for multi-county assignments and domain entity linking.
 
 ---
 
@@ -78,7 +78,7 @@ User Service provides permissions; domain APIs call it on each request.
 | | N requests = N permission lookups |
 | | Requires caching to be performant |
 
-**Rejected because:** Runtime dependency on every request creates performance and availability concerns.
+**Not recommended because:** Runtime dependency on every request creates performance and availability concerns.
 
 ---
 
@@ -92,7 +92,7 @@ Use a policy decision point (OPA, AWS Cedar) for authorization.
 | Policies separate from code | Learning curve for policy language |
 | Can handle complex rules | Overkill for role-based access |
 
-**Rejected because:** Adds operational complexity; our access patterns are straightforward role-based with county scoping.
+**Not recommended because:** Adds operational complexity; our access patterns are straightforward role-based with county scoping.
 
 ---
 
@@ -181,12 +181,30 @@ The User Service is intentionally minimal:
 | `packages/schemas/openapi/users.yaml` | User Service API specification |
 | `packages/schemas/openapi/components/user.yaml` | User schema components |
 
+### Shared Components Added
+
+| File | Components | Purpose |
+|------|------------|---------|
+| `components/common.yaml` | `AuthorizationClaims`, `JwtClaims`, `RoleType` | JWT structure and role definitions |
+| `components/common-responses.yaml` | `Unauthorized`, `Forbidden` | Auth error responses (401, 403) |
+
 ### Integration Points
+
+**Token Enrichment Flow:**
+
+When a user logs in, the IdP needs to embed authorization claims in the JWT. This happens during OAuth token issuance:
+
+1. User authenticates with IdP (Auth0, Okta, etc.)
+2. IdP calls User Service to get authorization context
+3. User Service returns role, permissions, and county assignments
+4. IdP embeds these claims in the JWT it issues
+5. Domain APIs read permissions directly from JWT (no runtime calls)
 
 **IdP → User Service:**
 ```
-POST /token/claims
-Request: { "sub": "auth0|abc123", "email": "user@example.com" }
+GET /token/claims/{sub}
+X-API-Key: <idp-api-key>
+
 Response: { "userId": "...", "role": "case_worker", "permissions": [...], "counties": [...] }
 ```
 
@@ -240,7 +258,7 @@ The `ui` object on the User model provides computed flags for frontend feature t
 | Modules only | Backend returns modules; frontend checks permissions array | Simpler schema | Permission logic duplicated in frontend |
 | Raw permissions only | Frontend parses permissions array for everything | Minimal backend work | Complex frontend logic, inconsistent |
 
-### Decision
+### Recommendation
 
 **Modules + action flags** (Option 1)
 
@@ -302,6 +320,73 @@ ui:
 | Current + custom field | High | Medium | Mixed |
 
 **Decision needed:** Which structure best balances simplicity for initial adopters against extensibility for future growth?
+
+---
+
+## Alternative Authentication Mechanisms
+
+The default approach uses JWT bearer tokens with embedded claims. States using different authentication mechanisms can adapt the patterns via the overlay system.
+
+### What Changes by Auth Type
+
+| Auth Mechanism | Token Enrichment Endpoint | Domain API Auth Pattern | Security Scheme |
+|----------------|---------------------------|-------------------------|-----------------|
+| **JWT (default)** | Used - IdP calls at login | Read claims from JWT | `bearerAuth` |
+| **Session cookies** | Not needed | Permissions in session store, or runtime User Service calls | `cookieAuth` |
+| **API keys** | Not needed | Runtime User Service calls per request | `apiKeyAuth` |
+| **SAML** | Adapted for assertion | Session established after SAML assertion | `cookieAuth` or custom |
+
+### Key Differences Without JWT
+
+1. **Permission retrieval** - Without JWT claims, domain APIs need runtime calls to User Service (Option 2 trade-off: added latency, but always current permissions)
+2. **`/token/claims/{sub}` endpoint** - Only needed for JWT enrichment flows; states not using JWT can remove it via overlay
+3. **Security scheme** - Must be replaced in all API specs
+
+### Overlay Support
+
+The overlay system can customize authentication for a state:
+
+```yaml
+# Example: State using session-based auth instead of JWT
+actions:
+  # Replace security scheme
+  - target: $.components.securitySchemes
+    file: users.yaml
+    update:
+      cookieAuth:
+        type: apiKey
+        in: cookie
+        name: SESSION_ID
+        description: Session cookie from state IdP
+
+  # Update global security requirement
+  - target: $.security
+    file: users.yaml
+    update:
+      - cookieAuth: []
+
+  # Remove JWT-specific endpoint (if not needed)
+  - target: $.paths./token/claims/{sub}
+    file: users.yaml
+    remove: true
+
+  # Add session validation endpoint (if needed)
+  - target: $.paths./session/validate
+    file: users.yaml
+    update:
+      get:
+        summary: Validate session and return permissions
+        # ...
+```
+
+### What Stays the Same
+
+Regardless of auth mechanism:
+
+- **User Service** still stores role/permission mappings
+- **Separation of concerns** - IdP handles authentication, User Service handles authorization context
+- **Permission model** - `{resource}:{action}` format, role-based with county scoping
+- **Frontend pattern** - `GET /users/me` returns user profile with `ui` permissions object
 
 ---
 
