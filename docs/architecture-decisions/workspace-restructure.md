@@ -38,7 +38,7 @@ Currently, all code lives in a single package with all dependencies installed to
 Restructure the project into **npm workspaces** with three packages:
 
 ```
-safety-net-openapi/
+safety-net-apis/
 ├── package.json                    # Root workspace config + aliases
 ├── packages/
 │   ├── schemas/                    # OpenAPI specs, validation, overlays
@@ -175,7 +175,7 @@ Split into 3 distinct repositories.
 
 ```json
 {
-  "name": "safety-net-openapi",
+  "name": "safety-net-apis",
   "private": true,
   "workspaces": ["packages/*"],
   "scripts": {

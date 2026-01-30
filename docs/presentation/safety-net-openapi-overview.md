@@ -493,7 +493,7 @@ No more "the backend isn't ready yet" blocking your sprint. Build and test your 
 
 ```bash
 # Clone the repository
-git clone https://github.com/codeforamerica/safety-net-openapi.git
+git clone https://github.com/codeforamerica/safety-net-apis.git
 
 # Install dependencies
 npm install
@@ -513,7 +513,7 @@ npm start
 
 **Resources:**
 
-- Repository: `github.com/codeforamerica/safety-net-openapi`
+- Repository: `github.com/codeforamerica/safety-net-apis`
 - Backend Guide: `docs/getting-started/backend-developers.md`
 - Frontend Guide: `docs/getting-started/frontend-developers.md`
 

@@ -7,7 +7,7 @@ Overview of the repository layout and file conventions.
 This project uses npm workspaces with three packages:
 
 ```
-safety-net-openapi/
+safety-net-apis/
 ├── package.json                    # Root workspace config + command aliases
 │
 ├── packages/
