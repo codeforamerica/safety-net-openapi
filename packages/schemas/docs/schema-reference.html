@@ -41,6 +41,85 @@
       border-bottom: 1px solid #456;
     }
 
+    .sidebar-title {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .sidebar-title:hover h1 {
+      color: #8ab4f8;
+    }
+
+    .intro-section {
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      border: 1px solid #dee2e6;
+    }
+
+    .intro-section h1 {
+      font-size: 1.8rem;
+      color: #2c3e50;
+      margin-bottom: 1rem;
+    }
+
+    .intro-description {
+      font-size: 1.1rem;
+      line-height: 1.6;
+      color: #495057;
+      margin-bottom: 1.5rem;
+    }
+
+    .intro-domains h3 {
+      font-size: 1.1rem;
+      color: #2c3e50;
+      margin-bottom: 0.5rem;
+    }
+
+    .intro-domains p {
+      color: #6c757d;
+      margin-bottom: 0.75rem;
+    }
+
+    .intro-domains ul {
+      list-style: none;
+      padding: 0;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 0.75rem;
+    }
+
+    .intro-domains li {
+      background: white;
+      padding: 0;
+      border-radius: 8px;
+      border-left: 4px solid #3498db;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+    .intro-domains li:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+    }
+
+    .intro-domains li a {
+      display: block;
+      padding: 0.75rem 1rem;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .intro-domains li:nth-child(1) { border-left-color: #3498db; } /* Intake */
+    .intro-domains li:nth-child(2) { border-left-color: #27ae60; } /* Client Management */
+    .intro-domains li:nth-child(3) { border-left-color: #9b59b6; } /* Eligibility */
+    .intro-domains li:nth-child(4) { border-left-color: #e67e22; } /* Case Management */
+    .intro-domains li:nth-child(5) { border-left-color: #1abc9c; } /* Workflow */
+    .intro-domains li:nth-child(6) { border-left-color: #f39c12; } /* Scheduling */
+    .intro-domains li:nth-child(7) { border-left-color: #95a5a6; } /* Document Management */
+    .intro-domains li:nth-child(8) { border-left-color: #7f8c8d; } /* Cross-cutting */
+
     .sidebar-state-selector {
       margin-bottom: 15px;
     }
@@ -377,6 +456,23 @@
 
     .entity-domain-badge:hover {
       filter: brightness(0.95);
+    }
+
+    /* Inline object badge */
+    .inline-object-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 12px;
+      background: #f0f0f0;
+      color: #666;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+
+    .schema-section.inline-object {
+      border-left: 3px solid #ddd;
+      margin-left: 20px;
     }
 
     .section-header.simple {
@@ -1028,7 +1124,7 @@
 <body>
   <div class="container">
     <aside class="sidebar">
-      <h1>ORCA Design Reference</h1>
+      <a href="#orca-intro" class="sidebar-title"><h1>ORCA Design Reference</h1></a>
       <div class="sidebar-state-selector">
         <div class="sidebar-state-buttons">
           <button class="state-selector-btn active" data-state="base">Base</button>
@@ -1132,6 +1228,30 @@
     </aside>
 
     <main class="main">
+      <section id="orca-intro" class="intro-section">
+        <h1>ORCA: Object-Relationship Content Attributes</h1>
+        <p class="intro-description">
+          ORCA is a methodology for organizing and presenting data models in a way that's intuitive for designers.
+          This reference documents the Safety Net API data model—the standardized fields, types, and relationships
+          used across benefit program applications. Use this reference to understand what data exists, how it's
+          structured, and what values are valid for each field.
+        </p>
+        <div class="intro-domains">
+          <h3>Data Domains</h3>
+          <p>The data model is organized into these domains:</p>
+          <ul>
+            <li><a href="#domain-intake"><strong>Intake</strong> — The application as the client experiences it - what they report</a></li>
+            <li><a href="#domain-clientManagement"><strong>Client Management</strong> — Persistent identity and relationships across programs</a></li>
+            <li><a href="#domain-eligibility"><strong>Eligibility</strong> — Program-specific interpretation and determination</a></li>
+            <li><a href="#domain-caseManagement"><strong>Case Management</strong> — Ongoing client relationships and staff assignments</a></li>
+            <li><a href="#domain-workflow"><strong>Workflow</strong> — Work items, tasks, SLAs, and verification</a></li>
+            <li><a href="#domain-scheduling"><strong>Scheduling</strong> — Time-based coordination and appointments</a></li>
+            <li><a href="#domain-documentManagement"><strong>Document Management</strong> — Files, uploads, and document tracking</a></li>
+            <li><a href="#domain-crossCutting"><strong>Cross-cutting</strong> — Communication, configuration, and reporting concerns</a></li>
+          </ul>
+        </div>
+      </section>
+
       <div class="legend">
         <div class="legend-item"><span class="badge type">Text</span> Type indicator</div>
         <div class="legend-item"><span class="badge required">&#10003;</span> Required field</div>
@@ -1350,7 +1470,7 @@
       </tr>
       <tr data-field="signatures" class="expandable">
         <td class="field-name">signatures</td>
-        <td class="field-type">→ Signatures</td>
+        <td class="field-type">→ <a href="#Signatures" class="type-link">Signatures</a></td>
         <td class="field-required"></td>
         <td class="field-notes">Application signatures. [Nested]</td>
       </tr>
@@ -1469,7 +1589,7 @@
       </tr>
       <tr data-field="signatures" class="expandable">
         <td class="field-name">signatures</td>
-        <td class="field-type">→ Signatures</td>
+        <td class="field-type">→ <a href="#Signatures" class="type-link">Signatures</a></td>
         <td class="field-required"></td>
         <td class="field-notes">Application signatures. [Nested]</td>
       </tr>
@@ -1588,7 +1708,7 @@
       </tr>
       <tr data-field="signatures" class="expandable">
         <td class="field-name">signatures</td>
-        <td class="field-type">→ Signatures</td>
+        <td class="field-type">→ <a href="#Signatures" class="type-link">Signatures</a></td>
         <td class="field-required"></td>
         <td class="field-notes">Application signatures. [Nested]</td>
       </tr>
@@ -1638,7 +1758,13 @@
       </div>
     </div>
     <div class="orca-panel" data-tab="relationships">
-<p class="no-rels">No relationships found for this object.</p>    </div>
+<div class="rel-section">
+  <h5>Belongs To</h5>
+  <ul class="rel-list">
+    <li><a href="#Person">Person</a> via <code>members[].personId</code></li>
+  </ul>
+</div>
+    </div>
     <div class="orca-panel" data-tab="actions">
 <table class="actions-table">
   <thead>
@@ -1768,7 +1894,7 @@
     <tbody>
       <tr data-field="members" class="expandable">
         <td class="field-name">members</td>
-        <td class="field-type">List of → Member</td>
+        <td class="field-type">List of → <a href="#Member" class="type-link">Member</a></td>
         <td class="field-required">&#10003;</td>
         <td class="field-notes">List of household members with their relationship to the head of household. [Nested]</td>
       </tr>
@@ -1857,7 +1983,7 @@
     <tbody>
       <tr data-field="members" class="expandable">
         <td class="field-name">members</td>
-        <td class="field-type">List of → Member</td>
+        <td class="field-type">List of → <a href="#Member" class="type-link">Member</a></td>
         <td class="field-required">&#10003;</td>
         <td class="field-notes">List of household members with their relationship to the head of household. [Nested]</td>
       </tr>
@@ -1946,7 +2072,7 @@
     <tbody>
       <tr data-field="members" class="expandable">
         <td class="field-name">members</td>
-        <td class="field-type">List of → Member</td>
+        <td class="field-type">List of → <a href="#Member" class="type-link">Member</a></td>
         <td class="field-required">&#10003;</td>
         <td class="field-notes">List of household members with their relationship to the head of household. [Nested]</td>
       </tr>
@@ -1979,7 +2105,7 @@
           <li><strong>Total fields:</strong> 42</li>
           <li><strong>Required fields:</strong> 3</li>
           <li><strong>Read-only fields:</strong> 2</li>
-          <li><strong>Nested objects:</strong> 32</li>
+          <li><strong>Nested objects:</strong> 31</li>
         </ul>
       </div>
     </div>
@@ -2370,11 +2496,11 @@
         <td class="field-required">&#10003;</td>
         <td class="field-notes">Options: self, spouse, child, parent, sibling, other relative, non relative</td>
       </tr>
-      <tr data-field="programsApplyingFor" class="expandable">
+      <tr data-field="programsApplyingFor">
         <td class="field-name">programsApplyingFor</td>
-        <td class="field-type">List of → <a href="#Program" class="type-link">Program</a></td>
+        <td class="field-type">Multi-select</td>
         <td class="field-required"></td>
-        <td class="field-notes">Programs this person is applying for. Empty array or omitted means not applying for any programs. [Nested]</td>
+        <td class="field-notes">Options: snap, tanf, adult financial, medical assistance</td>
       </tr>
     </tbody>
   </table>
@@ -2853,11 +2979,11 @@ UUIDs upon submission.
         <td class="field-required">&#10003;</td>
         <td class="field-notes">Options: self, spouse, child, parent, sibling, other relative, non relative</td>
       </tr>
-      <tr data-field="programsApplyingFor" class="expandable">
+      <tr data-field="programsApplyingFor">
         <td class="field-name">programsApplyingFor</td>
-        <td class="field-type">List of → <a href="#Program" class="type-link">Program</a></td>
+        <td class="field-type">Multi-select</td>
         <td class="field-required"></td>
-        <td class="field-notes">Programs this person is applying for. Empty array or omitted means not applying for any programs. [Nested]</td>
+        <td class="field-notes">Options: calfresh, calworks, medi cal, calfresh healthy living, general assistance, capi, ihss</td>
       </tr>
     </tbody>
   </table>
@@ -3336,11 +3462,11 @@ UUIDs upon submission.
         <td class="field-required">&#10003;</td>
         <td class="field-notes">Options: self, spouse, child, parent, sibling, other relative, non relative</td>
       </tr>
-      <tr data-field="programsApplyingFor" class="expandable">
+      <tr data-field="programsApplyingFor">
         <td class="field-name">programsApplyingFor</td>
-        <td class="field-type">List of → <a href="#Program" class="type-link">Program</a></td>
+        <td class="field-type">Multi-select</td>
         <td class="field-required"></td>
-        <td class="field-notes">Programs this person is applying for. Empty array or omitted means not applying for any programs. [Nested]</td>
+        <td class="field-notes">Options: snap, colorado works, health first colorado, child health plan plus, old age pension, andcs, leap, cccap</td>
       </tr>
     </tbody>
   </table>
@@ -4275,7 +4401,7 @@ UUIDs upon submission.
         <td class="field-name">status</td>
         <td class="field-type">Dropdown</td>
         <td class="field-required"></td>
-        <td class="field-notes">Options: citizen, permanent resident, qualified non citizen, undocumented, other</td>
+        <td class="field-notes">Options: us citizen, lawful permanent resident, qualified alien, prucol, undocumented, other</td>
       </tr>
     </tbody>
   </table>
@@ -4378,7 +4504,7 @@ UUIDs upon submission.
       </tr>
       <tr data-field="languagePreference" class="expandable">
         <td class="field-name">languagePreference</td>
-        <td class="field-type">→ LanguagePreference</td>
+        <td class="field-type">→ <a href="#LanguagePreference" class="type-link">LanguagePreference</a></td>
         <td class="field-required"></td>
         <td class="field-notes">Language preferences for communications. [Nested]</td>
       </tr>
@@ -4452,7 +4578,7 @@ UUIDs upon submission.
       </tr>
       <tr data-field="languagePreference" class="expandable">
         <td class="field-name">languagePreference</td>
-        <td class="field-type">→ LanguagePreference</td>
+        <td class="field-type">→ <a href="#LanguagePreference" class="type-link">LanguagePreference</a></td>
         <td class="field-required"></td>
         <td class="field-notes">Language preferences for communications. [Nested]</td>
       </tr>
@@ -4526,7 +4652,7 @@ UUIDs upon submission.
       </tr>
       <tr data-field="languagePreference" class="expandable">
         <td class="field-name">languagePreference</td>
-        <td class="field-type">→ LanguagePreference</td>
+        <td class="field-type">→ <a href="#LanguagePreference" class="type-link">LanguagePreference</a></td>
         <td class="field-required"></td>
         <td class="field-notes">Language preferences for communications. [Nested]</td>
       </tr>
@@ -4604,7 +4730,7 @@ UUIDs upon submission.
         <td class="field-name">race</td>
         <td class="field-type">Multi-select</td>
         <td class="field-required"></td>
-        <td class="field-notes">Race identification (can select multiple).</td>
+        <td class="field-notes">Options: american indian alaskan native, asian, black african american, native hawaiian pacific islander, white</td>
       </tr>
     </tbody>
   </table>
@@ -4645,7 +4771,7 @@ UUIDs upon submission.
         <td class="field-name">race</td>
         <td class="field-type">Multi-select</td>
         <td class="field-required"></td>
-        <td class="field-notes">Race identification (can select multiple).</td>
+        <td class="field-notes">Options: american indian alaskan native, asian, black african american, native hawaiian pacific islander, white</td>
       </tr>
     </tbody>
   </table>
@@ -4707,7 +4833,7 @@ UUIDs upon submission.
         <td class="field-name">race</td>
         <td class="field-type">Multi-select</td>
         <td class="field-required"></td>
-        <td class="field-notes">Race identification (can select multiple).</td>
+        <td class="field-notes">Options: american indian alaskan native, asian, black african american, native hawaiian pacific islander, white</td>
       </tr>
     </tbody>
   </table>
@@ -8645,9 +8771,13 @@ UUIDs upon submission.
 <div class="rel-section">
   <h5>Referenced By</h5>
   <ul class="rel-list">
+    <li><a href="#Household">Household</a> via <code>members[].personId</code></li>
+    <li><a href="#HouseholdCreate">HouseholdCreate</a> via <code>members[].personId</code></li>
+    <li><a href="#HouseholdUpdate">HouseholdUpdate</a> via <code>members[].personId</code></li>
     <li><a href="#Income">Income</a> via <code>personId</code></li>
     <li><a href="#IncomeCreate">IncomeCreate</a> via <code>personId</code></li>
     <li><a href="#IncomeUpdate">IncomeUpdate</a> via <code>personId</code></li>
+    <li><a href="#IncomeList">IncomeList</a> via <code>items[].personId</code></li>
   </ul>
 </div>
     </div>
@@ -10225,13 +10355,13 @@ UUIDs upon submission.
       </tr>
       <tr data-field="screeningFlags" class="expandable">
         <td class="field-name">screeningFlags</td>
-        <td class="field-type">→ ScreeningFlags</td>
+        <td class="field-type">→ <a href="#ScreeningFlags" class="type-link">ScreeningFlags</a></td>
         <td class="field-required"></td>
         <td class="field-notes">Flags indicating screening criteria relevant to this application. [Nested]</td>
       </tr>
       <tr data-field="preferences" class="expandable">
         <td class="field-name">preferences</td>
-        <td class="field-type">→ Preferences</td>
+        <td class="field-type">→ <a href="#Preferences" class="type-link">Preferences</a></td>
         <td class="field-required"></td>
         <td class="field-notes">Application preferences and consents. [Nested]</td>
       </tr>
@@ -10297,7 +10427,7 @@ UUIDs upon submission.
       </tr>
       <tr data-field="signatures" class="expandable">
         <td class="field-name">signatures</td>
-        <td class="field-type">→ Signatures</td>
+        <td class="field-type">→ <a href="#Signatures" class="type-link">Signatures</a></td>
         <td class="field-required"></td>
         <td class="field-notes">Application signatures. [Nested]</td>
       </tr>
@@ -10344,13 +10474,13 @@ UUIDs upon submission.
       </tr>
       <tr data-field="screeningFlags" class="expandable">
         <td class="field-name">screeningFlags</td>
-        <td class="field-type">→ ScreeningFlags</td>
+        <td class="field-type">→ <a href="#ScreeningFlags" class="type-link">ScreeningFlags</a></td>
         <td class="field-required"></td>
         <td class="field-notes">Flags indicating screening criteria relevant to this application. [Nested]</td>
       </tr>
       <tr data-field="preferences" class="expandable">
         <td class="field-name">preferences</td>
-        <td class="field-type">→ Preferences</td>
+        <td class="field-type">→ <a href="#Preferences" class="type-link">Preferences</a></td>
         <td class="field-required"></td>
         <td class="field-notes">Application preferences and consents. [Nested]</td>
       </tr>
@@ -10416,7 +10546,7 @@ UUIDs upon submission.
       </tr>
       <tr data-field="signatures" class="expandable">
         <td class="field-name">signatures</td>
-        <td class="field-type">→ Signatures</td>
+        <td class="field-type">→ <a href="#Signatures" class="type-link">Signatures</a></td>
         <td class="field-required"></td>
         <td class="field-notes">Application signatures. [Nested]</td>
       </tr>
@@ -10463,13 +10593,13 @@ UUIDs upon submission.
       </tr>
       <tr data-field="screeningFlags" class="expandable">
         <td class="field-name">screeningFlags</td>
-        <td class="field-type">→ ScreeningFlags</td>
+        <td class="field-type">→ <a href="#ScreeningFlags" class="type-link">ScreeningFlags</a></td>
         <td class="field-required"></td>
         <td class="field-notes">Flags indicating screening criteria relevant to this application. [Nested]</td>
       </tr>
       <tr data-field="preferences" class="expandable">
         <td class="field-name">preferences</td>
-        <td class="field-type">→ Preferences</td>
+        <td class="field-type">→ <a href="#Preferences" class="type-link">Preferences</a></td>
         <td class="field-required"></td>
         <td class="field-notes">Application preferences and consents. [Nested]</td>
       </tr>
@@ -10535,7 +10665,7 @@ UUIDs upon submission.
       </tr>
       <tr data-field="signatures" class="expandable">
         <td class="field-name">signatures</td>
-        <td class="field-type">→ Signatures</td>
+        <td class="field-type">→ <a href="#Signatures" class="type-link">Signatures</a></td>
         <td class="field-required"></td>
         <td class="field-notes">Application signatures. [Nested]</td>
       </tr>
@@ -10577,7 +10707,7 @@ UUIDs upon submission.
     <tbody>
       <tr data-field="items" class="expandable">
         <td class="field-name">items</td>
-        <td class="field-type">List of → Item</td>
+        <td class="field-type">List of → <a href="#Item" class="type-link">Item</a></td>
         <td class="field-required">&#10003;</td>
         <td class="field-notes">[Nested object]</td>
       </tr>
@@ -10624,7 +10754,7 @@ UUIDs upon submission.
     <tbody>
       <tr data-field="items" class="expandable">
         <td class="field-name">items</td>
-        <td class="field-type">List of → Item</td>
+        <td class="field-type">List of → <a href="#Item" class="type-link">Item</a></td>
         <td class="field-required">&#10003;</td>
         <td class="field-notes">[Nested object]</td>
       </tr>
@@ -10671,7 +10801,7 @@ UUIDs upon submission.
     <tbody>
       <tr data-field="items" class="expandable">
         <td class="field-name">items</td>
-        <td class="field-type">List of → Item</td>
+        <td class="field-type">List of → <a href="#Item" class="type-link">Item</a></td>
         <td class="field-required">&#10003;</td>
         <td class="field-notes">[Nested object]</td>
       </tr>
@@ -10859,7 +10989,7 @@ Presence of a flag in an array indicates the condition is true.
         <td class="field-name">jobs</td>
         <td class="field-type">Multi-select</td>
         <td class="field-required"></td>
-        <td class="field-notes">Employment and income change flags.</td>
+        <td class="field-notes">Options: has employment, has self employment, has job changes, expected income change, income differences, is anyone on strike</td>
       </tr>
     </tbody>
   </table>
@@ -10880,7 +11010,7 @@ Presence of a flag in an array indicates the condition is true.
         <td class="field-name">expenses</td>
         <td class="field-type">Multi-select</td>
         <td class="field-required"></td>
-        <td class="field-notes">Housing and expense-related flags.</td>
+        <td class="field-notes">Options: has rent expenses, has mortgage expenses, has additional expenses</td>
       </tr>
     </tbody>
   </table>
@@ -10899,7 +11029,7 @@ Presence of a flag in an array indicates the condition is true.
     <tbody>
       <tr data-field="programs" class="expandable">
         <td class="field-name">programs</td>
-        <td class="field-type">→ Programs</td>
+        <td class="field-type">→ <a href="#Programs" class="type-link">Programs</a></td>
         <td class="field-required"></td>
         <td class="field-notes">Program-specific screening flags. [Nested]</td>
       </tr>
@@ -10907,67 +11037,67 @@ Presence of a flag in an array indicates the condition is true.
         <td class="field-name">familyPlanning</td>
         <td class="field-type">Multi-select</td>
         <td class="field-required"></td>
-        <td class="field-notes">Family planning and dependent-related flags.</td>
+        <td class="field-notes">Options: family planning needs, pregnancy, wants reproductive benefits, child under 19, absent parent, wants family violence waiver</td>
       </tr>
       <tr data-field="disability">
         <td class="field-name">disability</td>
         <td class="field-type">Multi-select</td>
         <td class="field-required"></td>
-        <td class="field-notes">Disability-related flags.</td>
+        <td class="field-notes">Options: disability, received ssi or ssdi</td>
       </tr>
       <tr data-field="citizenship">
         <td class="field-name">citizenship</td>
         <td class="field-type">Multi-select</td>
         <td class="field-required"></td>
-        <td class="field-notes">Citizenship and immigration-related flags.</td>
+        <td class="field-notes">Options: non citizens, wants emergency medicaid</td>
       </tr>
       <tr data-field="medicalCoverage">
         <td class="field-name">medicalCoverage</td>
         <td class="field-type">Multi-select</td>
         <td class="field-required"></td>
-        <td class="field-notes">Medical coverage and health-related flags.</td>
+        <td class="field-notes">Options: has health insurance, legal claim, wants retroactive medical</td>
       </tr>
       <tr data-field="tribal">
         <td class="field-name">tribal</td>
         <td class="field-type">Multi-select</td>
         <td class="field-required"></td>
-        <td class="field-notes">American Indian or Alaska Native-related flags.</td>
+        <td class="field-notes">Options: american indian or alaska native, received indian health service, eligible for indian health service</td>
       </tr>
       <tr data-field="fosterCareAndBenefitsHistory">
         <td class="field-name">fosterCareAndBenefitsHistory</td>
         <td class="field-type">Multi-select</td>
         <td class="field-required"></td>
-        <td class="field-notes">Foster care and benefits history flags.</td>
+        <td class="field-notes">Options: foster care history, received benefits other state</td>
       </tr>
       <tr data-field="otherIncome">
         <td class="field-name">otherIncome</td>
         <td class="field-type">Multi-select</td>
         <td class="field-required"></td>
-        <td class="field-notes">Unearned income-related flags.</td>
+        <td class="field-notes">Options: has other income, has lump sum payments, deductions change monthly</td>
       </tr>
       <tr data-field="education">
         <td class="field-name">education</td>
         <td class="field-type">Multi-select</td>
         <td class="field-required"></td>
-        <td class="field-notes">Education-related flags.</td>
+        <td class="field-notes">Options: has students, has financial aid</td>
       </tr>
       <tr data-field="resources">
         <td class="field-name">resources</td>
         <td class="field-type">Multi-select</td>
         <td class="field-required"></td>
-        <td class="field-notes">Resource and asset-related flags.</td>
+        <td class="field-notes">Options: has resources, has vehicles, has life or burial insurance, owns property, has transferred assets</td>
       </tr>
       <tr data-field="priorConvictions">
         <td class="field-name">priorConvictions</td>
         <td class="field-type">Multi-select</td>
         <td class="field-required"></td>
-        <td class="field-notes">Prior conviction-related flags.</td>
+        <td class="field-notes">Options: has prior convictions</td>
       </tr>
       <tr data-field="military">
         <td class="field-name">military</td>
         <td class="field-type">Multi-select</td>
         <td class="field-required"></td>
-        <td class="field-notes">Military service-related flags.</td>
+        <td class="field-notes">Options: has military service</td>
       </tr>
     </tbody>
   </table>
@@ -10990,7 +11120,7 @@ Presence of a flag in an array indicates the condition is true.
         <td class="field-name">jobs</td>
         <td class="field-type">Multi-select</td>
         <td class="field-required"></td>
-        <td class="field-notes">Employment and income change flags.</td>
+        <td class="field-notes">Options: has employment, has self employment, has job changes, expected income change, income differences, is anyone on strike</td>
       </tr>
     </tbody>
   </table>
@@ -11011,7 +11141,7 @@ Presence of a flag in an array indicates the condition is true.
         <td class="field-name">expenses</td>
         <td class="field-type">Multi-select</td>
         <td class="field-required"></td>
-        <td class="field-notes">Housing and expense-related flags.</td>
+        <td class="field-notes">Options: has rent expenses, has mortgage expenses, has additional expenses</td>
       </tr>
     </tbody>
   </table>
@@ -11030,7 +11160,7 @@ Presence of a flag in an array indicates the condition is true.
     <tbody>
       <tr data-field="programs" class="expandable">
         <td class="field-name">programs</td>
-        <td class="field-type">→ Programs</td>
+        <td class="field-type">→ <a href="#Programs" class="type-link">Programs</a></td>
         <td class="field-required"></td>
         <td class="field-notes">Program-specific screening flags. [Nested]</td>
       </tr>
@@ -11038,67 +11168,67 @@ Presence of a flag in an array indicates the condition is true.
         <td class="field-name">familyPlanning</td>
         <td class="field-type">Multi-select</td>
         <td class="field-required"></td>
-        <td class="field-notes">Family planning and dependent-related flags.</td>
+        <td class="field-notes">Options: family planning needs, pregnancy, wants reproductive benefits, child under 19, absent parent, wants family violence waiver</td>
       </tr>
       <tr data-field="disability">
         <td class="field-name">disability</td>
         <td class="field-type">Multi-select</td>
         <td class="field-required"></td>
-        <td class="field-notes">Disability-related flags.</td>
+        <td class="field-notes">Options: disability, received ssi or ssdi</td>
       </tr>
       <tr data-field="citizenship">
         <td class="field-name">citizenship</td>
         <td class="field-type">Multi-select</td>
         <td class="field-required"></td>
-        <td class="field-notes">Citizenship and immigration-related flags.</td>
+        <td class="field-notes">Options: non citizens, wants emergency medicaid</td>
       </tr>
       <tr data-field="medicalCoverage">
         <td class="field-name">medicalCoverage</td>
         <td class="field-type">Multi-select</td>
         <td class="field-required"></td>
-        <td class="field-notes">Medical coverage and health-related flags.</td>
+        <td class="field-notes">Options: has health insurance, legal claim, wants retroactive medical</td>
       </tr>
       <tr data-field="tribal">
         <td class="field-name">tribal</td>
         <td class="field-type">Multi-select</td>
         <td class="field-required"></td>
-        <td class="field-notes">American Indian or Alaska Native-related flags.</td>
+        <td class="field-notes">Options: american indian or alaska native, received indian health service, eligible for indian health service</td>
       </tr>
       <tr data-field="fosterCareAndBenefitsHistory">
         <td class="field-name">fosterCareAndBenefitsHistory</td>
         <td class="field-type">Multi-select</td>
         <td class="field-required"></td>
-        <td class="field-notes">Foster care and benefits history flags.</td>
+        <td class="field-notes">Options: foster care history, received benefits other state</td>
       </tr>
       <tr data-field="otherIncome">
         <td class="field-name">otherIncome</td>
         <td class="field-type">Multi-select</td>
         <td class="field-required"></td>
-        <td class="field-notes">Unearned income-related flags.</td>
+        <td class="field-notes">Options: has other income, has lump sum payments, deductions change monthly</td>
       </tr>
       <tr data-field="education">
         <td class="field-name">education</td>
         <td class="field-type">Multi-select</td>
         <td class="field-required"></td>
-        <td class="field-notes">Education-related flags.</td>
+        <td class="field-notes">Options: has students, has financial aid</td>
       </tr>
       <tr data-field="resources">
         <td class="field-name">resources</td>
         <td class="field-type">Multi-select</td>
         <td class="field-required"></td>
-        <td class="field-notes">Resource and asset-related flags.</td>
+        <td class="field-notes">Options: has resources, has vehicles, has life or burial insurance, owns property, has transferred assets</td>
       </tr>
       <tr data-field="priorConvictions">
         <td class="field-name">priorConvictions</td>
         <td class="field-type">Multi-select</td>
         <td class="field-required"></td>
-        <td class="field-notes">Prior conviction-related flags.</td>
+        <td class="field-notes">Options: has prior convictions</td>
       </tr>
       <tr data-field="military">
         <td class="field-name">military</td>
         <td class="field-type">Multi-select</td>
         <td class="field-required"></td>
-        <td class="field-notes">Military service-related flags.</td>
+        <td class="field-notes">Options: has military service</td>
       </tr>
     </tbody>
   </table>
@@ -11121,7 +11251,7 @@ Presence of a flag in an array indicates the condition is true.
         <td class="field-name">jobs</td>
         <td class="field-type">Multi-select</td>
         <td class="field-required"></td>
-        <td class="field-notes">Employment and income change flags.</td>
+        <td class="field-notes">Options: has employment, has self employment, has job changes, expected income change, income differences, is anyone on strike</td>
       </tr>
     </tbody>
   </table>
@@ -11142,7 +11272,7 @@ Presence of a flag in an array indicates the condition is true.
         <td class="field-name">expenses</td>
         <td class="field-type">Multi-select</td>
         <td class="field-required"></td>
-        <td class="field-notes">Housing and expense-related flags.</td>
+        <td class="field-notes">Options: has rent expenses, has mortgage expenses, has additional expenses</td>
       </tr>
     </tbody>
   </table>
@@ -11161,7 +11291,7 @@ Presence of a flag in an array indicates the condition is true.
     <tbody>
       <tr data-field="programs" class="expandable">
         <td class="field-name">programs</td>
-        <td class="field-type">→ Programs</td>
+        <td class="field-type">→ <a href="#Programs" class="type-link">Programs</a></td>
         <td class="field-required"></td>
         <td class="field-notes">Program-specific screening flags. [Nested]</td>
       </tr>
@@ -11169,67 +11299,67 @@ Presence of a flag in an array indicates the condition is true.
         <td class="field-name">familyPlanning</td>
         <td class="field-type">Multi-select</td>
         <td class="field-required"></td>
-        <td class="field-notes">Family planning and dependent-related flags.</td>
+        <td class="field-notes">Options: family planning needs, pregnancy, wants reproductive benefits, child under 19, absent parent, wants family violence waiver</td>
       </tr>
       <tr data-field="disability">
         <td class="field-name">disability</td>
         <td class="field-type">Multi-select</td>
         <td class="field-required"></td>
-        <td class="field-notes">Disability-related flags.</td>
+        <td class="field-notes">Options: disability, received ssi or ssdi</td>
       </tr>
       <tr data-field="citizenship">
         <td class="field-name">citizenship</td>
         <td class="field-type">Multi-select</td>
         <td class="field-required"></td>
-        <td class="field-notes">Citizenship and immigration-related flags.</td>
+        <td class="field-notes">Options: non citizens, wants emergency medicaid</td>
       </tr>
       <tr data-field="medicalCoverage">
         <td class="field-name">medicalCoverage</td>
         <td class="field-type">Multi-select</td>
         <td class="field-required"></td>
-        <td class="field-notes">Medical coverage and health-related flags.</td>
+        <td class="field-notes">Options: has health insurance, legal claim, wants retroactive medical</td>
       </tr>
       <tr data-field="tribal">
         <td class="field-name">tribal</td>
         <td class="field-type">Multi-select</td>
         <td class="field-required"></td>
-        <td class="field-notes">American Indian or Alaska Native-related flags.</td>
+        <td class="field-notes">Options: american indian or alaska native, received indian health service, eligible for indian health service</td>
       </tr>
       <tr data-field="fosterCareAndBenefitsHistory">
         <td class="field-name">fosterCareAndBenefitsHistory</td>
         <td class="field-type">Multi-select</td>
         <td class="field-required"></td>
-        <td class="field-notes">Foster care and benefits history flags.</td>
+        <td class="field-notes">Options: foster care history, received benefits other state</td>
       </tr>
       <tr data-field="otherIncome">
         <td class="field-name">otherIncome</td>
         <td class="field-type">Multi-select</td>
         <td class="field-required"></td>
-        <td class="field-notes">Unearned income-related flags.</td>
+        <td class="field-notes">Options: has other income, has lump sum payments, deductions change monthly</td>
       </tr>
       <tr data-field="education">
         <td class="field-name">education</td>
         <td class="field-type">Multi-select</td>
         <td class="field-required"></td>
-        <td class="field-notes">Education-related flags.</td>
+        <td class="field-notes">Options: has students, has financial aid</td>
       </tr>
       <tr data-field="resources">
         <td class="field-name">resources</td>
         <td class="field-type">Multi-select</td>
         <td class="field-required"></td>
-        <td class="field-notes">Resource and asset-related flags.</td>
+        <td class="field-notes">Options: has resources, has vehicles, has life or burial insurance, owns property, has transferred assets</td>
       </tr>
       <tr data-field="priorConvictions">
         <td class="field-name">priorConvictions</td>
         <td class="field-type">Multi-select</td>
         <td class="field-required"></td>
-        <td class="field-notes">Prior conviction-related flags.</td>
+        <td class="field-notes">Options: has prior convictions</td>
       </tr>
       <tr data-field="military">
         <td class="field-name">military</td>
         <td class="field-type">Multi-select</td>
         <td class="field-required"></td>
-        <td class="field-notes">Military service-related flags.</td>
+        <td class="field-notes">Options: has military service</td>
       </tr>
     </tbody>
   </table>
@@ -11269,13 +11399,13 @@ Presence of a flag in an array indicates the condition is true.
       </tr>
       <tr data-field="screeningFlags" class="expandable">
         <td class="field-name">screeningFlags</td>
-        <td class="field-type">→ ScreeningFlags</td>
+        <td class="field-type">→ <a href="#ScreeningFlags" class="type-link">ScreeningFlags</a></td>
         <td class="field-required"></td>
         <td class="field-notes">Flags indicating screening criteria relevant to this application. [Nested]</td>
       </tr>
       <tr data-field="preferences" class="expandable">
         <td class="field-name">preferences</td>
-        <td class="field-type">→ Preferences</td>
+        <td class="field-type">→ <a href="#Preferences" class="type-link">Preferences</a></td>
         <td class="field-required"></td>
         <td class="field-notes">Application preferences and consents. [Nested]</td>
       </tr>
@@ -11341,7 +11471,7 @@ Presence of a flag in an array indicates the condition is true.
       </tr>
       <tr data-field="signatures" class="expandable">
         <td class="field-name">signatures</td>
-        <td class="field-type">→ Signatures</td>
+        <td class="field-type">→ <a href="#Signatures" class="type-link">Signatures</a></td>
         <td class="field-required"></td>
         <td class="field-notes">Application signatures. [Nested]</td>
       </tr>
@@ -11388,13 +11518,13 @@ Presence of a flag in an array indicates the condition is true.
       </tr>
       <tr data-field="screeningFlags" class="expandable">
         <td class="field-name">screeningFlags</td>
-        <td class="field-type">→ ScreeningFlags</td>
+        <td class="field-type">→ <a href="#ScreeningFlags" class="type-link">ScreeningFlags</a></td>
         <td class="field-required"></td>
         <td class="field-notes">Flags indicating screening criteria relevant to this application. [Nested]</td>
       </tr>
       <tr data-field="preferences" class="expandable">
         <td class="field-name">preferences</td>
-        <td class="field-type">→ Preferences</td>
+        <td class="field-type">→ <a href="#Preferences" class="type-link">Preferences</a></td>
         <td class="field-required"></td>
         <td class="field-notes">Application preferences and consents. [Nested]</td>
       </tr>
@@ -11460,7 +11590,7 @@ Presence of a flag in an array indicates the condition is true.
       </tr>
       <tr data-field="signatures" class="expandable">
         <td class="field-name">signatures</td>
-        <td class="field-type">→ Signatures</td>
+        <td class="field-type">→ <a href="#Signatures" class="type-link">Signatures</a></td>
         <td class="field-required"></td>
         <td class="field-notes">Application signatures. [Nested]</td>
       </tr>
@@ -11507,13 +11637,13 @@ Presence of a flag in an array indicates the condition is true.
       </tr>
       <tr data-field="screeningFlags" class="expandable">
         <td class="field-name">screeningFlags</td>
-        <td class="field-type">→ ScreeningFlags</td>
+        <td class="field-type">→ <a href="#ScreeningFlags" class="type-link">ScreeningFlags</a></td>
         <td class="field-required"></td>
         <td class="field-notes">Flags indicating screening criteria relevant to this application. [Nested]</td>
       </tr>
       <tr data-field="preferences" class="expandable">
         <td class="field-name">preferences</td>
-        <td class="field-type">→ Preferences</td>
+        <td class="field-type">→ <a href="#Preferences" class="type-link">Preferences</a></td>
         <td class="field-required"></td>
         <td class="field-notes">Application preferences and consents. [Nested]</td>
       </tr>
@@ -11579,7 +11709,7 @@ Presence of a flag in an array indicates the condition is true.
       </tr>
       <tr data-field="signatures" class="expandable">
         <td class="field-name">signatures</td>
-        <td class="field-type">→ Signatures</td>
+        <td class="field-type">→ <a href="#Signatures" class="type-link">Signatures</a></td>
         <td class="field-required"></td>
         <td class="field-notes">Application signatures. [Nested]</td>
       </tr>
@@ -12460,7 +12590,7 @@ Presence of a flag in an array indicates the condition is true.
       </tr>
       <tr data-field="utilityCosts" class="expandable">
         <td class="field-name">utilityCosts</td>
-        <td class="field-type">→ UtilityCosts</td>
+        <td class="field-type">→ <a href="#UtilityCosts" class="type-link">UtilityCosts</a></td>
         <td class="field-required"></td>
         <td class="field-notes">Monthly utility costs. [Nested]</td>
       </tr>
@@ -12519,7 +12649,7 @@ Presence of a flag in an array indicates the condition is true.
       </tr>
       <tr data-field="utilityCosts" class="expandable">
         <td class="field-name">utilityCosts</td>
-        <td class="field-type">→ UtilityCosts</td>
+        <td class="field-type">→ <a href="#UtilityCosts" class="type-link">UtilityCosts</a></td>
         <td class="field-required"></td>
         <td class="field-notes">Monthly utility costs. [Nested]</td>
       </tr>
@@ -12578,7 +12708,7 @@ Presence of a flag in an array indicates the condition is true.
       </tr>
       <tr data-field="utilityCosts" class="expandable">
         <td class="field-name">utilityCosts</td>
-        <td class="field-type">→ UtilityCosts</td>
+        <td class="field-type">→ <a href="#UtilityCosts" class="type-link">UtilityCosts</a></td>
         <td class="field-required"></td>
         <td class="field-notes">Monthly utility costs. [Nested]</td>
       </tr>
@@ -13546,13 +13676,13 @@ Presence of a flag in an array indicates the condition is true.
     <tbody>
       <tr data-field="homeAddress" class="expandable">
         <td class="field-name">homeAddress</td>
-        <td class="field-type">→ HomeAddress</td>
+        <td class="field-type">→ <a href="#HomeAddress" class="type-link">HomeAddress</a></td>
         <td class="field-required">&#10003;</td>
         <td class="field-notes">Home address of the household. [Nested]</td>
       </tr>
       <tr data-field="mailingAddress" class="expandable">
         <td class="field-name">mailingAddress</td>
-        <td class="field-type">→ MailingAddress</td>
+        <td class="field-type">→ <a href="#MailingAddress" class="type-link">MailingAddress</a></td>
         <td class="field-required"></td>
         <td class="field-notes">Mailing address if different from home address. [Nested]</td>
       </tr>
@@ -13612,7 +13742,7 @@ Presence of a flag in an array indicates the condition is true.
     <tbody>
       <tr data-field="members" class="expandable">
         <td class="field-name">members</td>
-        <td class="field-type">List of → Member</td>
+        <td class="field-type">List of → <a href="#Member" class="type-link">Member</a></td>
         <td class="field-required">&#10003;</td>
         <td class="field-notes">List of household members with their relationship to the head of household. [Nested]</td>
       </tr>
@@ -13635,13 +13765,13 @@ Presence of a flag in an array indicates the condition is true.
     <tbody>
       <tr data-field="homeAddress" class="expandable">
         <td class="field-name">homeAddress</td>
-        <td class="field-type">→ HomeAddress</td>
+        <td class="field-type">→ <a href="#HomeAddress" class="type-link">HomeAddress</a></td>
         <td class="field-required">&#10003;</td>
         <td class="field-notes">Home address of the household. [Nested]</td>
       </tr>
       <tr data-field="mailingAddress" class="expandable">
         <td class="field-name">mailingAddress</td>
-        <td class="field-type">→ MailingAddress</td>
+        <td class="field-type">→ <a href="#MailingAddress" class="type-link">MailingAddress</a></td>
         <td class="field-required"></td>
         <td class="field-notes">Mailing address if different from home address. [Nested]</td>
       </tr>
@@ -13701,7 +13831,7 @@ Presence of a flag in an array indicates the condition is true.
     <tbody>
       <tr data-field="members" class="expandable">
         <td class="field-name">members</td>
-        <td class="field-type">List of → Member</td>
+        <td class="field-type">List of → <a href="#Member" class="type-link">Member</a></td>
         <td class="field-required">&#10003;</td>
         <td class="field-notes">List of household members with their relationship to the head of household. [Nested]</td>
       </tr>
@@ -13724,13 +13854,13 @@ Presence of a flag in an array indicates the condition is true.
     <tbody>
       <tr data-field="homeAddress" class="expandable">
         <td class="field-name">homeAddress</td>
-        <td class="field-type">→ HomeAddress</td>
+        <td class="field-type">→ <a href="#HomeAddress" class="type-link">HomeAddress</a></td>
         <td class="field-required">&#10003;</td>
         <td class="field-notes">Home address of the household. [Nested]</td>
       </tr>
       <tr data-field="mailingAddress" class="expandable">
         <td class="field-name">mailingAddress</td>
-        <td class="field-type">→ MailingAddress</td>
+        <td class="field-type">→ <a href="#MailingAddress" class="type-link">MailingAddress</a></td>
         <td class="field-required"></td>
         <td class="field-notes">Mailing address if different from home address. [Nested]</td>
       </tr>
@@ -13790,7 +13920,7 @@ Presence of a flag in an array indicates the condition is true.
     <tbody>
       <tr data-field="members" class="expandable">
         <td class="field-name">members</td>
-        <td class="field-type">List of → Member</td>
+        <td class="field-type">List of → <a href="#Member" class="type-link">Member</a></td>
         <td class="field-required">&#10003;</td>
         <td class="field-notes">List of household members with their relationship to the head of household. [Nested]</td>
       </tr>
@@ -13832,7 +13962,7 @@ Presence of a flag in an array indicates the condition is true.
       </tr>
       <tr data-field="utilities" class="expandable">
         <td class="field-name">utilities</td>
-        <td class="field-type">→ Utilities</td>
+        <td class="field-type">→ <a href="#Utilities" class="type-link">Utilities</a></td>
         <td class="field-required"></td>
         <td class="field-notes">Utility-related settings for the household. [Nested]</td>
       </tr>
@@ -13867,7 +13997,7 @@ Presence of a flag in an array indicates the condition is true.
       </tr>
       <tr data-field="utilities" class="expandable">
         <td class="field-name">utilities</td>
-        <td class="field-type">→ Utilities</td>
+        <td class="field-type">→ <a href="#Utilities" class="type-link">Utilities</a></td>
         <td class="field-required"></td>
         <td class="field-notes">Utility-related settings for the household. [Nested]</td>
       </tr>
@@ -13902,7 +14032,7 @@ Presence of a flag in an array indicates the condition is true.
       </tr>
       <tr data-field="utilities" class="expandable">
         <td class="field-name">utilities</td>
-        <td class="field-type">→ Utilities</td>
+        <td class="field-type">→ <a href="#Utilities" class="type-link">Utilities</a></td>
         <td class="field-required"></td>
         <td class="field-notes">Utility-related settings for the household. [Nested]</td>
       </tr>
@@ -13932,7 +14062,7 @@ Presence of a flag in an array indicates the condition is true.
     <tbody>
       <tr data-field="items" class="expandable">
         <td class="field-name">items</td>
-        <td class="field-type">List of → Item</td>
+        <td class="field-type">List of → <a href="#Item" class="type-link">Item</a></td>
         <td class="field-required">&#10003;</td>
         <td class="field-notes">[Nested object]</td>
       </tr>
@@ -13979,7 +14109,7 @@ Presence of a flag in an array indicates the condition is true.
     <tbody>
       <tr data-field="items" class="expandable">
         <td class="field-name">items</td>
-        <td class="field-type">List of → Item</td>
+        <td class="field-type">List of → <a href="#Item" class="type-link">Item</a></td>
         <td class="field-required">&#10003;</td>
         <td class="field-notes">[Nested object]</td>
       </tr>
@@ -14026,7 +14156,7 @@ Presence of a flag in an array indicates the condition is true.
     <tbody>
       <tr data-field="items" class="expandable">
         <td class="field-name">items</td>
-        <td class="field-type">List of → Item</td>
+        <td class="field-type">List of → <a href="#Item" class="type-link">Item</a></td>
         <td class="field-required">&#10003;</td>
         <td class="field-notes">[Nested object]</td>
       </tr>
@@ -14390,13 +14520,13 @@ Presence of a flag in an array indicates the condition is true.
     <tbody>
       <tr data-field="homeAddress" class="expandable">
         <td class="field-name">homeAddress</td>
-        <td class="field-type">→ HomeAddress</td>
+        <td class="field-type">→ <a href="#HomeAddress" class="type-link">HomeAddress</a></td>
         <td class="field-required">&#10003;</td>
         <td class="field-notes">Home address of the household. [Nested]</td>
       </tr>
       <tr data-field="mailingAddress" class="expandable">
         <td class="field-name">mailingAddress</td>
-        <td class="field-type">→ MailingAddress</td>
+        <td class="field-type">→ <a href="#MailingAddress" class="type-link">MailingAddress</a></td>
         <td class="field-required"></td>
         <td class="field-notes">Mailing address if different from home address. [Nested]</td>
       </tr>
@@ -14456,7 +14586,7 @@ Presence of a flag in an array indicates the condition is true.
     <tbody>
       <tr data-field="members" class="expandable">
         <td class="field-name">members</td>
-        <td class="field-type">List of → Member</td>
+        <td class="field-type">List of → <a href="#Member" class="type-link">Member</a></td>
         <td class="field-required">&#10003;</td>
         <td class="field-notes">List of household members with their relationship to the head of household. [Nested]</td>
       </tr>
@@ -14479,13 +14609,13 @@ Presence of a flag in an array indicates the condition is true.
     <tbody>
       <tr data-field="homeAddress" class="expandable">
         <td class="field-name">homeAddress</td>
-        <td class="field-type">→ HomeAddress</td>
+        <td class="field-type">→ <a href="#HomeAddress" class="type-link">HomeAddress</a></td>
         <td class="field-required">&#10003;</td>
         <td class="field-notes">Home address of the household. [Nested]</td>
       </tr>
       <tr data-field="mailingAddress" class="expandable">
         <td class="field-name">mailingAddress</td>
-        <td class="field-type">→ MailingAddress</td>
+        <td class="field-type">→ <a href="#MailingAddress" class="type-link">MailingAddress</a></td>
         <td class="field-required"></td>
         <td class="field-notes">Mailing address if different from home address. [Nested]</td>
       </tr>
@@ -14545,7 +14675,7 @@ Presence of a flag in an array indicates the condition is true.
     <tbody>
       <tr data-field="members" class="expandable">
         <td class="field-name">members</td>
-        <td class="field-type">List of → Member</td>
+        <td class="field-type">List of → <a href="#Member" class="type-link">Member</a></td>
         <td class="field-required">&#10003;</td>
         <td class="field-notes">List of household members with their relationship to the head of household. [Nested]</td>
       </tr>
@@ -14568,13 +14698,13 @@ Presence of a flag in an array indicates the condition is true.
     <tbody>
       <tr data-field="homeAddress" class="expandable">
         <td class="field-name">homeAddress</td>
-        <td class="field-type">→ HomeAddress</td>
+        <td class="field-type">→ <a href="#HomeAddress" class="type-link">HomeAddress</a></td>
         <td class="field-required">&#10003;</td>
         <td class="field-notes">Home address of the household. [Nested]</td>
       </tr>
       <tr data-field="mailingAddress" class="expandable">
         <td class="field-name">mailingAddress</td>
-        <td class="field-type">→ MailingAddress</td>
+        <td class="field-type">→ <a href="#MailingAddress" class="type-link">MailingAddress</a></td>
         <td class="field-required"></td>
         <td class="field-notes">Mailing address if different from home address. [Nested]</td>
       </tr>
@@ -14634,7 +14764,7 @@ Presence of a flag in an array indicates the condition is true.
     <tbody>
       <tr data-field="members" class="expandable">
         <td class="field-name">members</td>
-        <td class="field-type">List of → Member</td>
+        <td class="field-type">List of → <a href="#Member" class="type-link">Member</a></td>
         <td class="field-required">&#10003;</td>
         <td class="field-notes">List of household members with their relationship to the head of household. [Nested]</td>
       </tr>
@@ -15311,7 +15441,7 @@ Presence of a flag in an array indicates the condition is true.
     <tbody>
       <tr data-field="items" class="expandable">
         <td class="field-name">items</td>
-        <td class="field-type">List of → Item</td>
+        <td class="field-type">List of → <a href="#Item" class="type-link">Item</a></td>
         <td class="field-required">&#10003;</td>
         <td class="field-notes">[Nested object]</td>
       </tr>
@@ -15352,7 +15482,7 @@ Presence of a flag in an array indicates the condition is true.
     <tbody>
       <tr data-field="items" class="expandable">
         <td class="field-name">items</td>
-        <td class="field-type">List of → Item</td>
+        <td class="field-type">List of → <a href="#Item" class="type-link">Item</a></td>
         <td class="field-required">&#10003;</td>
         <td class="field-notes">[Nested object]</td>
       </tr>
@@ -15393,7 +15523,7 @@ Presence of a flag in an array indicates the condition is true.
     <tbody>
       <tr data-field="items" class="expandable">
         <td class="field-name">items</td>
-        <td class="field-type">List of → Item</td>
+        <td class="field-type">List of → <a href="#Item" class="type-link">Item</a></td>
         <td class="field-required">&#10003;</td>
         <td class="field-notes">[Nested object]</td>
       </tr>
@@ -16281,25 +16411,25 @@ Presence of a flag in an array indicates the condition is true.
     <tbody>
       <tr data-field="partA" class="expandable">
         <td class="field-name">partA</td>
-        <td class="field-type">→ PartA</td>
+        <td class="field-type">→ <a href="#PartA" class="type-link">PartA</a></td>
         <td class="field-required"></td>
         <td class="field-notes">[Nested object]</td>
       </tr>
       <tr data-field="partB" class="expandable">
         <td class="field-name">partB</td>
-        <td class="field-type">→ PartB</td>
+        <td class="field-type">→ <a href="#PartB" class="type-link">PartB</a></td>
         <td class="field-required"></td>
         <td class="field-notes">[Nested object]</td>
       </tr>
       <tr data-field="partC" class="expandable">
         <td class="field-name">partC</td>
-        <td class="field-type">→ PartC</td>
+        <td class="field-type">→ <a href="#PartC" class="type-link">PartC</a></td>
         <td class="field-required"></td>
         <td class="field-notes">[Nested object]</td>
       </tr>
       <tr data-field="partD" class="expandable">
         <td class="field-name">partD</td>
-        <td class="field-type">→ PartD</td>
+        <td class="field-type">→ <a href="#PartD" class="type-link">PartD</a></td>
         <td class="field-required"></td>
         <td class="field-notes">[Nested object]</td>
       </tr>
@@ -16322,25 +16452,25 @@ Presence of a flag in an array indicates the condition is true.
     <tbody>
       <tr data-field="partA" class="expandable">
         <td class="field-name">partA</td>
-        <td class="field-type">→ PartA</td>
+        <td class="field-type">→ <a href="#PartA" class="type-link">PartA</a></td>
         <td class="field-required"></td>
         <td class="field-notes">[Nested object]</td>
       </tr>
       <tr data-field="partB" class="expandable">
         <td class="field-name">partB</td>
-        <td class="field-type">→ PartB</td>
+        <td class="field-type">→ <a href="#PartB" class="type-link">PartB</a></td>
         <td class="field-required"></td>
         <td class="field-notes">[Nested object]</td>
       </tr>
       <tr data-field="partC" class="expandable">
         <td class="field-name">partC</td>
-        <td class="field-type">→ PartC</td>
+        <td class="field-type">→ <a href="#PartC" class="type-link">PartC</a></td>
         <td class="field-required"></td>
         <td class="field-notes">[Nested object]</td>
       </tr>
       <tr data-field="partD" class="expandable">
         <td class="field-name">partD</td>
-        <td class="field-type">→ PartD</td>
+        <td class="field-type">→ <a href="#PartD" class="type-link">PartD</a></td>
         <td class="field-required"></td>
         <td class="field-notes">[Nested object]</td>
       </tr>
@@ -16363,25 +16493,25 @@ Presence of a flag in an array indicates the condition is true.
     <tbody>
       <tr data-field="partA" class="expandable">
         <td class="field-name">partA</td>
-        <td class="field-type">→ PartA</td>
+        <td class="field-type">→ <a href="#PartA" class="type-link">PartA</a></td>
         <td class="field-required"></td>
         <td class="field-notes">[Nested object]</td>
       </tr>
       <tr data-field="partB" class="expandable">
         <td class="field-name">partB</td>
-        <td class="field-type">→ PartB</td>
+        <td class="field-type">→ <a href="#PartB" class="type-link">PartB</a></td>
         <td class="field-required"></td>
         <td class="field-notes">[Nested object]</td>
       </tr>
       <tr data-field="partC" class="expandable">
         <td class="field-name">partC</td>
-        <td class="field-type">→ PartC</td>
+        <td class="field-type">→ <a href="#PartC" class="type-link">PartC</a></td>
         <td class="field-required"></td>
         <td class="field-notes">[Nested object]</td>
       </tr>
       <tr data-field="partD" class="expandable">
         <td class="field-name">partD</td>
-        <td class="field-type">→ PartD</td>
+        <td class="field-type">→ <a href="#PartD" class="type-link">PartD</a></td>
         <td class="field-required"></td>
         <td class="field-notes">[Nested object]</td>
       </tr>
@@ -17802,7 +17932,7 @@ UUIDs upon submission.
     <tbody>
       <tr data-field="items">
         <td class="field-name">items</td>
-        <td class="field-type">List of → Item</td>
+        <td class="field-type">List of → <a href="#Item" class="type-link">Item</a></td>
         <td class="field-required">&#10003;</td>
         <td class="field-notes"></td>
       </tr>
@@ -17849,7 +17979,7 @@ UUIDs upon submission.
     <tbody>
       <tr data-field="items">
         <td class="field-name">items</td>
-        <td class="field-type">List of → Item</td>
+        <td class="field-type">List of → <a href="#Item" class="type-link">Item</a></td>
         <td class="field-required">&#10003;</td>
         <td class="field-notes"></td>
       </tr>
@@ -17896,7 +18026,7 @@ UUIDs upon submission.
     <tbody>
       <tr data-field="items">
         <td class="field-name">items</td>
-        <td class="field-type">List of → Item</td>
+        <td class="field-type">List of → <a href="#Item" class="type-link">Item</a></td>
         <td class="field-required">&#10003;</td>
         <td class="field-notes"></td>
       </tr>
@@ -18955,7 +19085,7 @@ UUIDs upon submission.
         <td class="field-name">primaryPropertyUse</td>
         <td class="field-type">Multi-select</td>
         <td class="field-required"></td>
-        <td class="field-notes"></td>
+        <td class="field-notes">Options: primary home, rental income, business self employment, other</td>
       </tr>
       <tr data-field="primaryPropertyUseOther">
         <td class="field-name">primaryPropertyUseOther</td>
@@ -19002,7 +19132,7 @@ UUIDs upon submission.
         <td class="field-name">primaryPropertyUse</td>
         <td class="field-type">Multi-select</td>
         <td class="field-required"></td>
-        <td class="field-notes"></td>
+        <td class="field-notes">Options: primary home, rental income, business self employment, other</td>
       </tr>
       <tr data-field="primaryPropertyUseOther">
         <td class="field-name">primaryPropertyUseOther</td>
@@ -19049,7 +19179,7 @@ UUIDs upon submission.
         <td class="field-name">primaryPropertyUse</td>
         <td class="field-type">Multi-select</td>
         <td class="field-required"></td>
-        <td class="field-notes"></td>
+        <td class="field-notes">Options: primary home, rental income, business self employment, other</td>
       </tr>
       <tr data-field="primaryPropertyUseOther">
         <td class="field-name">primaryPropertyUseOther</td>
@@ -19479,7 +19609,7 @@ UUIDs upon submission.
       </tr>
       <tr data-field="otherBusinessCosts" class="expandable">
         <td class="field-name">otherBusinessCosts</td>
-        <td class="field-type">List of → OtherBusinessCost</td>
+        <td class="field-type">List of → <a href="#OtherBusinessCost" class="type-link">OtherBusinessCost</a></td>
         <td class="field-required"></td>
         <td class="field-notes">[Nested object]</td>
       </tr>
@@ -19562,7 +19692,7 @@ UUIDs upon submission.
       </tr>
       <tr data-field="otherBusinessCosts" class="expandable">
         <td class="field-name">otherBusinessCosts</td>
-        <td class="field-type">List of → OtherBusinessCost</td>
+        <td class="field-type">List of → <a href="#OtherBusinessCost" class="type-link">OtherBusinessCost</a></td>
         <td class="field-required"></td>
         <td class="field-notes">[Nested object]</td>
       </tr>
@@ -19645,7 +19775,7 @@ UUIDs upon submission.
       </tr>
       <tr data-field="otherBusinessCosts" class="expandable">
         <td class="field-name">otherBusinessCosts</td>
-        <td class="field-type">List of → OtherBusinessCost</td>
+        <td class="field-type">List of → <a href="#OtherBusinessCost" class="type-link">OtherBusinessCost</a></td>
         <td class="field-required"></td>
         <td class="field-notes">[Nested object]</td>
       </tr>
@@ -20679,6 +20809,1903 @@ UUIDs upon submission.
 </div>
 </section>
 
+<section id="Household" class="schema-section inline-object">
+  <div class="section-header simple">
+    <span class="inline-object-badge">Nested in Application</span>
+    <h2>Household</h2>
+  </div>
+  <p class="description">Household information including members, occupants, expenses, and related data.</p>
+<div class="domain-group" style="--domain-color: #8b4513; --domain-bg: #faf0e6;">
+  <h5 class="domain-header"><span class="domain-indicator"></span>Housing & Expenses</h5>
+  <table class="property-table">
+    <thead>
+      <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Req</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-field="expenses" class="expandable">
+        <td class="field-name">expenses</td>
+        <td class="field-type">→ Expenses</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Household-level expense information (rent/mortgage/utilities). [Nested]</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<div class="domain-group" style="--domain-color: #566573; --domain-bg: #f2f3f4;">
+  <h5 class="domain-header"><span class="domain-indicator"></span>Other</h5>
+  <table class="property-table">
+    <thead>
+      <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Req</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-field="members">
+        <td class="field-name">members</td>
+        <td class="field-type">List of → <a href="#Member" class="type-link">Member</a></td>
+        <td class="field-required">&#10003;</td>
+        <td class="field-notes">IRS-recognized household members for benefits eligibility, including the primary
+applicant (relationship=self). At least one member with relationship=self is required.
+</td>
+      </tr>
+      <tr data-field="otherOccupants">
+        <td class="field-name">otherOccupants</td>
+        <td class="field-type">List of → OtherOccupant</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Other people living at the address who are not part of the household unit for
+benefits purposes (e.g., boarders, roomers).
+</td>
+      </tr>
+      <tr data-field="healthInsurancePlans" class="expandable">
+        <td class="field-name">healthInsurancePlans</td>
+        <td class="field-type">→ HealthInsurancePlans</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Health insurance plans available to household members, keyed by plan name. The key must match the plan&#039;s `planName` property.
+ [Nested]</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+</section>
+
+<section id="Signatures" class="schema-section inline-object">
+  <div class="section-header simple">
+    <span class="inline-object-badge">Nested in Application</span>
+    <h2>Signatures</h2>
+  </div>
+  <p class="description">Application signatures.</p>
+<div class="domain-group" style="--domain-color: #566573; --domain-bg: #f2f3f4;">
+  <h5 class="domain-header"><span class="domain-indicator"></span>Other</h5>
+  <table class="property-table">
+    <thead>
+      <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Req</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-field="applicantSignature" class="expandable">
+        <td class="field-name">applicantSignature</td>
+        <td class="field-type">→ ApplicantSignature</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Primary applicant signature. [Nested]</td>
+      </tr>
+      <tr data-field="coApplicantSignature" class="expandable">
+        <td class="field-name">coApplicantSignature</td>
+        <td class="field-type">→ CoApplicantSignature</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Spouse/co-applicant signature if applicable. [Nested]</td>
+      </tr>
+      <tr data-field="applicantAuthorizedRepresentativeSignature" class="expandable">
+        <td class="field-name">applicantAuthorizedRepresentativeSignature</td>
+        <td class="field-type">→ ApplicantAuthorizedRepresentativeSignature</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Authorized representative signature for the applicant. [Nested]</td>
+      </tr>
+      <tr data-field="coApplicantAuthorizedRepresentativeSignature" class="expandable">
+        <td class="field-name">coApplicantAuthorizedRepresentativeSignature</td>
+        <td class="field-type">→ CoApplicantAuthorizedRepresentativeSignature</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Authorized representative signature for the co-applicant. [Nested]</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+</section>
+
+<section id="ScreeningFlags" class="schema-section inline-object">
+  <div class="section-header simple">
+    <span class="inline-object-badge">Nested in ApplicationCreate</span>
+    <h2>ScreeningFlags</h2>
+  </div>
+  <p class="description">Flags indicating screening criteria relevant to this application.</p>
+<div class="domain-group" style="--domain-color: #1abc9c; --domain-bg: #e8f6f3;">
+  <h5 class="domain-header"><span class="domain-indicator"></span>Employment</h5>
+  <table class="property-table">
+    <thead>
+      <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Req</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-field="jobs">
+        <td class="field-name">jobs</td>
+        <td class="field-type">Multi-select</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Options: has employment, has self employment, has job changes, expected income change, income differences, is anyone on strike</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<div class="domain-group" style="--domain-color: #8b4513; --domain-bg: #faf0e6;">
+  <h5 class="domain-header"><span class="domain-indicator"></span>Housing & Expenses</h5>
+  <table class="property-table">
+    <thead>
+      <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Req</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-field="expenses">
+        <td class="field-name">expenses</td>
+        <td class="field-type">Multi-select</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Options: has rent expenses, has mortgage expenses, has additional expenses</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<div class="domain-group" style="--domain-color: #566573; --domain-bg: #f2f3f4;">
+  <h5 class="domain-header"><span class="domain-indicator"></span>Other</h5>
+  <table class="property-table">
+    <thead>
+      <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Req</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-field="programs" class="expandable">
+        <td class="field-name">programs</td>
+        <td class="field-type">→ <a href="#Programs" class="type-link">Programs</a></td>
+        <td class="field-required"></td>
+        <td class="field-notes">Program-specific screening flags. [Nested]</td>
+      </tr>
+      <tr data-field="familyPlanning">
+        <td class="field-name">familyPlanning</td>
+        <td class="field-type">Multi-select</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Options: family planning needs, pregnancy, wants reproductive benefits, child under 19, absent parent, wants family violence waiver</td>
+      </tr>
+      <tr data-field="disability">
+        <td class="field-name">disability</td>
+        <td class="field-type">Multi-select</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Options: disability, received ssi or ssdi</td>
+      </tr>
+      <tr data-field="citizenship">
+        <td class="field-name">citizenship</td>
+        <td class="field-type">Multi-select</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Options: non citizens, wants emergency medicaid</td>
+      </tr>
+      <tr data-field="medicalCoverage">
+        <td class="field-name">medicalCoverage</td>
+        <td class="field-type">Multi-select</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Options: has health insurance, legal claim, wants retroactive medical</td>
+      </tr>
+      <tr data-field="tribal">
+        <td class="field-name">tribal</td>
+        <td class="field-type">Multi-select</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Options: american indian or alaska native, received indian health service, eligible for indian health service</td>
+      </tr>
+      <tr data-field="fosterCareAndBenefitsHistory">
+        <td class="field-name">fosterCareAndBenefitsHistory</td>
+        <td class="field-type">Multi-select</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Options: foster care history, received benefits other state</td>
+      </tr>
+      <tr data-field="otherIncome">
+        <td class="field-name">otherIncome</td>
+        <td class="field-type">Multi-select</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Options: has other income, has lump sum payments, deductions change monthly</td>
+      </tr>
+      <tr data-field="education">
+        <td class="field-name">education</td>
+        <td class="field-type">Multi-select</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Options: has students, has financial aid</td>
+      </tr>
+      <tr data-field="resources">
+        <td class="field-name">resources</td>
+        <td class="field-type">Multi-select</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Options: has resources, has vehicles, has life or burial insurance, owns property, has transferred assets</td>
+      </tr>
+      <tr data-field="priorConvictions">
+        <td class="field-name">priorConvictions</td>
+        <td class="field-type">Multi-select</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Options: has prior convictions</td>
+      </tr>
+      <tr data-field="military">
+        <td class="field-name">military</td>
+        <td class="field-type">Multi-select</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Options: has military service</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+</section>
+
+<section id="Preferences" class="schema-section inline-object">
+  <div class="section-header simple">
+    <span class="inline-object-badge">Nested in ApplicationCreate</span>
+    <h2>Preferences</h2>
+  </div>
+  <p class="description">Application preferences and consents.</p>
+<div class="domain-group" style="--domain-color: #566573; --domain-bg: #f2f3f4;">
+  <h5 class="domain-header"><span class="domain-indicator"></span>Other</h5>
+  <table class="property-table">
+    <thead>
+      <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Req</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-field="givesPermissionToValidateIncome">
+        <td class="field-name">givesPermissionToValidateIncome</td>
+        <td class="field-type">Yes/No</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Whether the applicant gives permission to validate income.</td>
+      </tr>
+      <tr data-field="wantsToRegisterToVote">
+        <td class="field-name">wantsToRegisterToVote</td>
+        <td class="field-type">Yes/No</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Whether the applicant wants to register to vote.</td>
+      </tr>
+      <tr data-field="burialPreference">
+        <td class="field-name">burialPreference</td>
+        <td class="field-type">Dropdown</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Options: cremation, burial, no preference</td>
+      </tr>
+      <tr data-field="ebtCardDeliveryMethod">
+        <td class="field-name">ebtCardDeliveryMethod</td>
+        <td class="field-type">Dropdown</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Options: postal mail, in person</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+</section>
+
+<section id="ExpeditedSNAPInfo" class="schema-section inline-object">
+  <div class="section-header simple">
+    <span class="inline-object-badge">Nested in ApplicationCreate</span>
+    <h2>ExpeditedSNAPInfo</h2>
+  </div>
+  <p class="description">Expedited SNAP screening information.</p>
+<div class="domain-group" style="--domain-color: #566573; --domain-bg: #f2f3f4;">
+  <h5 class="domain-header"><span class="domain-indicator"></span>Other</h5>
+  <table class="property-table">
+    <thead>
+      <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Req</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-field="householdSize">
+        <td class="field-name">householdSize</td>
+        <td class="field-type">Number</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Number of people in the home who purchase and prepare food together.</td>
+      </tr>
+      <tr data-field="isMigrantOrSeasonalFarmWorker">
+        <td class="field-name">isMigrantOrSeasonalFarmWorker</td>
+        <td class="field-type">Yes/No</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Whether any household member is a migrant or seasonal farm worker.</td>
+      </tr>
+      <tr data-field="totalExpectedIncomeThisMonth">
+        <td class="field-name">totalExpectedIncomeThisMonth</td>
+        <td class="field-type">Number</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Total money household expects to get this month (before deductions).</td>
+      </tr>
+      <tr data-field="totalCashOnHand">
+        <td class="field-name">totalCashOnHand</td>
+        <td class="field-type">Number</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Total cash on hand and money in checking/savings account.</td>
+      </tr>
+      <tr data-field="monthlyMortgage">
+        <td class="field-name">monthlyMortgage</td>
+        <td class="field-type">Number</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Monthly mortgage payment amount.</td>
+      </tr>
+      <tr data-field="monthlyRent">
+        <td class="field-name">monthlyRent</td>
+        <td class="field-type">Number</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Monthly rent payment amount.</td>
+      </tr>
+      <tr data-field="utilityCosts" class="expandable">
+        <td class="field-name">utilityCosts</td>
+        <td class="field-type">→ <a href="#UtilityCosts" class="type-link">UtilityCosts</a></td>
+        <td class="field-required"></td>
+        <td class="field-notes">Monthly utility costs. [Nested]</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+</section>
+
+<section id="Item" class="schema-section inline-object">
+  <div class="section-header simple">
+    <span class="inline-object-badge">Nested in ApplicationList</span>
+    <h2>Item</h2>
+  </div>
+  <p class="description">Application schema for public assistance programs. Supports applying for SNAP, Cash Programs, and/or Medical Assistance simultaneously.</p>
+<div class="domain-group" style="--domain-color: #16a085; --domain-bg: #e8f6f3;">
+  <h5 class="domain-header"><span class="domain-indicator"></span>Program & Application</h5>
+  <table class="property-table">
+    <thead>
+      <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Req</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-field="state">
+        <td class="field-name">state</td>
+        <td class="field-type">Text</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Two-letter state code where the application is being submitted (e.g., CO, CA, NY).</td>
+      </tr>
+      <tr data-field="status">
+        <td class="field-name">status</td>
+        <td class="field-type">Dropdown</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Options: draft, submitted, under review, approved, denied, pending information, withdrawn</td>
+      </tr>
+      <tr data-field="screeningFlags" class="expandable">
+        <td class="field-name">screeningFlags</td>
+        <td class="field-type">→ <a href="#ScreeningFlags" class="type-link">ScreeningFlags</a></td>
+        <td class="field-required"></td>
+        <td class="field-notes">Flags indicating screening criteria relevant to this application. [Nested]</td>
+      </tr>
+      <tr data-field="preferences" class="expandable">
+        <td class="field-name">preferences</td>
+        <td class="field-type">→ <a href="#Preferences" class="type-link">Preferences</a></td>
+        <td class="field-required"></td>
+        <td class="field-notes">Application preferences and consents. [Nested]</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<div class="domain-group" style="--domain-color: #95a5a6; --domain-bg: #f8f9f9;">
+  <h5 class="domain-header"><span class="domain-indicator"></span>System</h5>
+  <table class="property-table">
+    <thead>
+      <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Req</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-field="id">
+        <td class="field-name">id <span class="read-only-badge">read-only</span></td>
+        <td class="field-type">ID</td>
+        <td class="field-required">&#10003;</td>
+        <td class="field-notes">Unique identifier for the application.</td>
+      </tr>
+      <tr data-field="createdAt">
+        <td class="field-name">createdAt <span class="read-only-badge">read-only</span></td>
+        <td class="field-type">Date & Time</td>
+        <td class="field-required">&#10003;</td>
+        <td class="field-notes">Timestamp when the application was created.</td>
+      </tr>
+      <tr data-field="updatedAt">
+        <td class="field-name">updatedAt <span class="read-only-badge">read-only</span></td>
+        <td class="field-type">Date & Time</td>
+        <td class="field-required">&#10003;</td>
+        <td class="field-notes">Timestamp when the application was last updated.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<div class="domain-group" style="--domain-color: #566573; --domain-bg: #f2f3f4;">
+  <h5 class="domain-header"><span class="domain-indicator"></span>Other</h5>
+  <table class="property-table">
+    <thead>
+      <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Req</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-field="household" class="expandable">
+        <td class="field-name">household</td>
+        <td class="field-type">→ <a href="#Household" class="type-link">Household</a></td>
+        <td class="field-required">&#10003;</td>
+        <td class="field-notes">Household information including members, occupants, expenses, and related data. [Nested]</td>
+      </tr>
+      <tr data-field="expeditedSNAPInfo" class="expandable">
+        <td class="field-name">expeditedSNAPInfo</td>
+        <td class="field-type">→ <a href="#ExpeditedSNAPInfo" class="type-link">ExpeditedSNAPInfo</a></td>
+        <td class="field-required"></td>
+        <td class="field-notes">Expedited SNAP screening information. [Nested]</td>
+      </tr>
+      <tr data-field="signatures" class="expandable">
+        <td class="field-name">signatures</td>
+        <td class="field-type">→ <a href="#Signatures" class="type-link">Signatures</a></td>
+        <td class="field-required"></td>
+        <td class="field-notes">Application signatures. [Nested]</td>
+      </tr>
+      <tr data-field="applicationAssister" class="expandable">
+        <td class="field-name">applicationAssister</td>
+        <td class="field-type">→ <a href="#ApplicationAssister" class="type-link">ApplicationAssister</a></td>
+        <td class="field-required"></td>
+        <td class="field-notes">The person who helped complete this application. [Nested]</td>
+      </tr>
+      <tr data-field="authorizedRepresentative" class="expandable">
+        <td class="field-name">authorizedRepresentative</td>
+        <td class="field-type">→ <a href="#AuthorizedRepresentative" class="type-link">AuthorizedRepresentative</a></td>
+        <td class="field-required"></td>
+        <td class="field-notes">Authorized representative for the applicant. [Nested]</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+</section>
+
+<section id="Member" class="schema-section inline-object">
+  <div class="section-header simple">
+    <span class="inline-object-badge">Nested in Household</span>
+    <h2>Member</h2>
+  </div>
+  <p class="description">Nested object within Household.members (array item)</p>
+<div class="domain-group" style="--domain-color: #16a085; --domain-bg: #e8f6f3;">
+  <h5 class="domain-header"><span class="domain-indicator"></span>Program & Application</h5>
+  <table class="property-table">
+    <thead>
+      <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Req</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-field="relationship">
+        <td class="field-name">relationship</td>
+        <td class="field-type">Dropdown</td>
+        <td class="field-required">&#10003;</td>
+        <td class="field-notes">Options: head of household, spouse, husband, wife, partner, child, parent, sibling, grandparent, grandchild, other relative, non relative</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<div class="domain-group" style="--domain-color: #566573; --domain-bg: #f2f3f4;">
+  <h5 class="domain-header"><span class="domain-indicator"></span>Other</h5>
+  <table class="property-table">
+    <thead>
+      <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Req</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-field="personId">
+        <td class="field-name">personId</td>
+        <td class="field-type">ID</td>
+        <td class="field-required">&#10003;</td>
+        <td class="field-notes">Reference to the person&#039;s unique identifier.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+</section>
+
+<section id="HomeAddress" class="schema-section inline-object">
+  <div class="section-header simple">
+    <span class="inline-object-badge">Nested in HouseholdCreate</span>
+    <h2>HomeAddress</h2>
+  </div>
+  <p class="description">Home address of the household.</p>
+<div class="domain-group" style="--domain-color: #566573; --domain-bg: #f2f3f4;">
+  <h5 class="domain-header"><span class="domain-indicator"></span>Other</h5>
+  <table class="property-table">
+    <thead>
+      <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Req</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-field="addressLine1">
+        <td class="field-name">addressLine1</td>
+        <td class="field-type">Text</td>
+        <td class="field-required">&#10003;</td>
+        <td class="field-notes">Primary street address line.</td>
+      </tr>
+      <tr data-field="addressLine2">
+        <td class="field-name">addressLine2</td>
+        <td class="field-type">Text</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Secondary address line such as apartment or unit.</td>
+      </tr>
+      <tr data-field="city">
+        <td class="field-name">city</td>
+        <td class="field-type">Text</td>
+        <td class="field-required">&#10003;</td>
+        <td class="field-notes">City or locality of residence.</td>
+      </tr>
+      <tr data-field="stateProvince">
+        <td class="field-name">stateProvince</td>
+        <td class="field-type">Text</td>
+        <td class="field-required">&#10003;</td>
+        <td class="field-notes">State, province, or region of residence.</td>
+      </tr>
+      <tr data-field="postalCode">
+        <td class="field-name">postalCode</td>
+        <td class="field-type">Text</td>
+        <td class="field-required">&#10003;</td>
+        <td class="field-notes">Postal or ZIP code.</td>
+      </tr>
+      <tr data-field="county">
+        <td class="field-name">county</td>
+        <td class="field-type">Text</td>
+        <td class="field-required"></td>
+        <td class="field-notes">County or equivalent administrative region.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+</section>
+
+<section id="MailingAddress" class="schema-section inline-object">
+  <div class="section-header simple">
+    <span class="inline-object-badge">Nested in HouseholdCreate</span>
+    <h2>MailingAddress</h2>
+  </div>
+  <p class="description">Mailing address if different from home address.</p>
+<div class="domain-group" style="--domain-color: #566573; --domain-bg: #f2f3f4;">
+  <h5 class="domain-header"><span class="domain-indicator"></span>Other</h5>
+  <table class="property-table">
+    <thead>
+      <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Req</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-field="addressLine1">
+        <td class="field-name">addressLine1</td>
+        <td class="field-type">Text</td>
+        <td class="field-required">&#10003;</td>
+        <td class="field-notes">Primary street address line.</td>
+      </tr>
+      <tr data-field="addressLine2">
+        <td class="field-name">addressLine2</td>
+        <td class="field-type">Text</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Secondary address line such as apartment or unit.</td>
+      </tr>
+      <tr data-field="city">
+        <td class="field-name">city</td>
+        <td class="field-type">Text</td>
+        <td class="field-required">&#10003;</td>
+        <td class="field-notes">City or locality of residence.</td>
+      </tr>
+      <tr data-field="stateProvince">
+        <td class="field-name">stateProvince</td>
+        <td class="field-type">Text</td>
+        <td class="field-required">&#10003;</td>
+        <td class="field-notes">State, province, or region of residence.</td>
+      </tr>
+      <tr data-field="postalCode">
+        <td class="field-name">postalCode</td>
+        <td class="field-type">Text</td>
+        <td class="field-required">&#10003;</td>
+        <td class="field-notes">Postal or ZIP code.</td>
+      </tr>
+      <tr data-field="county">
+        <td class="field-name">county</td>
+        <td class="field-type">Text</td>
+        <td class="field-required"></td>
+        <td class="field-notes">County or equivalent administrative region.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+</section>
+
+<section id="Name" class="schema-section inline-object">
+  <div class="section-header simple">
+    <span class="inline-object-badge">Nested in Person</span>
+    <h2>Name</h2>
+  </div>
+  <p class="description">Legal name of the person.</p>
+<div class="domain-group" style="--domain-color: #3498db; --domain-bg: #ebf5fb;">
+  <h5 class="domain-header"><span class="domain-indicator"></span>Identity</h5>
+  <table class="property-table">
+    <thead>
+      <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Req</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-field="firstName">
+        <td class="field-name">firstName</td>
+        <td class="field-type">Text</td>
+        <td class="field-required">&#10003;</td>
+        <td class="field-notes">First name.</td>
+      </tr>
+      <tr data-field="middleName">
+        <td class="field-name">middleName</td>
+        <td class="field-type">Text</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Middle name.</td>
+      </tr>
+      <tr data-field="lastName">
+        <td class="field-name">lastName</td>
+        <td class="field-type">Text</td>
+        <td class="field-required">&#10003;</td>
+        <td class="field-notes">Last name.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<div class="domain-group" style="--domain-color: #566573; --domain-bg: #f2f3f4;">
+  <h5 class="domain-header"><span class="domain-indicator"></span>Other</h5>
+  <table class="property-table">
+    <thead>
+      <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Req</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-field="middleInitial">
+        <td class="field-name">middleInitial</td>
+        <td class="field-type">Text</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Middle initial.</td>
+      </tr>
+      <tr data-field="maidenName">
+        <td class="field-name">maidenName</td>
+        <td class="field-type">Text</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Maiden name if applicable.</td>
+      </tr>
+      <tr data-field="suffix">
+        <td class="field-name">suffix</td>
+        <td class="field-type">Text</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Name suffix such as Jr., Sr., III, etc.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+</section>
+
+<section id="Address" class="schema-section inline-object">
+  <div class="section-header simple">
+    <span class="inline-object-badge">Nested in Person</span>
+    <h2>Address</h2>
+  </div>
+  <p class="description">Address of the person.</p>
+<div class="domain-group" style="--domain-color: #566573; --domain-bg: #f2f3f4;">
+  <h5 class="domain-header"><span class="domain-indicator"></span>Other</h5>
+  <table class="property-table">
+    <thead>
+      <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Req</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-field="addressLine1">
+        <td class="field-name">addressLine1</td>
+        <td class="field-type">Text</td>
+        <td class="field-required">&#10003;</td>
+        <td class="field-notes">Primary street address line.</td>
+      </tr>
+      <tr data-field="addressLine2">
+        <td class="field-name">addressLine2</td>
+        <td class="field-type">Text</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Secondary address line such as apartment or unit.</td>
+      </tr>
+      <tr data-field="city">
+        <td class="field-name">city</td>
+        <td class="field-type">Text</td>
+        <td class="field-required">&#10003;</td>
+        <td class="field-notes">City or locality of residence.</td>
+      </tr>
+      <tr data-field="stateProvince">
+        <td class="field-name">stateProvince</td>
+        <td class="field-type">Text</td>
+        <td class="field-required">&#10003;</td>
+        <td class="field-notes">State, province, or region of residence.</td>
+      </tr>
+      <tr data-field="postalCode">
+        <td class="field-name">postalCode</td>
+        <td class="field-type">Text</td>
+        <td class="field-required">&#10003;</td>
+        <td class="field-notes">Postal or ZIP code.</td>
+      </tr>
+      <tr data-field="county">
+        <td class="field-name">county</td>
+        <td class="field-type">Text</td>
+        <td class="field-required"></td>
+        <td class="field-notes">County or equivalent administrative region.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+</section>
+
+<section id="DemographicInfo" class="schema-section inline-object">
+  <div class="section-header simple">
+    <span class="inline-object-badge">Nested in PersonCreate</span>
+    <h2>DemographicInfo</h2>
+  </div>
+  <p class="description">Demographic information including sex, marital status, and race.</p>
+<div class="domain-group" style="--domain-color: #9b59b6; --domain-bg: #f5eef8;">
+  <h5 class="domain-header"><span class="domain-indicator"></span>Demographics</h5>
+  <table class="property-table">
+    <thead>
+      <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Req</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-field="sex">
+        <td class="field-name">sex</td>
+        <td class="field-type">Dropdown</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Options: male, female, unknown</td>
+      </tr>
+      <tr data-field="maritalStatus">
+        <td class="field-name">maritalStatus</td>
+        <td class="field-type">Dropdown</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Options: single, married, divorced, separated, widowed, civil union, domestic partnership</td>
+      </tr>
+      <tr data-field="isHispanicOrLatino">
+        <td class="field-name">isHispanicOrLatino</td>
+        <td class="field-type">Yes/No</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Whether the person identifies as Hispanic or Latino.</td>
+      </tr>
+      <tr data-field="race">
+        <td class="field-name">race</td>
+        <td class="field-type">Multi-select</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Options: american indian alaskan native, asian, black african american, native hawaiian pacific islander, white</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+</section>
+
+<section id="CitizenshipInfo" class="schema-section inline-object">
+  <div class="section-header simple">
+    <span class="inline-object-badge">Nested in PersonCreate</span>
+    <h2>CitizenshipInfo</h2>
+  </div>
+  <p class="description">Citizenship and immigration status information.</p>
+<div class="domain-group" style="--domain-color: #e67e22; --domain-bg: #fdf2e9;">
+  <h5 class="domain-header"><span class="domain-indicator"></span>Citizenship & Immigration</h5>
+  <table class="property-table">
+    <thead>
+      <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Req</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-field="certificateNumber">
+        <td class="field-name">certificateNumber</td>
+        <td class="field-type">Text</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Certificate number if naturalized or derived citizen.</td>
+      </tr>
+      <tr data-field="immigrationInfo" class="expandable">
+        <td class="field-name">immigrationInfo</td>
+        <td class="field-type">→ <a href="#ImmigrationInfo" class="type-link">ImmigrationInfo</a></td>
+        <td class="field-required"></td>
+        <td class="field-notes">Immigration information for this person (if non-citizen). [Nested]</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<div class="domain-group" style="--domain-color: #16a085; --domain-bg: #e8f6f3;">
+  <h5 class="domain-header"><span class="domain-indicator"></span>Program & Application</h5>
+  <table class="property-table">
+    <thead>
+      <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Req</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-field="status">
+        <td class="field-name">status</td>
+        <td class="field-type">Dropdown</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Options: citizen, permanent resident, qualified non citizen, undocumented, other</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+</section>
+
+<section id="ContactInfo" class="schema-section inline-object">
+  <div class="section-header simple">
+    <span class="inline-object-badge">Nested in PersonCreate</span>
+    <h2>ContactInfo</h2>
+  </div>
+  <p class="description">Contact information and communication preferences.</p>
+<div class="domain-group" style="--domain-color: #27ae60; --domain-bg: #e8f8f0;">
+  <h5 class="domain-header"><span class="domain-indicator"></span>Contact</h5>
+  <table class="property-table">
+    <thead>
+      <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Req</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-field="otherPhoneNumber" class="expandable">
+        <td class="field-name">otherPhoneNumber</td>
+        <td class="field-type">→ <a href="#PhoneNumber" class="type-link">PhoneNumber</a></td>
+        <td class="field-required"></td>
+        <td class="field-notes">Alternative phone number. [Nested]</td>
+      </tr>
+      <tr data-field="mailingAddress" class="expandable">
+        <td class="field-name">mailingAddress</td>
+        <td class="field-type">→ <a href="#Address" class="type-link">Address</a></td>
+        <td class="field-required"></td>
+        <td class="field-notes">Mailing address if different from residential address. [Nested]</td>
+      </tr>
+      <tr data-field="isHomeless">
+        <td class="field-name">isHomeless</td>
+        <td class="field-type">Yes/No</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Whether the person is currently homeless.</td>
+      </tr>
+      <tr data-field="preferredNoticeMethod">
+        <td class="field-name">preferredNoticeMethod</td>
+        <td class="field-type">Dropdown</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Options: paper, email, both</td>
+      </tr>
+      <tr data-field="languagePreference" class="expandable">
+        <td class="field-name">languagePreference</td>
+        <td class="field-type">→ <a href="#LanguagePreference" class="type-link">LanguagePreference</a></td>
+        <td class="field-required"></td>
+        <td class="field-notes">Language preferences for communications. [Nested]</td>
+      </tr>
+      <tr data-field="preferredContactMethod">
+        <td class="field-name">preferredContactMethod</td>
+        <td class="field-type">Dropdown</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Options: phone, email, mail, sms</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+</section>
+
+<section id="EmploymentInfo" class="schema-section inline-object">
+  <div class="section-header simple">
+    <span class="inline-object-badge">Nested in PersonCreate</span>
+    <h2>EmploymentInfo</h2>
+  </div>
+  <p class="description">Employment and self-employment information.</p>
+<div class="domain-group" style="--domain-color: #1abc9c; --domain-bg: #e8f6f3;">
+  <h5 class="domain-header"><span class="domain-indicator"></span>Employment</h5>
+  <table class="property-table">
+    <thead>
+      <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Req</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-field="jobs" class="expandable">
+        <td class="field-name">jobs</td>
+        <td class="field-type">List of → <a href="#Job" class="type-link">Job</a></td>
+        <td class="field-required"></td>
+        <td class="field-notes">Employment records for this person. [Nested]</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+</section>
+
+<section id="EducationInfo" class="schema-section inline-object">
+  <div class="section-header simple">
+    <span class="inline-object-badge">Nested in PersonCreate</span>
+    <h2>EducationInfo</h2>
+  </div>
+  <p class="description">Student enrollment information for this person.</p>
+<div class="domain-group" style="--domain-color: #1abc9c; --domain-bg: #e8f6f3;">
+  <h5 class="domain-header"><span class="domain-indicator"></span>Employment</h5>
+  <table class="property-table">
+    <thead>
+      <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Req</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-field="startDate">
+        <td class="field-name">startDate</td>
+        <td class="field-type">Date</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Date enrollment started (if currently enrolled).</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<div class="domain-group" style="--domain-color: #2980b9; --domain-bg: #eaf2f8;">
+  <h5 class="domain-header"><span class="domain-indicator"></span>Education</h5>
+  <table class="property-table">
+    <thead>
+      <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Req</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-field="isCurrentlyEnrolled">
+        <td class="field-name">isCurrentlyEnrolled</td>
+        <td class="field-type">Yes/No</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Whether this person is currently enrolled in school.</td>
+      </tr>
+      <tr data-field="schoolName">
+        <td class="field-name">schoolName</td>
+        <td class="field-type">Text</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Name of the school or educational institution (if currently enrolled).</td>
+      </tr>
+      <tr data-field="isFullTimeStudent">
+        <td class="field-name">isFullTimeStudent</td>
+        <td class="field-type">Yes/No</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Whether the person is a full-time student (if currently enrolled).</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<div class="domain-group" style="--domain-color: #566573; --domain-bg: #f2f3f4;">
+  <h5 class="domain-header"><span class="domain-indicator"></span>Other</h5>
+  <table class="property-table">
+    <thead>
+      <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Req</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-field="lastGradeCompleted">
+        <td class="field-name">lastGradeCompleted</td>
+        <td class="field-type">Text</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Last grade level completed.</td>
+      </tr>
+      <tr data-field="expectedGraduationDate">
+        <td class="field-name">expectedGraduationDate</td>
+        <td class="field-type">Date</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Expected graduation date (if currently enrolled).</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+</section>
+
+<section id="MilitaryInfo" class="schema-section inline-object">
+  <div class="section-header simple">
+    <span class="inline-object-badge">Nested in PersonCreate</span>
+    <h2>MilitaryInfo</h2>
+  </div>
+  <p class="description">Military and veteran status information.</p>
+<div class="domain-group" style="--domain-color: #2c3e50; --domain-bg: #ebedef;">
+  <h5 class="domain-header"><span class="domain-indicator"></span>Military</h5>
+  <table class="property-table">
+    <thead>
+      <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Req</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-field="isMilitaryServiceMember">
+        <td class="field-name">isMilitaryServiceMember</td>
+        <td class="field-type">Yes/No</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Whether this person is a military service member.</td>
+      </tr>
+      <tr data-field="veteranStatus">
+        <td class="field-name">veteranStatus</td>
+        <td class="field-type">Yes/No</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Indicates whether the person has served in the armed forces.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+</section>
+
+<section id="TribalInfo" class="schema-section inline-object">
+  <div class="section-header simple">
+    <span class="inline-object-badge">Nested in PersonCreate</span>
+    <h2>TribalInfo</h2>
+  </div>
+  <p class="description">American Indian or Alaska Native tribal information for this person.</p>
+<div class="domain-group" style="--domain-color: #566573; --domain-bg: #f2f3f4;">
+  <h5 class="domain-header"><span class="domain-indicator"></span>Other</h5>
+  <table class="property-table">
+    <thead>
+      <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Req</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-field="tribeName">
+        <td class="field-name">tribeName</td>
+        <td class="field-type">Text</td>
+        <td class="field-required"></td>
+        <td class="field-notes"></td>
+      </tr>
+      <tr data-field="tribeState">
+        <td class="field-name">tribeState</td>
+        <td class="field-type">Text</td>
+        <td class="field-required"></td>
+        <td class="field-notes"></td>
+      </tr>
+      <tr data-field="hasReceivedServiceFromIndianHealthService">
+        <td class="field-name">hasReceivedServiceFromIndianHealthService</td>
+        <td class="field-type">Yes/No</td>
+        <td class="field-required"></td>
+        <td class="field-notes"></td>
+      </tr>
+      <tr data-field="isEligibleForIndianHealthService">
+        <td class="field-name">isEligibleForIndianHealthService</td>
+        <td class="field-type">Yes/No</td>
+        <td class="field-required"></td>
+        <td class="field-notes"></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+</section>
+
+<section id="LanguagePreference" class="schema-section inline-object">
+  <div class="section-header simple">
+    <span class="inline-object-badge">Nested in ContactInfo</span>
+    <h2>LanguagePreference</h2>
+  </div>
+  <p class="description">Language preferences for communications.</p>
+<div class="domain-group" style="--domain-color: #566573; --domain-bg: #f2f3f4;">
+  <h5 class="domain-header"><span class="domain-indicator"></span>Other</h5>
+  <table class="property-table">
+    <thead>
+      <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Req</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-field="written">
+        <td class="field-name">written</td>
+        <td class="field-type">Text</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Preferred language for written communications (BCP 47 language tag).</td>
+      </tr>
+      <tr data-field="spoken">
+        <td class="field-name">spoken</td>
+        <td class="field-type">Text</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Preferred language for spoken communications (BCP 47 language tag).</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+</section>
+
+<section id="Programs" class="schema-section inline-object">
+  <div class="section-header simple">
+    <span class="inline-object-badge">Nested in ApplicationScreeningFlags</span>
+    <h2>Programs</h2>
+  </div>
+  <p class="description">Program-specific screening flags.</p>
+<div class="domain-group" style="--domain-color: #566573; --domain-bg: #f2f3f4;">
+  <h5 class="domain-header"><span class="domain-indicator"></span>Other</h5>
+  <table class="property-table">
+    <thead>
+      <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Req</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-field="applyingFor">
+        <td class="field-name">applyingFor</td>
+        <td class="field-type">Multi-select</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Options: snap, tanf, adult financial, medical assistance</td>
+      </tr>
+      <tr data-field="needsEbtCard">
+        <td class="field-name">needsEbtCard</td>
+        <td class="field-type">Yes/No</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Whether the applicant needs an EBT card.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+</section>
+
+<section id="UtilityCosts" class="schema-section inline-object">
+  <div class="section-header simple">
+    <span class="inline-object-badge">Nested in ExpeditedSNAPInfo</span>
+    <h2>UtilityCosts</h2>
+  </div>
+  <p class="description">Monthly utility costs.</p>
+<div class="domain-group" style="--domain-color: #566573; --domain-bg: #f2f3f4;">
+  <h5 class="domain-header"><span class="domain-indicator"></span>Other</h5>
+  <table class="property-table">
+    <thead>
+      <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Req</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-field="electricity">
+        <td class="field-name">electricity</td>
+        <td class="field-type">Number</td>
+        <td class="field-required"></td>
+        <td class="field-notes"></td>
+      </tr>
+      <tr data-field="water">
+        <td class="field-name">water</td>
+        <td class="field-type">Number</td>
+        <td class="field-required"></td>
+        <td class="field-notes"></td>
+      </tr>
+      <tr data-field="phone">
+        <td class="field-name">phone</td>
+        <td class="field-type">Number</td>
+        <td class="field-required"></td>
+        <td class="field-notes"></td>
+      </tr>
+      <tr data-field="trash">
+        <td class="field-name">trash</td>
+        <td class="field-type">Number</td>
+        <td class="field-required"></td>
+        <td class="field-notes"></td>
+      </tr>
+      <tr data-field="sewer">
+        <td class="field-name">sewer</td>
+        <td class="field-type">Number</td>
+        <td class="field-required"></td>
+        <td class="field-notes"></td>
+      </tr>
+      <tr data-field="other">
+        <td class="field-name">other</td>
+        <td class="field-type">Number</td>
+        <td class="field-required"></td>
+        <td class="field-notes"></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+</section>
+
+<section id="Utilities" class="schema-section inline-object">
+  <div class="section-header simple">
+    <span class="inline-object-badge">Nested in HouseholdExpenses</span>
+    <h2>Utilities</h2>
+  </div>
+  <p class="description">Utility-related settings for the household.</p>
+<div class="domain-group" style="--domain-color: #566573; --domain-bg: #f2f3f4;">
+  <h5 class="domain-header"><span class="domain-indicator"></span>Other</h5>
+  <table class="property-table">
+    <thead>
+      <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Req</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-field="heatingCoolingMethod">
+        <td class="field-name">heatingCoolingMethod</td>
+        <td class="field-type">Multi-select</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Options: electric, gas, firewood, propane, swamp cooler, other</td>
+      </tr>
+      <tr data-field="otherHeatingCoolingType">
+        <td class="field-name">otherHeatingCoolingType</td>
+        <td class="field-type">Text</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Description of other heating/cooling method if selected.</td>
+      </tr>
+      <tr data-field="receivedLEAP">
+        <td class="field-name">receivedLEAP</td>
+        <td class="field-type">Yes/No</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Whether household received Low-Income Energy Assistance Program benefits.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+</section>
+
+<section id="PartA" class="schema-section inline-object">
+  <div class="section-header simple">
+    <span class="inline-object-badge">Nested in MedicareInfo</span>
+    <h2>PartA</h2>
+  </div>
+  <p class="description">Nested object within MedicareInfo.partA</p>
+<div class="domain-group" style="--domain-color: #1abc9c; --domain-bg: #e8f6f3;">
+  <h5 class="domain-header"><span class="domain-indicator"></span>Employment</h5>
+  <table class="property-table">
+    <thead>
+      <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Req</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-field="startDate">
+        <td class="field-name">startDate</td>
+        <td class="field-type">Date</td>
+        <td class="field-required"></td>
+        <td class="field-notes"></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<div class="domain-group" style="--domain-color: #2980b9; --domain-bg: #eaf2f8;">
+  <h5 class="domain-header"><span class="domain-indicator"></span>Education</h5>
+  <table class="property-table">
+    <thead>
+      <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Req</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-field="isCurrentlyEnrolled">
+        <td class="field-name">isCurrentlyEnrolled</td>
+        <td class="field-type">Yes/No</td>
+        <td class="field-required"></td>
+        <td class="field-notes"></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<div class="domain-group" style="--domain-color: #566573; --domain-bg: #f2f3f4;">
+  <h5 class="domain-header"><span class="domain-indicator"></span>Other</h5>
+  <table class="property-table">
+    <thead>
+      <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Req</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-field="isEntitledOrReceiving">
+        <td class="field-name">isEntitledOrReceiving</td>
+        <td class="field-type">Yes/No</td>
+        <td class="field-required"></td>
+        <td class="field-notes"></td>
+      </tr>
+      <tr data-field="whoPaysPremium">
+        <td class="field-name">whoPaysPremium</td>
+        <td class="field-type">Text</td>
+        <td class="field-required"></td>
+        <td class="field-notes"></td>
+      </tr>
+      <tr data-field="isPremiumFree">
+        <td class="field-name">isPremiumFree</td>
+        <td class="field-type">Yes/No</td>
+        <td class="field-required"></td>
+        <td class="field-notes"></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+</section>
+
+<section id="PartB" class="schema-section inline-object">
+  <div class="section-header simple">
+    <span class="inline-object-badge">Nested in MedicareInfo</span>
+    <h2>PartB</h2>
+  </div>
+  <p class="description">Nested object within MedicareInfo.partB</p>
+<div class="domain-group" style="--domain-color: #1abc9c; --domain-bg: #e8f6f3;">
+  <h5 class="domain-header"><span class="domain-indicator"></span>Employment</h5>
+  <table class="property-table">
+    <thead>
+      <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Req</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-field="startDate">
+        <td class="field-name">startDate</td>
+        <td class="field-type">Date</td>
+        <td class="field-required"></td>
+        <td class="field-notes"></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<div class="domain-group" style="--domain-color: #566573; --domain-bg: #f2f3f4;">
+  <h5 class="domain-header"><span class="domain-indicator"></span>Other</h5>
+  <table class="property-table">
+    <thead>
+      <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Req</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-field="isEntitledOrReceiving">
+        <td class="field-name">isEntitledOrReceiving</td>
+        <td class="field-type">Yes/No</td>
+        <td class="field-required"></td>
+        <td class="field-notes"></td>
+      </tr>
+      <tr data-field="premiumAmount">
+        <td class="field-name">premiumAmount</td>
+        <td class="field-type">Number</td>
+        <td class="field-required"></td>
+        <td class="field-notes"></td>
+      </tr>
+      <tr data-field="whoPaysPremium">
+        <td class="field-name">whoPaysPremium</td>
+        <td class="field-type">Text</td>
+        <td class="field-required"></td>
+        <td class="field-notes"></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+</section>
+
+<section id="PartC" class="schema-section inline-object">
+  <div class="section-header simple">
+    <span class="inline-object-badge">Nested in MedicareInfo</span>
+    <h2>PartC</h2>
+  </div>
+  <p class="description">Nested object within MedicareInfo.partC</p>
+<div class="domain-group" style="--domain-color: #1abc9c; --domain-bg: #e8f6f3;">
+  <h5 class="domain-header"><span class="domain-indicator"></span>Employment</h5>
+  <table class="property-table">
+    <thead>
+      <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Req</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-field="startDate">
+        <td class="field-name">startDate</td>
+        <td class="field-type">Date</td>
+        <td class="field-required"></td>
+        <td class="field-notes"></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<div class="domain-group" style="--domain-color: #566573; --domain-bg: #f2f3f4;">
+  <h5 class="domain-header"><span class="domain-indicator"></span>Other</h5>
+  <table class="property-table">
+    <thead>
+      <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Req</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-field="isEntitledOrReceiving">
+        <td class="field-name">isEntitledOrReceiving</td>
+        <td class="field-type">Yes/No</td>
+        <td class="field-required"></td>
+        <td class="field-notes"></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+</section>
+
+<section id="PartD" class="schema-section inline-object">
+  <div class="section-header simple">
+    <span class="inline-object-badge">Nested in MedicareInfo</span>
+    <h2>PartD</h2>
+  </div>
+  <p class="description">Nested object within MedicareInfo.partD</p>
+<div class="domain-group" style="--domain-color: #1abc9c; --domain-bg: #e8f6f3;">
+  <h5 class="domain-header"><span class="domain-indicator"></span>Employment</h5>
+  <table class="property-table">
+    <thead>
+      <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Req</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-field="startDate">
+        <td class="field-name">startDate</td>
+        <td class="field-type">Date</td>
+        <td class="field-required"></td>
+        <td class="field-notes"></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<div class="domain-group" style="--domain-color: #566573; --domain-bg: #f2f3f4;">
+  <h5 class="domain-header"><span class="domain-indicator"></span>Other</h5>
+  <table class="property-table">
+    <thead>
+      <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Req</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-field="isEntitledOrReceiving">
+        <td class="field-name">isEntitledOrReceiving</td>
+        <td class="field-type">Yes/No</td>
+        <td class="field-required"></td>
+        <td class="field-notes"></td>
+      </tr>
+      <tr data-field="premiumAmount">
+        <td class="field-name">premiumAmount</td>
+        <td class="field-type">Number</td>
+        <td class="field-required"></td>
+        <td class="field-notes"></td>
+      </tr>
+      <tr data-field="whoPaysPremium">
+        <td class="field-name">whoPaysPremium</td>
+        <td class="field-type">Text</td>
+        <td class="field-required"></td>
+        <td class="field-notes"></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+</section>
+
+<section id="OtherBusinessCost" class="schema-section inline-object">
+  <div class="section-header simple">
+    <span class="inline-object-badge">Nested in SelfEmploymentRecord</span>
+    <h2>OtherBusinessCost</h2>
+  </div>
+  <p class="description">Nested object within SelfEmploymentRecord.otherBusinessCosts (array item)</p>
+<div class="domain-group" style="--domain-color: #f39c12; --domain-bg: #fef9e7;">
+  <h5 class="domain-header"><span class="domain-indicator"></span>Income</h5>
+  <table class="property-table">
+    <thead>
+      <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Req</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-field="amount">
+        <td class="field-name">amount</td>
+        <td class="field-type">Number</td>
+        <td class="field-required"></td>
+        <td class="field-notes"></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<div class="domain-group" style="--domain-color: #566573; --domain-bg: #f2f3f4;">
+  <h5 class="domain-header"><span class="domain-indicator"></span>Other</h5>
+  <table class="property-table">
+    <thead>
+      <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Req</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-field="type">
+        <td class="field-name">type</td>
+        <td class="field-type">Text</td>
+        <td class="field-required"></td>
+        <td class="field-notes"></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+</section>
+
+<section id="Expenses" class="schema-section inline-object">
+  <div class="section-header simple">
+    <span class="inline-object-badge">Nested in Household</span>
+    <h2>Expenses</h2>
+  </div>
+  <p class="description">Household-level expense information (rent/mortgage/utilities).</p>
+<div class="domain-group" style="--domain-color: #8b4513; --domain-bg: #faf0e6;">
+  <h5 class="domain-header"><span class="domain-indicator"></span>Housing & Expenses</h5>
+  <table class="property-table">
+    <thead>
+      <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Req</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-field="rent" class="expandable">
+        <td class="field-name">rent</td>
+        <td class="field-type">→ Rent</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Rent expenses and settings. [Nested]</td>
+      </tr>
+      <tr data-field="mortgage" class="expandable">
+        <td class="field-name">mortgage</td>
+        <td class="field-type">→ Mortgage</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Mortgage expenses and settings. [Nested]</td>
+      </tr>
+      <tr data-field="utilities" class="expandable">
+        <td class="field-name">utilities</td>
+        <td class="field-type">→ <a href="#Utilities" class="type-link">Utilities</a></td>
+        <td class="field-required"></td>
+        <td class="field-notes">Utility-related settings for the household. [Nested]</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+</section>
+
+<section id="ApplicantSignature" class="schema-section inline-object">
+  <div class="section-header simple">
+    <span class="inline-object-badge">Nested in Signatures</span>
+    <h2>ApplicantSignature</h2>
+  </div>
+  <p class="description">Primary applicant signature.</p>
+<div class="domain-group" style="--domain-color: #566573; --domain-bg: #f2f3f4;">
+  <h5 class="domain-header"><span class="domain-indicator"></span>Other</h5>
+  <table class="property-table">
+    <thead>
+      <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Req</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-field="signature">
+        <td class="field-name">signature</td>
+        <td class="field-type">Text</td>
+        <td class="field-required">&#10003;</td>
+        <td class="field-notes">Signature or signature indicator.</td>
+      </tr>
+      <tr data-field="signatureDate">
+        <td class="field-name">signatureDate</td>
+        <td class="field-type">Date</td>
+        <td class="field-required">&#10003;</td>
+        <td class="field-notes">Date the signature was made.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+</section>
+
+<section id="CoApplicantSignature" class="schema-section inline-object">
+  <div class="section-header simple">
+    <span class="inline-object-badge">Nested in Signatures</span>
+    <h2>CoApplicantSignature</h2>
+  </div>
+  <p class="description">Spouse/co-applicant signature if applicable.</p>
+<div class="domain-group" style="--domain-color: #566573; --domain-bg: #f2f3f4;">
+  <h5 class="domain-header"><span class="domain-indicator"></span>Other</h5>
+  <table class="property-table">
+    <thead>
+      <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Req</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-field="signature">
+        <td class="field-name">signature</td>
+        <td class="field-type">Text</td>
+        <td class="field-required">&#10003;</td>
+        <td class="field-notes">Signature or signature indicator.</td>
+      </tr>
+      <tr data-field="signatureDate">
+        <td class="field-name">signatureDate</td>
+        <td class="field-type">Date</td>
+        <td class="field-required">&#10003;</td>
+        <td class="field-notes">Date the signature was made.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+</section>
+
+<section id="ApplicantAuthorizedRepresentativeSignature" class="schema-section inline-object">
+  <div class="section-header simple">
+    <span class="inline-object-badge">Nested in Signatures</span>
+    <h2>ApplicantAuthorizedRepresentativeSignature</h2>
+  </div>
+  <p class="description">Authorized representative signature for the applicant.</p>
+<div class="domain-group" style="--domain-color: #566573; --domain-bg: #f2f3f4;">
+  <h5 class="domain-header"><span class="domain-indicator"></span>Other</h5>
+  <table class="property-table">
+    <thead>
+      <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Req</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-field="signature">
+        <td class="field-name">signature</td>
+        <td class="field-type">Text</td>
+        <td class="field-required">&#10003;</td>
+        <td class="field-notes">Signature or signature indicator.</td>
+      </tr>
+      <tr data-field="signatureDate">
+        <td class="field-name">signatureDate</td>
+        <td class="field-type">Date</td>
+        <td class="field-required">&#10003;</td>
+        <td class="field-notes">Date the signature was made.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+</section>
+
+<section id="CoApplicantAuthorizedRepresentativeSignature" class="schema-section inline-object">
+  <div class="section-header simple">
+    <span class="inline-object-badge">Nested in Signatures</span>
+    <h2>CoApplicantAuthorizedRepresentativeSignature</h2>
+  </div>
+  <p class="description">Authorized representative signature for the co-applicant.</p>
+<div class="domain-group" style="--domain-color: #566573; --domain-bg: #f2f3f4;">
+  <h5 class="domain-header"><span class="domain-indicator"></span>Other</h5>
+  <table class="property-table">
+    <thead>
+      <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Req</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-field="signature">
+        <td class="field-name">signature</td>
+        <td class="field-type">Text</td>
+        <td class="field-required">&#10003;</td>
+        <td class="field-notes">Signature or signature indicator.</td>
+      </tr>
+      <tr data-field="signatureDate">
+        <td class="field-name">signatureDate</td>
+        <td class="field-type">Date</td>
+        <td class="field-required">&#10003;</td>
+        <td class="field-notes">Date the signature was made.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+</section>
+
+<section id="Rent" class="schema-section inline-object">
+  <div class="section-header simple">
+    <span class="inline-object-badge">Nested in Expenses</span>
+    <h2>Rent</h2>
+  </div>
+  <p class="description">Rent expenses and settings.</p>
+<div class="domain-group" style="--domain-color: #566573; --domain-bg: #f2f3f4;">
+  <h5 class="domain-header"><span class="domain-indicator"></span>Other</h5>
+  <table class="property-table">
+    <thead>
+      <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Req</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-field="utilitiesIncludedInRent">
+        <td class="field-name">utilitiesIncludedInRent</td>
+        <td class="field-type">Yes/No</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Whether utilities are included in rent.</td>
+      </tr>
+      <tr data-field="receivesSection8OrPublicHousing">
+        <td class="field-name">receivesSection8OrPublicHousing</td>
+        <td class="field-type">Yes/No</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Whether receiving Section 8 or public housing assistance.</td>
+      </tr>
+      <tr data-field="housingAssistanceType">
+        <td class="field-name">housingAssistanceType</td>
+        <td class="field-type">Dropdown</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Options: section8, public housing</td>
+      </tr>
+      <tr data-field="items" class="expandable">
+        <td class="field-name">items</td>
+        <td class="field-type">List of → <a href="#Item" class="type-link">Item</a></td>
+        <td class="field-required"></td>
+        <td class="field-notes">Rent expense items. [Nested]</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+</section>
+
+<section id="Mortgage" class="schema-section inline-object">
+  <div class="section-header simple">
+    <span class="inline-object-badge">Nested in Expenses</span>
+    <h2>Mortgage</h2>
+  </div>
+  <p class="description">Mortgage expenses and settings.</p>
+<div class="domain-group" style="--domain-color: #566573; --domain-bg: #f2f3f4;">
+  <h5 class="domain-header"><span class="domain-indicator"></span>Other</h5>
+  <table class="property-table">
+    <thead>
+      <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Req</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-field="receivesSection8OrPublicHousing">
+        <td class="field-name">receivesSection8OrPublicHousing</td>
+        <td class="field-type">Yes/No</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Whether receiving Section 8 or public housing assistance.</td>
+      </tr>
+      <tr data-field="housingAssistanceType">
+        <td class="field-name">housingAssistanceType</td>
+        <td class="field-type">Dropdown</td>
+        <td class="field-required"></td>
+        <td class="field-notes">Options: section8, public housing</td>
+      </tr>
+      <tr data-field="items" class="expandable">
+        <td class="field-name">items</td>
+        <td class="field-type">List of → <a href="#Item" class="type-link">Item</a></td>
+        <td class="field-required"></td>
+        <td class="field-notes">Mortgage expense items. [Nested]</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+</section>
+
 
     </main>
   </div>
@@ -20725,21 +22752,33 @@ UUIDs upon submission.
       });
     });
 
-    // ORCA tabs
+    // ORCA tabs - with persistence across all schemas
+    let activeTab = localStorage.getItem('orcaActiveTab') || 'overview';
+
+    // Function to set active tab across all sections
+    function setActiveTabGlobally(tabName) {
+      activeTab = tabName;
+      localStorage.setItem('orcaActiveTab', tabName);
+
+      document.querySelectorAll('.orca-tabs').forEach(tabGroup => {
+        const tabs = tabGroup.querySelectorAll('.orca-tab');
+        const panels = tabGroup.parentElement.querySelectorAll('.orca-panel');
+
+        tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === tabName));
+        panels.forEach(p => p.classList.toggle('active', p.dataset.tab === tabName));
+      });
+    }
+
+    // Initialize tabs to saved state
+    setActiveTabGlobally(activeTab);
+
+    // Add click handlers
     document.querySelectorAll('.orca-tabs').forEach(tabGroup => {
       const tabs = tabGroup.querySelectorAll('.orca-tab');
-      const panels = tabGroup.parentElement.querySelectorAll('.orca-panel');
 
       tabs.forEach(tab => {
         tab.addEventListener('click', () => {
-          const tabName = tab.dataset.tab;
-
-          tabs.forEach(t => t.classList.remove('active'));
-          tab.classList.add('active');
-
-          panels.forEach(p => {
-            p.classList.toggle('active', p.dataset.tab === tabName);
-          });
+          setActiveTabGlobally(tab.dataset.tab);
         });
       });
     });

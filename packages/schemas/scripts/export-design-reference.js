@@ -21,6 +21,10 @@ const __dirname = dirname(__filename);
 // Used to only create links for schemas that actually exist
 let validSchemaNames = new Set();
 
+// Map of inline object schemas discovered during processing
+// Key: inferred type name, Value: { schema, parentSchema, propName }
+const inlineObjectSchemas = new Map();
+
 // Type translations for designers
 const TYPE_TRANSLATIONS = {
   string: 'Text',
@@ -397,14 +401,23 @@ function translateType(schema, propName = null) {
     return 'Phone';
   }
 
-  // For inline objects with properties, use the title or infer from property name
+  // For inline objects with properties, use the title or check if a real schema exists
   if (schema.type === 'object') {
-    if (schema.title) {
+    if (schema.title && validSchemaNames.has(schema.title)) {
       return `→ ${schema.title}`;
     }
-    if (propName && (schema.properties || schema.additionalProperties)) {
+    // For inline objects, check if the inferred name is a real schema
+    if (propName) {
+      const inferredName = inferTypeName(propName);
+      if (validSchemaNames.has(inferredName)) {
+        return `→ ${inferredName}`;
+      }
+    }
+    // For inline objects, infer name from property - will be handled specially
+    if (propName) {
       return `→ ${inferTypeName(propName)}`;
     }
+    return 'Nested object';
   }
 
   return TYPE_TRANSLATIONS[schema.type] || schema.type || 'Unknown';
@@ -412,10 +425,18 @@ function translateType(schema, propName = null) {
 
 /**
  * Get enum values as a formatted string
+ * Handles both direct enums and arrays of enums (multi-select)
  */
 function formatEnumValues(schema) {
-  if (!schema.enum) return null;
-  return schema.enum.map(v => String(v).replace(/_/g, ' ')).join(', ');
+  // Direct enum
+  if (schema.enum) {
+    return schema.enum.map(v => String(v).replace(/_/g, ' ')).join(', ');
+  }
+  // Array of enums (multi-select)
+  if (schema.type === 'array' && schema.items?.enum) {
+    return schema.items.enum.map(v => String(v).replace(/_/g, ' ')).join(', ');
+  }
+  return null;
 }
 
 /**
@@ -454,7 +475,7 @@ function collectSchemaProperties(schema, collected = { properties: {}, required:
 /**
  * Process a schema and extract property information
  */
-function processSchema(schema, schemaName) {
+function processSchema(schema, schemaName, stateSchemas = null) {
   const properties = [];
 
   // Recursively flatten allOf structures to get all properties
@@ -470,30 +491,86 @@ function processSchema(schema, schemaName) {
     const refKey = `${schemaName}.${propName}`;
     const knownRef = PROPERTY_REFS[refKey];
 
+    // For state processing, look up enum values from the referenced schema if available
+    let stateEnumValues = null;
+    if (stateSchemas && knownRef) {
+      if (stateSchemas[knownRef]?.enum) {
+        stateEnumValues = stateSchemas[knownRef].enum;
+      }
+    }
+
+    // Check if this is an array of enums (multi-select)
+    const isArrayOfEnums = propSchema.type === 'array' && propSchema.items?.enum;
+
     let type;
-    if (knownRef) {
+    if (isArrayOfEnums) {
+      // Array of enums = Multi-select, regardless of whether it was a $ref
+      type = 'Multi-select';
+    } else if (knownRef) {
       // Use the known reference from before dereferencing
       const isArray = propSchema.type === 'array';
-      type = isArray ? `List of → ${knownRef}` : `→ ${knownRef}`;
+      // Check if the dereferenced items are just an enum (not an object)
+      if (isArray && propSchema.items?.type === 'string' && propSchema.items?.enum) {
+        type = 'Multi-select';
+      } else {
+        type = isArray ? `List of → ${knownRef}` : `→ ${knownRef}`;
+      }
     } else {
       // Fall back to type inference
       type = translateType(propSchema, propName);
     }
 
-    const enumValues = formatEnumValues(propSchema);
+    // Use state-specific enum values if available, otherwise use values from schema
+    let enumValues;
+    if (stateEnumValues) {
+      enumValues = stateEnumValues.map(v => String(v).replace(/_/g, ' ')).join(', ');
+    } else {
+      enumValues = formatEnumValues(propSchema);
+    }
+    const isInlineObject = propSchema.type === 'object' && propSchema.properties && !knownRef;
     const isNested = propSchema.type === 'object' || propSchema.allOf ||
                      (propSchema.$ref && !['string', 'integer', 'number', 'boolean'].includes(propSchema.type)) ||
-                     knownRef !== undefined;
+                     (knownRef !== undefined && !isArrayOfEnums);
     const isArrayOfObjects = propSchema.type === 'array' &&
+                             !isArrayOfEnums &&
                              (propSchema.items?.type === 'object' || propSchema.items?.$ref || knownRef !== undefined);
     const isReadOnly = propSchema.readOnly === true;
+
+    // Track inline objects so we can generate sections for them
+    if (isInlineObject) {
+      const inferredName = inferTypeName(propName);
+      if (!inlineObjectSchemas.has(inferredName)) {
+        inlineObjectSchemas.set(inferredName, {
+          schema: propSchema,
+          parentSchema: schemaName,
+          propName: propName
+        });
+      }
+    }
+
+    // Also track array items that are inline objects
+    if (propSchema.type === 'array' && propSchema.items?.type === 'object' && propSchema.items?.properties && !knownRef) {
+      // Derive singular name from plural property name
+      let itemName = propName.endsWith('s') ? propName.slice(0, -1) : propName;
+      itemName = inferTypeName(itemName);
+      if (!inlineObjectSchemas.has(itemName)) {
+        inlineObjectSchemas.set(itemName, {
+          schema: propSchema.items,
+          parentSchema: schemaName,
+          propName: `${propName} (array item)`
+        });
+      }
+    }
+
+    // Build description
+    let description = propSchema.description || '';
 
     properties.push({
       name: propName,
       type,
       required: isRequired,
       readOnly: isReadOnly,
-      description: propSchema.description || '',
+      description,
       enumValues,
       isNested: isNested || isArrayOfObjects,
       schema: propSchema,
@@ -574,6 +651,21 @@ function extractRelationships(schemas) {
       if (propSchema.type === 'array' && propSchema.items?.$ref) {
         const refName = propSchema.items.$ref.split('/').pop();
         relationships[schemaName].contains.push({ name: refName, via: `${propName}[]`, isArray: true });
+      }
+      // Check for foreign keys within inline array objects (e.g., members[].personId)
+      if (propSchema.type === 'array' && propSchema.items?.properties) {
+        for (const [itemPropName, itemPropSchema] of Object.entries(propSchema.items.properties)) {
+          if (itemPropName.endsWith('Id') && itemPropSchema.format === 'uuid') {
+            const refName = itemPropName.slice(0, -2); // Remove 'Id' suffix
+            const capitalized = refName.charAt(0).toUpperCase() + refName.slice(1);
+            if (schemas[capitalized]) {
+              relationships[schemaName].belongsTo.push({
+                name: capitalized,
+                via: `${propName}[].${itemPropName}`
+              });
+            }
+          }
+        }
       }
       // Check for foreign key patterns (personId, householdId, etc.)
       if (propName.endsWith('Id') && propSchema.format === 'uuid') {
@@ -704,11 +796,14 @@ function findDifferences(baseSchema, stateSchema, schemaName) {
       });
     } else {
       const baseProp = baseProps[propName];
-      if (JSON.stringify(baseProp.enum) !== JSON.stringify(stateProp.enum)) {
+      // Check for direct enum differences
+      const baseEnum = baseProp.enum || baseProp.items?.enum;
+      const stateEnum = stateProp.enum || stateProp.items?.enum;
+      if (JSON.stringify(baseEnum) !== JSON.stringify(stateEnum)) {
         differences.modified.push({
           name: propName,
-          baseEnum: baseProp.enum,
-          stateEnum: stateProp.enum,
+          baseEnum: baseEnum,
+          stateEnum: stateEnum,
           description: stateProp.description || baseProp.description || '',
         });
       }
@@ -1204,6 +1299,30 @@ function generateSimpleSection(schemaName, schema, stateSchemas, states, domainK
 }
 
 /**
+ * Generate a section for an inline nested object
+ */
+function generateInlineObjectSection(inlineName, inlineInfo) {
+  const { schema, parentSchema, propName } = inlineInfo;
+
+  let html = `<section id="${inlineName}" class="schema-section inline-object">\n`;
+  html += `  <div class="section-header simple">\n`;
+  html += `    <span class="inline-object-badge">Nested in ${parentSchema}</span>\n`;
+  html += `    <h2>${inlineName}</h2>\n`;
+  html += `  </div>\n`;
+  html += `  <p class="description">${escapeHtml(schema.description || `Nested object within ${parentSchema}.${propName}`)}</p>\n`;
+
+  // Generate property table for this inline object
+  const { properties } = processSchema(schema, inlineName);
+  if (properties.length > 0) {
+    const grouped = groupPropertiesByDomain(properties);
+    html += generateDomainGroupedTables(grouped);
+  }
+
+  html += `</section>\n\n`;
+  return html;
+}
+
+/**
  * Generate attributes content with state variants
  * Each state's content is wrapped in a div with data-state-content attribute
  */
@@ -1226,16 +1345,12 @@ function generateAttributesWithStateVariants(schemaName, baseSchema, stateSchema
     const diffs = findDifferences(baseSchema, stateSchema, schemaName);
     const hasChanges = diffs.added.length > 0 || diffs.modified.length > 0;
 
-    if (!hasChanges) {
-      // No changes, just reference the base
-      html += `<div class="attributes-content" data-state-content="${state.state}" style="display: none;">\n`;
-      html += generateDomainGroupedTables(baseGrouped);
-      html += `</div>\n`;
-    } else {
-      // Merge base properties with state-specific additions
-      const { properties: stateProps } = processSchema(stateSchema, schemaName);
+    // Always process with state schemas to pick up state-specific enum values for referenced schemas
+    // (e.g., Program enum values differ by state even when HouseholdMember structure is the same)
+    const { properties: stateProps } = processSchema(stateSchema, schemaName, stateSchemas[state.state]);
 
-      // Mark state-specific fields
+    // Mark state-specific (added) fields
+    if (hasChanges) {
       const stateFieldNames = new Set(diffs.added.map(p => p.name));
       for (const prop of stateProps) {
         if (stateFieldNames.has(prop.name)) {
@@ -1243,13 +1358,17 @@ function generateAttributesWithStateVariants(schemaName, baseSchema, stateSchema
           prop.stateName = state.state;
         }
       }
-
-      const stateGrouped = groupPropertiesByDomain(stateProps);
-
-      html += `<div class="attributes-content" data-state-content="${state.state}" style="display: none;">\n`;
-      html += generateDomainGroupedTablesWithStateMarkers(stateGrouped, state.state);
-      html += `</div>\n`;
     }
+
+    const stateGrouped = groupPropertiesByDomain(stateProps);
+
+    html += `<div class="attributes-content" data-state-content="${state.state}" style="display: none;">\n`;
+    if (hasChanges) {
+      html += generateDomainGroupedTablesWithStateMarkers(stateGrouped, state.state);
+    } else {
+      html += generateDomainGroupedTables(stateGrouped);
+    }
+    html += `</div>\n`;
   }
 
   return html;
@@ -1653,6 +1772,11 @@ function generateHtml(schemas, stateSchemas, states, relationships, operations) 
     }
   }
 
+  // Generate sections for inline nested objects
+  for (const [inlineName, inlineInfo] of inlineObjectSchemas) {
+    contentHtml += generateInlineObjectSection(inlineName, inlineInfo);
+  }
+
   const stateListHtml = states.map(s => `<span class="state-badge">${s.name}</span>`).join(' ');
 
   return `<!DOCTYPE html>
@@ -1697,6 +1821,85 @@ function generateHtml(schemas, stateSchemas, states, relationships, operations) 
       padding-bottom: 10px;
       border-bottom: 1px solid #456;
     }
+
+    .sidebar-title {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .sidebar-title:hover h1 {
+      color: #8ab4f8;
+    }
+
+    .intro-section {
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      border: 1px solid #dee2e6;
+    }
+
+    .intro-section h1 {
+      font-size: 1.8rem;
+      color: #2c3e50;
+      margin-bottom: 1rem;
+    }
+
+    .intro-description {
+      font-size: 1.1rem;
+      line-height: 1.6;
+      color: #495057;
+      margin-bottom: 1.5rem;
+    }
+
+    .intro-domains h3 {
+      font-size: 1.1rem;
+      color: #2c3e50;
+      margin-bottom: 0.5rem;
+    }
+
+    .intro-domains p {
+      color: #6c757d;
+      margin-bottom: 0.75rem;
+    }
+
+    .intro-domains ul {
+      list-style: none;
+      padding: 0;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 0.75rem;
+    }
+
+    .intro-domains li {
+      background: white;
+      padding: 0;
+      border-radius: 8px;
+      border-left: 4px solid #3498db;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+    .intro-domains li:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+    }
+
+    .intro-domains li a {
+      display: block;
+      padding: 0.75rem 1rem;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .intro-domains li:nth-child(1) { border-left-color: #3498db; } /* Intake */
+    .intro-domains li:nth-child(2) { border-left-color: #27ae60; } /* Client Management */
+    .intro-domains li:nth-child(3) { border-left-color: #9b59b6; } /* Eligibility */
+    .intro-domains li:nth-child(4) { border-left-color: #e67e22; } /* Case Management */
+    .intro-domains li:nth-child(5) { border-left-color: #1abc9c; } /* Workflow */
+    .intro-domains li:nth-child(6) { border-left-color: #f39c12; } /* Scheduling */
+    .intro-domains li:nth-child(7) { border-left-color: #95a5a6; } /* Document Management */
+    .intro-domains li:nth-child(8) { border-left-color: #7f8c8d; } /* Cross-cutting */
 
     .sidebar-state-selector {
       margin-bottom: 15px;
@@ -2034,6 +2237,23 @@ function generateHtml(schemas, stateSchemas, states, relationships, operations) 
 
     .entity-domain-badge:hover {
       filter: brightness(0.95);
+    }
+
+    /* Inline object badge */
+    .inline-object-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 12px;
+      background: #f0f0f0;
+      color: #666;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+
+    .schema-section.inline-object {
+      border-left: 3px solid #ddd;
+      margin-left: 20px;
     }
 
     .section-header.simple {
@@ -2685,7 +2905,7 @@ function generateHtml(schemas, stateSchemas, states, relationships, operations) 
 <body>
   <div class="container">
     <aside class="sidebar">
-      <h1>ORCA Design Reference</h1>
+      <a href="#orca-intro" class="sidebar-title"><h1>ORCA Design Reference</h1></a>
       <div class="sidebar-state-selector">
         <div class="sidebar-state-buttons">
           <button class="state-selector-btn active" data-state="base">Base</button>
@@ -2699,6 +2919,30 @@ ${sidebarHtml}
     </aside>
 
     <main class="main">
+      <section id="orca-intro" class="intro-section">
+        <h1>ORCA: Object-Relationship Content Attributes</h1>
+        <p class="intro-description">
+          ORCA is a methodology for organizing and presenting data models in a way that's intuitive for designers.
+          This reference documents the Safety Net API data model—the standardized fields, types, and relationships
+          used across benefit program applications. Use this reference to understand what data exists, how it's
+          structured, and what values are valid for each field.
+        </p>
+        <div class="intro-domains">
+          <h3>Data Domains</h3>
+          <p>The data model is organized into these domains:</p>
+          <ul>
+            <li><a href="#domain-intake"><strong>Intake</strong> — The application as the client experiences it - what they report</a></li>
+            <li><a href="#domain-clientManagement"><strong>Client Management</strong> — Persistent identity and relationships across programs</a></li>
+            <li><a href="#domain-eligibility"><strong>Eligibility</strong> — Program-specific interpretation and determination</a></li>
+            <li><a href="#domain-caseManagement"><strong>Case Management</strong> — Ongoing client relationships and staff assignments</a></li>
+            <li><a href="#domain-workflow"><strong>Workflow</strong> — Work items, tasks, SLAs, and verification</a></li>
+            <li><a href="#domain-scheduling"><strong>Scheduling</strong> — Time-based coordination and appointments</a></li>
+            <li><a href="#domain-documentManagement"><strong>Document Management</strong> — Files, uploads, and document tracking</a></li>
+            <li><a href="#domain-crossCutting"><strong>Cross-cutting</strong> — Communication, configuration, and reporting concerns</a></li>
+          </ul>
+        </div>
+      </section>
+
       <div class="legend">
         <div class="legend-item"><span class="badge type">Text</span> Type indicator</div>
         <div class="legend-item"><span class="badge required">&#10003;</span> Required field</div>
@@ -2751,21 +2995,33 @@ ${contentHtml}
       });
     });
 
-    // ORCA tabs
+    // ORCA tabs - with persistence across all schemas
+    let activeTab = localStorage.getItem('orcaActiveTab') || 'overview';
+
+    // Function to set active tab across all sections
+    function setActiveTabGlobally(tabName) {
+      activeTab = tabName;
+      localStorage.setItem('orcaActiveTab', tabName);
+
+      document.querySelectorAll('.orca-tabs').forEach(tabGroup => {
+        const tabs = tabGroup.querySelectorAll('.orca-tab');
+        const panels = tabGroup.parentElement.querySelectorAll('.orca-panel');
+
+        tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === tabName));
+        panels.forEach(p => p.classList.toggle('active', p.dataset.tab === tabName));
+      });
+    }
+
+    // Initialize tabs to saved state
+    setActiveTabGlobally(activeTab);
+
+    // Add click handlers
     document.querySelectorAll('.orca-tabs').forEach(tabGroup => {
       const tabs = tabGroup.querySelectorAll('.orca-tab');
-      const panels = tabGroup.parentElement.querySelectorAll('.orca-panel');
 
       tabs.forEach(tab => {
         tab.addEventListener('click', () => {
-          const tabName = tab.dataset.tab;
-
-          tabs.forEach(t => t.classList.remove('active'));
-          tab.classList.add('active');
-
-          panels.forEach(p => {
-            p.classList.toggle('active', p.dataset.tab === tabName);
-          });
+          setActiveTabGlobally(tab.dataset.tab);
         });
       });
     });
@@ -2924,6 +3180,17 @@ async function main() {
 
     // Populate valid schema names for link generation
     validSchemaNames = new Set(Object.keys(baseSchemas));
+
+    // Pre-scan schemas to discover inline objects (so links work)
+    inlineObjectSchemas.clear();
+    for (const [schemaName, schema] of Object.entries(baseSchemas)) {
+      processSchema(schema, schemaName); // This populates inlineObjectSchemas
+    }
+    // Add inline object names to valid schemas so links work
+    for (const inlineName of inlineObjectSchemas.keys()) {
+      validSchemaNames.add(inlineName);
+    }
+    console.log(`Discovered ${inlineObjectSchemas.size} inline nested objects`);
 
     // Extract relationships
     console.log('Extracting relationships...');
