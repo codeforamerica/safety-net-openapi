@@ -254,7 +254,7 @@ components:
     RoleType:
       $ref: "./components/common.yaml#/RoleType"
     TokenClaims:
-      $ref: "./components/common.yaml#/AuthorizationContext"
+      $ref: "./components/common.yaml#/BackendAuthContext"
     UserStatus:
       $ref: "./components/user.yaml#/UserStatus"
     UserPreferences:

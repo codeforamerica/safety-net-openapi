@@ -7,7 +7,7 @@
 #     - Address, Email, Name, PhoneNumber, SocialSecurityNumber
 #
 #   Authentication/Authorization:
-#     - AuthorizationContext   Custom claims for authorization (role, permissions, etc.)
+#     - BackendAuthContext     Minimal claims for backend API authorization
 #     - JwtClaims              Full JWT structure (standard + authorization claims)
 #     - RoleType               Available authorization roles
 #
@@ -53,12 +53,15 @@ Address:
       description: County or equivalent administrative region.
       maxLength: 100
 
-AuthorizationContext:
+BackendAuthContext:
   type: object
   description: |
-    Authorization context for a user. Stored in the User Service and embedded
-    in JWT tokens during login. Domain APIs read these claims for authorization
-    decisions without runtime calls to the User Service.
+    Minimal authorization context for backend API authorization. Stored in the
+    User Service and embedded in JWT tokens during login. Domain APIs read these
+    claims for authorization decisions without runtime calls to the User Service.
+
+    For frontend tokens that include UI permissions and preferences, see
+    FrontendAuthContext in user.yaml.
   required:
     - role
   properties:
@@ -185,7 +188,7 @@ JwtClaims:
           description: User's display name.
           example: "Jane Smith"
     # Authorization context
-    - $ref: "#/AuthorizationContext"
+    - $ref: "#/BackendAuthContext"
 
 PhoneNumber:
   type: string

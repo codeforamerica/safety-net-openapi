@@ -177,7 +177,7 @@ actions:
       - partner_readonly: External partner with limited read access
 
   # Add district and program assignments to User
-  - target: $.User.properties
+  - target: $.User.allOf.1.properties
     file: components/user.yaml
     description: Colorado uses districts and program-based assignments
     update:
@@ -199,8 +199,8 @@ actions:
           assigned to multiple programs.
         example: ["snap", "colorado_works"]
 
-  # Add districts and programs to AuthorizationContext (for JWT)
-  - target: $.AuthorizationContext.properties
+  # Add districts and programs to BackendAuthContext (for JWT)
+  - target: $.BackendAuthContext.properties
     file: components/common.yaml
     description: Colorado JWT claims include districts and programs
     update:

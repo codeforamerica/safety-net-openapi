@@ -9,14 +9,32 @@
 #     - User                    User account with role and permissions
 #
 #   Supporting (alphabetical):
+#     - FrontendAuthContext     Extended auth context for frontend tokens
 #     - UiPermissions           Computed UI permissions for frontend
 #     - UserPreferences         User preferences
 #     - UserStatus              User account status
 #
 # Shared schemas (in common.yaml):
-#     - AuthorizationContext    Authorization context (role, permissions, counties)
+#     - BackendAuthContext      Minimal claims for backend API authorization
 #     - JwtClaims               Full JWT structure for domain APIs
 #     - RoleType                Available authorization roles
+
+FrontendAuthContext:
+  type: object
+  description: |
+    Authorization context for frontend applications. Extends BackendAuthContext
+    with UI permissions and user preferences.
+
+    Used in enriched JWTs for frontends (via BFF/gateway) or returned by
+    GET /users/me. States can customize this independently from BackendAuthContext.
+  allOf:
+    - $ref: "./common.yaml#/BackendAuthContext"
+    - type: object
+      properties:
+        ui:
+          $ref: "#/UiPermissions"
+        preferences:
+          $ref: "#/UserPreferences"
 
 User:
   description: |
@@ -26,7 +44,7 @@ User:
     Note: Job function details (skills, team, workload) are not stored here.
     Staff users link to a CaseWorker record in the Case Management domain.
   allOf:
-    - $ref: "./common.yaml#/AuthorizationContext"
+    - $ref: "#/FrontendAuthContext"
     - type: object
       required:
         - id
@@ -58,10 +76,6 @@ User:
           example: "Jane Smith"
         status:
           $ref: "#/UserStatus"
-        ui:
-          $ref: "#/UiPermissions"
-        preferences:
-          $ref: "#/UserPreferences"
         createdAt:
           type: string
           format: date-time

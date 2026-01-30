@@ -158,7 +158,7 @@ actions:
       - calsaws_integration
 
   # Add programs to User for program-based assignments (optional in CA)
-  - target: $.User.properties
+  - target: $.User.allOf.1.properties
     file: components/user.yaml
     description: California supports optional program-based assignments
     update:
@@ -172,8 +172,8 @@ actions:
           within their assigned counties.
         example: ["calfresh", "calworks"]
 
-  # Add programs to AuthorizationContext (for JWT)
-  - target: $.AuthorizationContext.properties
+  # Add programs to BackendAuthContext (for JWT)
+  - target: $.BackendAuthContext.properties
     file: components/common.yaml
     description: California JWT claims may include programs
     update:

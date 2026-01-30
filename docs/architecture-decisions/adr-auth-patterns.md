@@ -273,12 +273,12 @@ scope:
 
 ### Customizing Scope via Overlays
 
-States define their scoping structure by extending `AuthorizationContext`:
+States define their scoping structure by extending `BackendAuthContext`:
 
 ```yaml
 # Example: State using districts instead of counties
 actions:
-  - target: $.AuthorizationContext.properties
+  - target: $.BackendAuthContext.properties
     file: components/common.yaml
     update:
       districts:
@@ -289,12 +289,54 @@ actions:
         example: ["D1", "D2"]
 
       # Optionally remove county fields if not used
-  - target: $.AuthorizationContext.properties.counties
+  - target: $.BackendAuthContext.properties.counties
     file: components/common.yaml
     remove: true
 ```
 
 See [Customizing Roles and Permissions](#customizing-roles-and-permissions) for more overlay examples.
+
+---
+
+## Auth Context Schemas
+
+The authorization context is split into two schemas to support different token contents for frontend and backend consumers:
+
+| Schema | Location | Purpose |
+|--------|----------|---------|
+| `BackendAuthContext` | common.yaml | Minimal claims for backend API authorization |
+| `FrontendAuthContext` | user.yaml | Extends BackendAuthContext with `ui` and `preferences` |
+
+### Schema Relationship
+
+`FrontendAuthContext` extends `BackendAuthContext` via `allOf`:
+
+```yaml
+FrontendAuthContext:
+  allOf:
+    - $ref: "./common.yaml#/BackendAuthContext"
+    - type: object
+      properties:
+        ui:
+          $ref: "#/UiPermissions"
+        preferences:
+          $ref: "#/UserPreferences"
+```
+
+### Customization via Overlays
+
+States can customize each schema independently:
+
+| Customization | Target Schema | Example |
+|---------------|---------------|---------|
+| Add scoping claims (districts, programs) | BackendAuthContext | Colorado adds `districts` for district-based scoping |
+| Add frontend-specific data | FrontendAuthContext | State adds custom `ui` flags for state-specific modules |
+| Override inheritance | FrontendAuthContext | State can override `allOf` if their architecture differs |
+
+This separation allows states to:
+- Extend `BackendAuthContext` to add claims needed by backend APIs
+- Extend `FrontendAuthContext` to add frontend-specific data
+- Override `FrontendAuthContext` to NOT extend `BackendAuthContext` if their architecture differs
 
 ---
 
@@ -312,7 +354,8 @@ See [Customizing Roles and Permissions](#customizing-roles-and-permissions) for 
 
 | File | Components | Purpose |
 |------|------------|---------|
-| `components/common.yaml` | `AuthorizationContext`, `JwtClaims`, `RoleType` | JWT structure and role definitions |
+| `components/common.yaml` | `BackendAuthContext`, `JwtClaims`, `RoleType` | JWT structure and role definitions |
+| `components/user.yaml` | `FrontendAuthContext`, `UiPermissions`, `UserPreferences` | Frontend-enriched auth context |
 | `components/common-responses.yaml` | `Unauthorized`, `Forbidden` | Auth error responses (401, 403) |
 
 ### Integration Points
@@ -559,8 +602,8 @@ actions:
 ```yaml
 # Example: New York adds audit-specific permissions for compliance
 actions:
-  # Extend AuthorizationContext to include audit permissions
-  - target: $.AuthorizationContext.properties.permissions.example
+  # Extend BackendAuthContext to include audit permissions
+  - target: $.BackendAuthContext.properties.permissions.example
     file: components/common.yaml
     description: New York includes audit permissions in examples
     update:
@@ -572,7 +615,7 @@ actions:
       - "compliance:review"    # NY-specific
 
   # Add state-specific permission documentation
-  - target: $.AuthorizationContext.properties.permissions.description
+  - target: $.BackendAuthContext.properties.permissions.description
     file: components/common.yaml
     update: |
       Permission strings in the format {resource}:{action}.
@@ -587,8 +630,8 @@ States can add program-based scoping in addition to (or instead of) geographic s
 ```yaml
 # From California's overlay - adding program-based scoping
 actions:
-  # Add programs to AuthorizationContext (for JWT)
-  - target: $.AuthorizationContext.properties
+  # Add programs to BackendAuthContext (for JWT)
+  - target: $.BackendAuthContext.properties
     file: components/common.yaml
     description: California JWT claims may include programs
     update:
@@ -667,8 +710,8 @@ When a BFF (Backend-for-Frontend) or API gateway sits between the frontend and b
 
 The BFF or gateway acts as an intermediary that can enrich tokens for the frontend while keeping backend API calls minimal:
 
-1. Receives JWT with AuthorizationContext from IdP (during login flow)
-2. Calls `/users/me` to get `ui` and `preferences`
+1. Receives JWT with BackendAuthContext from IdP (during login flow)
+2. Calls `/users/me` to get `ui` and `preferences` (FrontendAuthContext)
 3. Creates an enriched token for the frontend
 4. Routes the appropriate token based on destination
 
@@ -676,15 +719,15 @@ The BFF or gateway acts as an intermediary that can enrich tokens for the fronte
 
 | Destination | Token Contents | Rationale |
 |-------------|----------------|-----------|
-| **Frontend** | AuthorizationContext + `ui` + `preferences` | Everything the frontend needs for feature toggling and personalization |
-| **Backend APIs** | AuthorizationContext only | Minimal claims; only what APIs need for authorization |
+| **Frontend** | FrontendAuthContext (BackendAuthContext + `ui` + `preferences`) | Everything the frontend needs for feature toggling and personalization |
+| **Backend APIs** | BackendAuthContext only | Minimal claims; only what APIs need for authorization |
 
 ### Why the Schema Separation Supports This
 
-The separation between AuthorizationContext (minimal, for API enforcement) and the User model (`ui` + `preferences`) supports both direct and BFF patterns:
+The separation between `BackendAuthContext` (minimal, for API enforcement) and `FrontendAuthContext` (`ui` + `preferences`) supports both direct and BFF patterns:
 
-- **AuthorizationContext stays minimal** - Backend APIs receive only what they need for authorization decisions
-- **`ui` and `preferences` live on User** - Retrieved via `/users/me`, not embedded in every JWT
+- **BackendAuthContext stays minimal** - Backend APIs receive only what they need for authorization decisions
+- **FrontendAuthContext extends BackendAuthContext** - Adds `ui` and `preferences` for frontend needs
 - **Middleware combines as needed** - BFF can enrich tokens for frontend without bloating backend API calls
 - **Backend APIs never receive `ui` data** - They don't need it; authorization is based on `permissions` and organizational scope
 
@@ -695,11 +738,11 @@ When a BFF/gateway is present, the frontend experience may differ:
 | Aspect | Direct (No Middleware) | With BFF/Gateway |
 |--------|------------------------|------------------|
 | `/users/me` call | Frontend calls directly | Middleware may provide data in enriched token |
-| Token contents | AuthorizationContext only | May include `ui` + `preferences` |
+| Token contents | BackendAuthContext only | FrontendAuthContext (`ui` + `preferences`) |
 | Feature toggling | Based on `/users/me` response | Based on enriched token |
 | Backend API calls | Frontend sends JWT directly | Middleware routes appropriate token |
 
-In both cases, backend APIs still receive minimal tokens with just AuthorizationContext for authorization.
+In both cases, backend APIs still receive minimal tokens with just BackendAuthContext for authorization.
 
 ---
 
