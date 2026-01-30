@@ -4,7 +4,7 @@ This guide covers how state-specific npm packages are built and published to npm
 
 ## Overview
 
-The toolkit generates npm packages named `@codeforamerica/safety-net-openapi-{state}` containing:
+The toolkit generates npm packages named `@codeforamerica/safety-net-apis-{state}` containing:
 
 - TypeScript SDK with typed functions for each API domain
 - Zod schemas for runtime validation
@@ -67,13 +67,13 @@ cd packages/clients/dist-packages/<state>
 # Option 1: npm link
 npm link
 cd /path/to/your/project
-npm link @codeforamerica/safety-net-openapi-<state>
+npm link @codeforamerica/safety-net-apis-<state>
 
 # Option 2: npm pack
 npm pack
-# Creates @codeforamerica-safety-net-openapi-<state>-0.0.0-local.tgz
+# Creates @codeforamerica-safety-net-apis-<state>-0.0.0-local.tgz
 cd /path/to/your/project
-npm install /path/to/@codeforamerica-safety-net-openapi-<state>-0.0.0-local.tgz
+npm install /path/to/@codeforamerica-safety-net-apis-<state>-0.0.0-local.tgz
 ```
 
 ## Publishing
@@ -92,7 +92,7 @@ The GitHub Actions workflow (`.github/workflows/publish-packages.yml`):
 1. Triggers on `v*` tags
 2. Builds packages for all states in the matrix (california, <state>)
 3. Extracts version from tag (e.g., `v1.2.3` → `1.2.3`)
-4. Publishes to npmjs.org as `@codeforamerica/safety-net-openapi-{state}`
+4. Publishes to npmjs.org as `@codeforamerica/safety-net-apis-{state}`
 
 ### Manual Publishing
 
@@ -139,7 +139,7 @@ Consumers can verify on npmjs.org that a package was built from this repository'
 The published package includes:
 
 ```
-@codeforamerica/safety-net-openapi-{state}/
+@codeforamerica/safety-net-apis-{state}/
 ├── dist/                    # Compiled JavaScript + declaration files
 │   ├── index.js
 │   ├── index.d.ts

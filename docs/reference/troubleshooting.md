@@ -278,7 +278,7 @@ Error: EACCES: permission denied
 ## Getting Help
 
 1. Check this troubleshooting guide
-2. Search existing [GitHub Issues](https://github.com/codeforamerica/safety-net-openapi/issues)
+2. Search existing [GitHub Issues](https://github.com/codeforamerica/safety-net-apis/issues)
 3. Open a new issue with:
    - Error message
    - Steps to reproduce

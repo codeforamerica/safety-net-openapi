@@ -135,8 +135,8 @@ While the backend is being built, use the mock server:
 
 ```bash
 # Clone the toolkit (one-time setup)
-git clone https://github.com/codeforamerica/safety-net-openapi.git
-cd safety-net-openapi
+git clone https://github.com/codeforamerica/safety-net-apis.git
+cd safety-net-apis
 npm install
 
 # Start the mock server
@@ -167,7 +167,7 @@ npm update @codeforamerica/safety-net-<your-state>
 Browse the API documentation interactively:
 
 ```bash
-cd safety-net-openapi
+cd safety-net-apis
 STATE=<your-state> npm start
 ```
 

@@ -31,7 +31,7 @@ jobs:
       - name: Checkout API toolkit
         uses: actions/checkout@v4
         with:
-          repository: codeforamerica/safety-net-openapi
+          repository: codeforamerica/safety-net-apis
           path: openapi-toolkit
 
       - name: Start mock server
@@ -70,7 +70,7 @@ test:
   services:
     - name: node:20
       alias: mock-server
-      command: ["sh", "-c", "git clone https://github.com/codeforamerica/safety-net-openapi.git && cd safety-net-openapi && npm install && STATE=<your-state> npm run mock:start"]
+      command: ["sh", "-c", "git clone https://github.com/codeforamerica/safety-net-apis.git && cd safety-net-apis && npm install && STATE=<your-state> npm run mock:start"]
 
   script:
     - npm install
@@ -107,7 +107,7 @@ Add to your frontend's `package.json`:
 ```json
 {
   "scripts": {
-    "api:update": "cd ../safety-net-openapi && git pull && STATE=<your-state> npm run clients:generate && cp -r generated/clients/* ../your-frontend/src/api/"
+    "api:update": "cd ../safety-net-apis && git pull && STATE=<your-state> npm run clients:generate && cp -r generated/clients/* ../your-frontend/src/api/"
   }
 }
 ```
@@ -139,19 +139,19 @@ jobs:
 
       - name: Clone API toolkit
         run: |
-          git clone https://github.com/codeforamerica/safety-net-openapi.git
-          cd safety-net-openapi
+          git clone https://github.com/codeforamerica/safety-net-apis.git
+          cd safety-net-apis
           npm install
 
       - name: Generate clients
         run: |
-          cd safety-net-openapi
+          cd safety-net-apis
           STATE=<your-state> npm run clients:generate
 
       - name: Check for changes
         id: diff
         run: |
-          cp -r safety-net-openapi/generated/clients/zodios/* src/api/
+          cp -r safety-net-apis/generated/clients/zodios/* src/api/
           git diff --quiet src/api/ || echo "changed=true" >> $GITHUB_OUTPUT
 
       - name: Create PR
@@ -222,7 +222,7 @@ export const personsClient = new Zodios(API_URL, personsApi);
 ```javascript
 // cypress/support/commands.js
 Cypress.Commands.add('resetMockData', () => {
-  cy.exec('cd ../safety-net-openapi && npm run mock:reset');
+  cy.exec('cd ../safety-net-apis && npm run mock:reset');
 });
 
 // cypress/e2e/persons.cy.js
@@ -245,7 +245,7 @@ describe('Persons', () => {
 export default defineConfig({
   webServer: [
     {
-      command: 'cd ../safety-net-openapi && STATE=<your-state> npm run mock:start',
+      command: 'cd ../safety-net-apis && STATE=<your-state> npm run mock:start',
       port: 1080,
       reuseExistingServer: !process.env.CI,
     },

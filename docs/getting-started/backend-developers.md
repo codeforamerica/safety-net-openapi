@@ -20,8 +20,8 @@ This guide is for developers who design API specifications, validate them, and b
 
 ```bash
 # Clone the repository
-git clone https://github.com/codeforamerica/safety-net-openapi.git
-cd safety-net-openapi
+git clone https://github.com/codeforamerica/safety-net-apis.git
+cd safety-net-apis
 
 # Install dependencies
 npm install

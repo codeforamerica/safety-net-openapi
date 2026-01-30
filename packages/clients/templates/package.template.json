@@ -1,5 +1,5 @@
 {
-  "name": "@codeforamerica/safety-net-openapi-{{STATE}}",
+  "name": "@codeforamerica/safety-net-apis-{{STATE}}",
   "version": "{{VERSION}}",
   "description": "Safety Net API client for {{STATE_TITLE}} with Zod validation",
   "type": "module",
@@ -71,7 +71,7 @@
   "keywords": ["safety-net", "{{STATE}}", "zod", "openapi", "api-client"],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/codeforamerica/safety-net-openapi.git"
+    "url": "git+https://github.com/codeforamerica/safety-net-apis.git"
   },
   "license": "PolyForm-Noncommercial-1.0.0",
   "publishConfig": {
